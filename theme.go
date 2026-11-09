@@ -1,0 +1,126 @@
+package myui
+
+import (
+	"github.com/egoist/mygo/ui"
+)
+
+// Appearance chooses which appearance a framed view shows in. The zero
+// value follows the system, which MyGo resolves from the desktop and
+// keeps up to date: the light or dark appearance, the accent color,
+// higher contrast and the text scale, which controls follow too, all
+// with no code of the app's.
+type Appearance uint8
+
+const (
+	// AppearanceSystem follows the desktop's appearance: the theme is the
+	// one MyGo picks for the system, in dark or light as the user runs
+	// other apps. An Options of only this and no palette does nothing:
+	// the frame keeps MyGo's own default theme and every preference it
+	// follows.
+	AppearanceSystem Appearance = 0
+	// AppearanceLight forces the light appearance.
+	AppearanceLight Appearance = 1
+	// AppearanceDark forces the dark appearance.
+	AppearanceDark Appearance = 2
+)
+
+// Options choose the theme a framed view builds with.
+type Options struct {
+	// Appearance says light or dark. AppearanceSystem follows the
+	// desktop; a preview pane shows the opposite appearance by building
+	// inside ui.Themed(c, myui.Apply(c, Options{Appearance:
+	// AppearanceDark, ...})).
+	Appearance Appearance
+	// Palette chooses the accent colors, whose hues the theme presets
+	// (Palette) describe. PaletteNone keeps what the appearance source
+	// provides: the system's accent color, or the accent the built-in
+	// theme ships with where the desktop gives none.
+	Palette PaletteID
+}
+
+// Apply returns nil, or the theme the frame uses from here on. Call it
+// again each frame, as often as the view runs, so the theme keeps
+// following the desktop's preferences; MyGo resets the frame's theme to
+// the system's each frame, and this sets it back after that.
+//
+// The view calls it before what the theme colors:
+//
+//	myui.Apply(c, myui.Options{Appearance: myui.AppearanceDark, Palette: myui.PaletteBlue})
+//
+// A nil return leaves the frame on MyGo's default theme, which follows
+// the system; any other value replaces it for this frame. Where an app
+// toggles a switch to change the appearance, the app turns the Options,
+// and the next frame takes it.
+//
+// Apply is a one-call theme switcher, not an app-wide state keeper: it
+// reads the desktop's appearance and preferences and derives the theme
+// from them. It holds no state across frames.
+func Apply(c *ui.Context, o Options) *ui.Theme {
+	if o.Appearance == AppearanceSystem && o.Palette == PaletteNone {
+		return nil
+	}
+	prefs := c.Preferences()
+	dark := false
+	switch o.Appearance {
+	case AppearanceSystem:
+		// The frame's theme is MyGo's default this early in the frame
+		// (reset above the view), so its Dark flag is the system's.
+		dark = c.Theme().Dark
+	case AppearanceDark:
+		dark = true
+	}
+	base := ui.LightTheme()
+	if dark {
+		base = ui.DarkTheme()
+	}
+	t := *base
+	if scale := prefs.TextScale; scale > 0 && scale != 1 {
+		t.FontSize = t.FontSize * scale
+	}
+	if pal, ok := palette(o.Palette); ok {
+		hover, pressed, accent := pal.Triplet(dark)
+		t.Accent, t.AccentHover, t.AccentPressed, t.AccentText = accent, hover, pressed, OnAccent(accent)
+	} else if a := prefs.Accent; a.A != 0 {
+		// The system's accent colors the theme, and hover and pressed
+		// are derived shades of it, as the built-in themes' are.
+		black, white := ui.RGB(0, 0, 0), ui.RGB(255, 255, 255)
+		if dark {
+			t.AccentHover = a.MixOklab(white, 0.2)
+			t.AccentPressed = a.MixOklab(black, 0.18)
+		} else {
+			t.AccentHover = a.MixOklab(black, 0.14)
+			t.AccentPressed = a.MixOklab(black, 0.28)
+		}
+		t.Accent, t.AccentText = a, OnAccent(a)
+	}
+	if prefs.HighContrast {
+		// Draw borders and secondary text darker (lighter in the dark)
+		// and make the focus ring opaque, as the default theme does.
+		b, w := ui.RGB(0, 0, 0), ui.RGB(255, 255, 255)
+		strong := b
+		if dark {
+			strong = w
+		}
+		t.Border = t.Border.MixOklab(strong, 0.3)
+		t.TextMuted = t.TextMuted.MixOklab(strong, 0.25)
+		t.Focus = ui.RGBA(t.Focus.R, t.Focus.G, t.Focus.B, 1)
+	}
+	c.SetTheme(&t)
+	return &t
+}
+
+// OnAccent returns the color text shows in on the accent: dark ink on a
+// light accent, white on a dark one, at half the luma. The built-in
+// themes sets AccentText by hand; a palette's derives its own.
+func OnAccent(c ui.Color) ui.Color {
+	if luma(c) > 0.5 {
+		return ui.RGB(24, 24, 27)
+	}
+	return ui.RGB(255, 255, 255)
+}
+
+// luma is the color's lightness, from 0, black, to 1, white, by the
+// weights the built-in themes read intensities by.
+func luma(c ui.Color) float32 {
+	return (0.2126*float32(c.R) + 0.7152*float32(c.G) + 0.0722*float32(c.B)) / 255
+}
