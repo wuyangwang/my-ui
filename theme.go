@@ -78,7 +78,7 @@ func Apply(c *ui.Context, o Options) *ui.Theme {
 		t.FontSize = t.FontSize * scale
 	}
 	if pal, ok := palette(o.Palette); ok {
-		hover, pressed, accent := pal.Triplet(dark)
+		accent, hover, pressed := pal.Triplet(dark)
 		t.Accent, t.AccentHover, t.AccentPressed, t.AccentText = accent, hover, pressed, OnAccent(accent)
 	} else if a := prefs.Accent; a.A != 0 {
 		// The system's accent colors the theme, and hover and pressed

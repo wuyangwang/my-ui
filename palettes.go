@@ -38,14 +38,15 @@ type Palette struct {
 // Theme carries them (Accent, AccentHover, AccentPressed).
 type Accent [3]ui.Color
 
-// Triplet returns the palette's shades for an appearance, with the text
-// color that reads on the accent left to OnAccent.
-func (p Palette) Triplet(dark bool) (hover, pressed, accent ui.Color) {
+// Triplet returns the palette's colors in Theme order for an
+// appearance: the accent, the one while hovered and the one while
+// pressed. What text reads on the accent comes from OnAccent.
+func (p Palette) Triplet(dark bool) (accent, hover, pressed ui.Color) {
 	shades := p.Light
 	if dark {
 		shades = p.Dark
 	}
-	return shades[1], shades[2], shades[0]
+	return shades[0], shades[1], shades[2]
 }
 
 // palettes holds the palettes PaletteID names. The shades come from the

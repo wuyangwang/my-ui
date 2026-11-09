@@ -28,7 +28,7 @@ func TestApplyForcesTheAppearanceAndThePalette(t *testing.T) {
 	if !got.Dark {
 		t.Error("the theme is not dark after Apply, want the forced dark")
 	}
-	hover, pressed, accent := palettes[PaletteBlue].Triplet(true)
+	accent, hover, pressed := palettes[PaletteBlue].Triplet(true)
 	if got.Accent != accent || got.AccentHover != hover || got.AccentPressed != pressed {
 		t.Errorf("accent %v, hover %v, pressed %v; want the dark blue ones %v, %v, %v",
 			got.Accent, got.AccentHover, got.AccentPressed, accent, hover, pressed)
@@ -47,7 +47,7 @@ func TestApplyFollowsTheSystemOfTheFrameItRunsIn(t *testing.T) {
 	if !got.Dark {
 		t.Error("the theme is not dark, want the system's")
 	}
-	hover, pressed, accent := palettes[PaletteRose].Triplet(true)
+	accent, hover, pressed := palettes[PaletteRose].Triplet(true)
 	if got.Accent != accent || got.AccentHover != hover || got.AccentPressed != pressed {
 		t.Errorf("accent %v, hover %v, pressed %v; want the rose dark ones", got.Accent, got.AccentHover, got.AccentPressed)
 	}

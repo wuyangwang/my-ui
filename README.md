@@ -27,7 +27,7 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的组件库�
 
 ## 状态
 
-脚手架与设计文档阶段：**尚未编写组件实现**。工程结论、证据与上游注意事项见 [docs/research.md](docs/research.md)，分层与发布策略见 [docs/architecture.md](docs/architecture.md)，排期见 [docs/roadmap.md](docs/roadmap.md)。给代理/协作者的开发规则见 [AGENTS.md](AGENTS.md)。
+已实现（一期进行中）：tokens 刻度、`theme.Apply`（明暗三态 + 8 套Palette 色板 + 系统强调色/高对比/文本缩放）、`NewButton` 流式变体（`Primary/Secondary/Outline/Ghost/Destructive/Link × Sm/Md/Lg`，含 hover/pressed 三态与禁用）。实现中的排期见 [docs/roadmap.md](docs/roadmap.md)，工程结论与证据见 [docs/research.md](docs/research.md)，分层与发布策略见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
 
 ## 版本约定
 
