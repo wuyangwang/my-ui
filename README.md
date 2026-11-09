@@ -31,7 +31,7 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的组件库�
 
 ## 版本约定
 
-锁定所发布 mygo 版本（当前目标 **v0.8.3**，见 [docs/architecture.md](docs/architecture.md) §7；首个组件代码落地时写入 `go.mod`）。`ui` 的 element API 上游有过破坏性迁移（官方提供 `mygo migrate-ui`），my-ui 发版与其一一对应；消费者应直接使用与该版 mygo 匹配的 my-ui 版本。
+锁定所发布 mygo 版本（当前 **v0.8.3**，已写入 `go.mod`；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)）。`ui` 的 element API 上游有过破坏性迁移（官方提供 `mygo migrate-ui`），my-ui 发版与其一一对应；消费者应直接使用与该版 mygo 匹配的 my-ui 版本。
 
 ## 许可
 
