@@ -1,0 +1,28 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Tests and coverage
+*.test
+*.out
+coverage.*
+
+# Go workspace and vendor
+go.work
+go.work.sum
+vendor/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Embedded font/icon build artifacts
+*.ttf.tmp
