@@ -52,7 +52,10 @@ func (s *showcase) view(c *ui.Context) {
 		t = c.Theme()
 	}
 
-	ui.Row(c).Fill().AlignItems(ui.Stretch).Children(func() {
+	// Draw the frame's own background with the applied theme: behind
+	// every element MyGo paints the window theme, which the forced
+	// appearance disagrees with, so the root paints its own.
+	ui.Row(c).Fill().Background(t.Background).AlignItems(ui.Stretch).Children(func() {
 		s.sidebar(c, t)
 		s.main(c, t)
 	})
@@ -230,10 +233,15 @@ func (s *showcase) themePage(c *ui.Context, t *ui.Theme) {
 }
 
 // pane is one Themed preview card: a frame inside, where the subtree's
-// own theme colors its parts.
+// own theme colors its parts. The subtree's theme comes from NewTheme,
+// which builds without setting: only the frame's own Apply paints the
+// window's ink, and a pane must not reach the texts outside it. The
+// pane paints its own background too, since a subtree darker than its
+// frame would show the window's.
 func pane(c *ui.Context, t *ui.Theme, palette myui.PaletteID, a myui.Appearance, label string) {
-	ui.Themed(c, myui.Apply(c, myui.Options{Appearance: a, Palette: palette})).
-		Grow(1).Padding(t.Space(3)).Gap(t.Space(2)).Children(func() {
+	sub := myui.NewTheme(c, myui.Options{Appearance: a, Palette: palette})
+	ui.Themed(c, sub).
+		Grow(1).Background(sub.Background).Padding(t.Space(3)).Gap(t.Space(2)).Children(func() {
 		st := c.Theme()
 		ui.Column(c).Grow(1).Background(st.Surface).Border(1, st.Border).
 			Radius(st.Radius).Padding(t.Space(3)).Gap(t.Space(2)).Children(func() {

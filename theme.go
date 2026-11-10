@@ -28,7 +28,7 @@ const (
 type Options struct {
 	// Appearance says light or dark. AppearanceSystem follows the
 	// desktop; a preview pane shows the opposite appearance by building
-	// inside ui.Themed(c, myui.Apply(c, Options{Appearance:
+	// inside ui.Themed(c, myui.NewTheme(c, Options{Appearance:
 	// AppearanceDark, ...})).
 	Appearance Appearance
 	// Palette chooses the accent colors, whose hues the theme presets
@@ -58,6 +58,27 @@ type Options struct {
 func Apply(c *ui.Context, o Options) *ui.Theme {
 	if o.Appearance == AppearanceSystem && o.Palette == PaletteNone {
 		return nil
+	}
+	t := NewTheme(c, o)
+	c.SetTheme(t)
+	return t
+}
+
+// NewTheme builds the theme o asks for on the frame's preferences, and
+// leaves the frame alone: it answers the ask without setting anything,
+// for a subtree that shows another theme as the children of a
+// ui.Themed:
+//
+//	ui.Themed(c, myui.NewTheme(c, myui.Options{Appearance: myui.AppearanceDark}))
+//
+// Texts outside that Themed inherit the window's ink, which only the
+// frame's own Apply sets; a subtree theme must never reach them.
+// An Options that asks for nothing (the system's appearance, no
+// palette) hands back the theme the frame already has. NewTheme reads
+// the desktop's preferences and derives from them; it holds no state.
+func NewTheme(c *ui.Context, o Options) *ui.Theme {
+	if o.Appearance == AppearanceSystem && o.Palette == PaletteNone {
+		return c.Theme()
 	}
 	prefs := c.Preferences()
 	dark := false
@@ -99,7 +120,6 @@ func Apply(c *ui.Context, o Options) *ui.Theme {
 		t.TextMuted = t.TextMuted.MixOklab(strong, 0.25)
 		t.Focus = ui.RGBA(t.Focus.R, t.Focus.G, t.Focus.B, 1)
 	}
-	c.SetTheme(&t)
 	return &t
 }
 

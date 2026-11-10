@@ -1,7 +1,9 @@
 package myui
 
 import (
+	"image/color"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -126,4 +128,72 @@ func TestOnAccent(t *testing.T) {
 	if got := OnAccent(ui.Hex("#fef08a")); got != ui.RGB(24, 24, 27) {
 		t.Errorf("OnAccent on near white is %v, want ink", got)
 	}
+}
+
+// TestSubtreeThemeLeavesTheWindowInk builds a light frame with a dark
+// Themed subtree inside: the texts before and after the subtree keep
+// the window's ink, which only the frame's Apply sets. A subtree's
+// theme must never reach them — a pane's theme switch used to run over
+// the root's text style, and dark panes turned light pages' inherited
+// ink near-white, invisible on the light background.
+func TestSubtreeThemeLeavesTheWindowInk(t *testing.T) {
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		ui.Row(c).Children(func() {
+			ui.Text(c, "前")
+			ui.Themed(c, NewTheme(c, Options{Appearance: AppearanceDark})).
+				Children(func() { ui.Text(c, "pane") })
+			ui.Text(c, "后")
+		})
+	}
+	tt := ui.NewTester(view, 320, 120)
+	tt.Advance(time.Second)
+
+	for _, what := range []string{"前", "后"} {
+		where, ok := tt.Find(what)
+		if !ok {
+			t.Fatalf("%s is not on screen", what)
+		}
+		darkest, _, ok := ink(tt, where)
+		if !ok {
+			t.Fatalf("%s drew no pixels", what)
+		}
+		if darkest > 0.35 {
+			t.Errorf("the %s text draws luma %.2f, want the window's near-black ink", what, darkest)
+		}
+	}
+	// The pane's own text shows the dark ink: the subtree really runs
+	// the other theme, the window's ink just stays out.
+	where, ok := tt.Find("pane")
+	if !ok {
+		t.Fatal("pane is not on screen")
+	}
+	_, brightest, ok := ink(tt, where)
+	if !ok || brightest < 0.8 {
+		t.Errorf("the pane's ink luma is %.2f, want the subtree's near-white ones", brightest)
+	}
+}
+
+// ink walks a found text's bounds and reads the extremes the glyphs
+// drew: the darkest and the brightest pixel's luma, from 0, black, to
+// 1, white. A glyph that drew nothing reports ok false.
+func ink(tt *ui.Tester, where ui.Rect) (darkest, brightest float32, ok bool) {
+	darkest, brightest, ok = 1, 0, false
+	for y := int(where.Y); y < int(where.Y+where.H); y++ {
+		for x := int(where.X); x < int(where.X+where.W); x++ {
+			p := color.NRGBAModel.Convert(tt.Image().At(x, y)).(color.NRGBA)
+			l := (0.2126*float32(p.R) + 0.7152*float32(p.G) + 0.0722*float32(p.B)) / 255
+			if l < darkest {
+				darkest = l
+			}
+			if l > brightest {
+				brightest = l
+			}
+			if p.A != 0 && (p.R != p.G || p.G != p.B) {
+				// Any colored pixel is a drawn one over a plain face.
+				ok = true
+			}
+		}
+	}
+	return darkest, brightest, ok
 }
