@@ -65,6 +65,12 @@ CI-safe on all three desktop OSes plus js/wasm.
 
 ## Conventions
 
+- **Research before code.** A new component starts with its spec page,
+  `docs/components/<name>.md`: the web implementations it can follow,
+  what MyGo's public API can and cannot do, how far to go, where the
+  component belongs in the packages, and the API it offers. The spec is
+  settled before the first line of code, and it is what the component
+  is held to.
 - One-line constructors + fluent preset methods: `NewXxx(c, ...).Primary().Sm()`
   applies shared `Variant`/`Size` presets and returns the widget; fluent
   options fall through to the widget's own methods after the preset is applied.
@@ -77,3 +83,14 @@ CI-safe on all three desktop OSes plus js/wasm.
   styling or behavior does not belong here.
 - Version releases of my-ui correspond one-to-one with the mygo version
   they are built against.
+
+## The icons package
+
+- `icons` holds the Lucide set: one function per icon, each with its own
+  SVG embedded in a package-level variable. The linker drops the
+  functions and the SVGs of the icons a program never calls, so an app
+  carries only the icons it uses.
+- The files in `icons_gen.go` and `aliases_gen.go` are generated: change
+  the SVGs or `icons/gen/aliases.go` and run `go generate ./icons`.
+- `icons` depends on `github.com/egoist/mygo/ui` only; it does not depend
+  on the root package, and the root package does not depend on it.

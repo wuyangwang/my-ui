@@ -1,7 +1,10 @@
 package myui
 
 import (
+	"time"
+
 	"github.com/egoist/mygo/ui"
+	"github.com/wuyangwang/my-ui/icons"
 )
 
 // Variant names what a Button looks like, the shadcn set. The zero
@@ -51,16 +54,37 @@ const (
 // a variant does not set keeps the built-in button's look, and every
 // method of ui.Element is on hand: Clicked, Disabled (which dims the
 // button as the theme dims disabled ones), Children and the rest.
+//
+// The text of the button is a child of it, as the built-in button's
+// own text is, so an icon can sit beside it:
+//
+//	myui.NewButton(c, "Save").Icon(icons.Save())
+//	myui.NewButton(c, "").Icon(icons.Save()).Label("Save")
 type Button struct {
 	ui.Element
-	c    *ui.Context
-	size Size
+	c     *ui.Context
+	icon  ui.Element // the slot of the icon before the text
+	text  ui.Element // the text of the button
+	end   ui.Element // the slot of the icon after the text
+	size  Size
+	spun  bool
 }
 
 // NewButton creates a button with the native preset: myui.NewButton(c,
 // "Save"). Clicked() reports the click on it as on ui.Button.
 func NewButton(c *ui.Context, label string) *Button {
-	b := &Button{Element: ui.Button(c, label), c: c}
+	b := &Button{c: c}
+	btn := ui.Button(c, "")
+	btn.Children(func() {
+		b.icon = ui.Row(c).AlignItems(ui.Center)
+		if label != "" {
+			b.text = ui.Text(c, label).SingleLine()
+		}
+		b.end = ui.Row(c).AlignItems(ui.Center)
+	})
+	// The room between the icon and the text rides on the icon, so that
+	// a button without an icon has no room in it.
+	b.Element = btn.Gap(0)
 	// Size to the content as a button does: a column stretches its
 	// children across, which a button never asks for.
 	b.AlignSelf(ui.Start)
@@ -186,6 +210,50 @@ func (b *Button) Md() *Button { return b.Size(SizeMd) }
 
 // Lg sizes the button up.
 func (b *Button) Lg() *Button { return b.Size(SizeLg) }
+
+// Icon puts an icon before the text of the button and returns the
+// button, for chaining. The icon takes the color of the text and the
+// size of it.
+func (b *Button) Icon(svg *ui.SVG) *Button {
+	c := b.c
+	b.icon.Children(func() {
+		ui.Icon(c, svg).Margin(0, c.Theme().Space(1.5), 0, 0)
+	})
+	return b
+}
+
+// EndIcon puts an icon after the text of the button and returns the
+// button, for chaining.
+func (b *Button) EndIcon(svg *ui.SVG) *Button {
+	c := b.c
+	b.end.Children(func() {
+		ui.Icon(c, svg).Margin(0, 0, 0, c.Theme().Space(1.5))
+	})
+	return b
+}
+
+// Loading turns the button into a busy one: a spinner takes the place
+// of the icon before the text, and the button takes no clicks while it
+// is busy. It returns the button, for chaining.
+func (b *Button) Loading() *Button {
+	c := b.c
+	b.spun = true
+	b.icon.Children(func() {
+		spinner := ui.Icon(c, icons.LoaderCircle())
+		spinner = spinner.Rotate(spinner.Loop("spin", time.Second, ui.Linear) * 360)
+		spinner.Margin(0, c.Theme().Space(1.5), 0, 0)
+	})
+	b.Element = b.Element.Disabled(true)
+	return b
+}
+
+// Label names the button for assistive technology and returns it, for
+// chaining. A button that shows only an icon needs a name: the name of
+// what the icon stands for.
+func (b *Button) Label(s string) *Button {
+	b.Element = b.Element.Label(s)
+	return b
+}
 
 // applySizing sizes the button on the theme of its build. The paddings
 // of SizeMd are the built-in button's; the others move along the

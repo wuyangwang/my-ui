@@ -10,6 +10,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	"github.com/wuyangwang/my-ui/icons"
 )
 
 // showcase is the state the window shows.
@@ -18,10 +19,11 @@ type showcase struct {
 	appearance myui.Appearance
 	palette    myui.PaletteID
 
-	name     string
-	email    string
-	disabled string
-	readonly string
+	name      string
+	email     string
+	disabled  string
+	readonly  string
+	lastEvent string
 }
 
 // pages is one sidebar entry: the page key and its label.
@@ -32,6 +34,7 @@ var pages = []struct {
 	{"button", "Button"},
 	{"input", "Input"},
 	{"badge", "Badge"},
+	{"icon", "Icon"},
 	{"scaffold", "Scaffold"},
 	{"theme", "外观"},
 }
@@ -84,10 +87,11 @@ func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 			s.nav(c, t, 1)
 			s.nav(c, t, 2)
 			s.nav(c, t, 3)
+			s.nav(c, t, 4)
 		})
 		ui.Column(c).Gap(t.Space(2)).Children(func() {
 			ui.Text(c, "主题").FontSize(myui.TextSize(t, myui.TextXs)).Bold().TextColor(t.TextMuted)
-			s.nav(c, t, 4)
+			s.nav(c, t, 5)
 		})
 	})
 }
@@ -124,8 +128,10 @@ func (s *showcase) pages(c *ui.Context, t *ui.Theme) func() {
 	case 2:
 		return func() { s.badgePage(c, t) }
 	case 3:
-		return func() { s.scaffoldPage(c, t) }
+		return func() { s.iconPage(c, t) }
 	case 4:
+		return func() { s.scaffoldPage(c, t) }
+	case 5:
 		return func() { s.themePage(c, t) }
 	default:
 		return func() { s.buttonPage(c, t) }
@@ -170,6 +176,17 @@ func (s *showcase) buttonPage(c *ui.Context, t *ui.Theme) {
 				b := myui.NewButton(c.Key("size "+sz.label), sz.label).Primary()
 				sz.pick(b)
 			}
+		})
+	})
+
+	s.sectionNote(c, t, "图标", "图标在文字之前或之后；只有图标时给出无障碍名；忙碌态转圈且不响应点击", func() {
+		s.card(c, t, func() {
+			ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
+				myui.NewButton(c.Key("btn-icon"), "保存").Icon(icons.Save()).Primary()
+				myui.NewButton(c.Key("btn-endicon"), "导出").EndIcon(icons.Download()).Outline()
+				myui.NewButton(c.Key("btn-icon-only"), "").Icon(icons.Settings()).Label("设置")
+				myui.NewButton(c.Key("btn-loading"), "保存").Loading()
+			})
 		})
 	})
 
@@ -232,6 +249,78 @@ func (s *showcase) inputPage(c *ui.Context, t *ui.Theme) {
 				myui.NewInput(c.Key("in-disabled"), &s.disabled).Outline().Placeholder("不可编辑").Label("禁用").Disabled(true)
 				s.readonly = "只读内容"
 				myui.NewInput(c.Key("in-readonly"), &s.readonly).Outline().Label("只读").ReadOnly(true)
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "组合", "清除按钮、前后缀与错误提示都由库排版", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(3)).Children(func() {
+				myui.NewInput(c.Key("in-clear"), &s.name).Outline().Label("可清除").Placeholder("输入后可清除").
+					Clearable().OnCleared(func() { s.lastEvent = "cleared" })
+				myui.NewInput(c.Key("in-affix"), &s.email).Outline().Label("带前后缀").
+					Prefix(func() { ui.Text(c, "https://") }).
+					Suffix(func() { ui.Text(c, ".com") })
+				myui.NewInput(c.Key("in-error"), &s.email).Outline().Label("错误态").
+					Invalid(true).ErrorText("邮箱格式不对")
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "事件", "值变化、失焦、清除与回车都有回调", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(2)).Children(func() {
+				myui.NewInput(c.Key("in-events"), &s.name).Outline().Label("带事件").
+					OnChanged(func(v string) { s.lastEvent = "changed: " + v }).
+					OnBlurred(func() { s.lastEvent = "blurred" }).
+					OnSubmit(func() { s.lastEvent = "submitted" })
+				ui.Text(c, "最近事件："+s.lastEvent).
+					FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+			})
+		})
+	})
+}
+
+// iconPage shows the icons of the set and the presets of the Icon.
+func (s *showcase) iconPage(c *ui.Context, t *ui.Theme) {
+	s.sectionNote(c, t, "常用图标", "来自 icons 包（Lucide, ISC），未被调用的图标不进二进制", func() {
+		s.card(c, t, func() {
+			ui.Row(c).Gap(t.Space(4)).Wrap().AlignItems(ui.Center).Children(func() {
+				for _, ic := range []struct {
+					svg  *ui.SVG
+					name string
+				}{
+					{icons.Save(), "save"},
+					{icons.Search(), "search"},
+					{icons.Settings(), "settings"},
+					{icons.Trash(), "trash-2"},
+					{icons.Download(), "download"},
+					{icons.Upload(), "upload"},
+					{icons.Plus(), "plus"},
+					{icons.Close(), "x"},
+					{icons.Check(), "check"},
+					{icons.Warning(), "triangle-alert"},
+					{icons.Info(), "info"},
+					{icons.Loading(), "loader-circle"},
+					{icons.User(), "user"},
+					{icons.Mail(), "mail"},
+					{icons.Calendar(), "calendar"},
+					{icons.Folder(), "folder"},
+				} {
+					myui.NewIcon(c.Key("icon "+ic.name), ic.svg).Md().Label(ic.name)
+				}
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "尺寸与语义色", "尺寸档为 14 / 20 / 24 DIP；变体给图标上语义色", func() {
+		s.card(c, t, func() {
+			ui.Row(c).Gap(t.Space(4)).AlignItems(ui.Center).Children(func() {
+				myui.NewIcon(c.Key("icon-sm"), icons.Star()).Sm().Label("小")
+				myui.NewIcon(c.Key("icon-md"), icons.Star()).Md().Label("中")
+				myui.NewIcon(c.Key("icon-lg"), icons.Star()).Lg().Label("大")
+				myui.NewIcon(c.Key("icon-accent"), icons.Star()).Primary().Md().Label("强调")
+				myui.NewIcon(c.Key("icon-danger"), icons.Star()).Destructive().Md().Label("危险")
 			})
 		})
 	})

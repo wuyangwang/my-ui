@@ -158,3 +158,58 @@ func TestButtonDisabledTakesNoClick(t *testing.T) {
 		t.Error("a disabled button reported a click")
 	}
 }
+
+func TestButtonIconSitsBeforeTheText(t *testing.T) {
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewButton(c, "Save").Icon(testIcon).Primary()
+	}
+	tt := ui.NewTester(view, 320, 120)
+	tt.Advance(time.Second)
+	button, ok := tt.Access("Save")
+	if !ok {
+		t.Fatal("the button is not on screen")
+	}
+	text, ok := tt.Find("Save")
+	if !ok {
+		t.Fatal("the text of the button is not on screen")
+	}
+	if text.X <= button.Bounds.X {
+		t.Errorf("the text sits at %v, the button at %v: the icon is not before it", text.X, button.Bounds.X)
+	}
+}
+
+func TestButtonWithOnlyAnIconIsNamed(t *testing.T) {
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewButton(c, "").Icon(testIcon).Label("保存")
+	}
+	tt := ui.NewTester(view, 320, 120)
+	tt.Advance(time.Second)
+	info, ok := tt.Access("保存")
+	if !ok {
+		t.Fatal("the button is not on screen")
+	}
+	if info.Name != "保存" {
+		t.Errorf("the button reads %q, want %q", info.Name, "保存")
+	}
+}
+
+func TestButtonLoadingTakesNoClick(t *testing.T) {
+	clicked := false
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		if NewButton(c, "Save").Loading().Clicked() {
+			clicked = true
+		}
+	}
+	tt := ui.NewTester(view, 320, 120)
+	tt.Advance(time.Second)
+	if err := tt.Click("Save"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if clicked {
+		t.Error("a busy button reported a click")
+	}
+}

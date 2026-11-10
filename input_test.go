@@ -7,30 +7,30 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-func TestInputVariantsApplyAndSize(t *testing.T) {
-	width := func(tt *ui.Tester, name string) float32 {
+func TestInputSizesGiveRoomierBounds(t *testing.T) {
+	height := func(tt *ui.Tester, name string) float32 {
 		info, ok := tt.Access(name)
 		if !ok {
 			t.Fatalf("%s is not on screen", name)
 		}
-		return info.Bounds.W
+		return info.Bounds.H
 	}
 	var a, b, cval string
 	view := func(c *ui.Context) {
 		Apply(c, Options{Appearance: AppearanceLight})
 		ui.Column(c).Gap(c.Theme().Space(2)).Children(func() {
-			NewInput(c, &a).Sm().Placeholder("Name").Label("Name")
-			NewInput(c, &b).Md().Outline().Placeholder("Email").Label("Email")
-			NewInput(c, &cval).Lg().Ghost().Placeholder("Tag").Label("Tag")
+			NewInput(c, &a).Sm().Outline().Label("small")
+			NewInput(c, &b).Md().Outline().Label("medium")
+			NewInput(c, &cval).Lg().Outline().Label("large")
 		})
 	}
-	tt := ui.NewTester(view, 480, 320)
+	tt := ui.NewTester(view, 320, 240)
 	tt.Advance(time.Second)
-	if w := width(tt, "Name"); w >= width(tt, "Email") {
-		t.Errorf("small input not smaller than middle: %v >= %v", w, width(tt, "Email"))
+	if h := height(tt, "small"); h >= height(tt, "medium") {
+		t.Errorf("the small input is not shorter than the middle's: %v against %v", h, height(tt, "medium"))
 	}
-	if w := width(tt, "Email"); w >= width(tt, "Tag") {
-		t.Errorf("middle input not smaller than large: %v >= %v", w, width(tt, "Tag"))
+	if h := height(tt, "medium"); h >= height(tt, "large") {
+		t.Errorf("the middle input is not shorter than the large's: %v against %v", h, height(tt, "large"))
 	}
 }
 
@@ -74,5 +74,121 @@ func TestInputDarkTheme(t *testing.T) {
 	tt.Advance(time.Second)
 	if _, ok := tt.Access("Field"); !ok {
 		t.Fatal("input missing in dark theme")
+	}
+}
+
+func TestInputClearableEmptiesTheValue(t *testing.T) {
+	var value string
+	cleared := false
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewInput(c, &value).Outline().Label("Name").Clearable().OnCleared(func() {
+			cleared = true
+		})
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+
+	if err := tt.Click("Name"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("hello")
+	tt.Advance(time.Second)
+	if value != "hello" {
+		t.Fatalf("the input holds %q, want %q", value, "hello")
+	}
+	if _, ok := tt.Access("清除"); !ok {
+		t.Fatal("the clear button is not on screen")
+	}
+	if err := tt.Click("清除"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if value != "" {
+		t.Errorf("the input holds %q after the clear, want it empty", value)
+	}
+	if !cleared {
+		t.Error("the clear did not report")
+	}
+}
+
+func TestInputOnChangedReportsTheNewValue(t *testing.T) {
+	var value string
+	var seen string
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewInput(c, &value).Outline().Label("Name").OnChanged(func(v string) {
+			seen = v
+		})
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	if err := tt.Click("Name"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("abc")
+	tt.Advance(time.Second)
+	if seen != "abc" {
+		t.Errorf("the change reported %q, want %q", seen, "abc")
+	}
+}
+
+func TestInputOnSubmitFires(t *testing.T) {
+	var value string
+	submitted := false
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewInput(c, &value).Outline().Label("Name").OnSubmit(func() {
+			submitted = true
+		})
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	if err := tt.Click("Name"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("go")
+	tt.Advance(time.Second)
+	tt.KeyDown(ui.KeyEnter)
+	tt.Advance(time.Second)
+	if !submitted {
+		t.Error("the Enter key did not report")
+	}
+}
+
+func TestInputErrorTextIsReadWithTheInput(t *testing.T) {
+	var value string
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewInput(c, &value).Outline().Label("Email").Invalid(true).ErrorText("邮箱格式不对")
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	info, ok := tt.Access("Email")
+	if !ok {
+		t.Fatal("the input is not on screen")
+	}
+	if info.Description != "邮箱格式不对" {
+		t.Errorf("the input reads %q, want the error message", info.Description)
+	}
+}
+
+func TestInputPrefixAndSuffixShowBesideTheText(t *testing.T) {
+	var value string
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewInput(c, &value).Outline().Label("Site").Prefix(func() {
+			ui.Text(c, "https://")
+		}).Suffix(func() {
+			ui.Text(c, ".com")
+		})
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	if _, ok := tt.Find("https://"); !ok {
+		t.Error("the prefix is not on screen")
+	}
+	if _, ok := tt.Find(".com"); !ok {
+		t.Error("the suffix is not on screen")
 	}
 }
