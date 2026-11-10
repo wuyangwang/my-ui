@@ -90,7 +90,9 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 		}
 		t := c.Theme()
 		d := float32(16)
-		b := ui.ButtonBase(c).Size(d, d).KeepFocus().TabStop(false).Label("清除")
+		// The button keeps the focus in the field while it is pressed, and
+		// it is a stop of the Tab key, as a clear button is in Ant Design.
+		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label("清除")
 		b.Children(func() {
 			ic := ui.Icon(c, icons.X()).Size(d-5, d-5).TextColor(t.TextMuted)
 			if b.Hovered() {
@@ -144,10 +146,13 @@ func (s *Select) Variant(v Variant) *Select {
 // Primary is Variant(myui.Primary).
 func (s *Select) Primary() *Select { return s.Variant(Primary) }
 
-// Secondary is Variant(myui.Secondary), alias of Native.
+// Secondary is Variant(myui.Secondary), a muted fill.
 func (s *Select) Secondary() *Select { return s.Variant(Secondary) }
 
-// Native is Variant(myui.Native).
+// Default is Variant(myui.Default), the look of an input field.
+func (s *Select) Default() *Select { return s.Variant(Default) }
+
+// Native is Variant(myui.Native), the old name of Default.
 func (s *Select) Native() *Select { return s.Variant(Native) }
 
 // Outline is Variant(myui.Outline).
@@ -162,6 +167,15 @@ func (s *Select) Destructive() *Select { return s.Variant(Destructive) }
 // Link is Variant(myui.Link).
 func (s *Select) Link() *Select { return s.Variant(Link) }
 
+// Success is Variant(myui.Success).
+func (s *Select) Success() *Select { return s.Variant(Success) }
+
+// Info is Variant(myui.Info).
+func (s *Select) Info() *Select { return s.Variant(Info) }
+
+// Warning is Variant(myui.Warning).
+func (s *Select) Warning() *Select { return s.Variant(Warning) }
+
 // Size applies the sizing of s and returns the select, for chaining.
 func (s *Select) Size(size Size) *Select {
 	s.size = size
@@ -171,6 +185,9 @@ func (s *Select) Size(size Size) *Select {
 
 // Sm sizes the select down.
 func (s *Select) Sm() *Select { return s.Size(SizeSm) }
+
+// Xs sizes the select to the smallest size.
+func (s *Select) Xs() *Select { return s.Size(SizeXs) }
 
 // Md gives the built-in sizing.
 func (s *Select) Md() *Select { return s.Size(SizeMd) }
@@ -263,28 +280,14 @@ func (s *Select) apply() {
 	s.Element = s.Element.Padding(v, h).FontSize(fieldFontSize(t, s.size))
 }
 
-// selectLook is the colors one variant paints for the trigger.
-type selectLook struct {
-	bg     ui.Color
-	border ui.Color
-	width  float32
-}
-
 // selectLookOf resolves one variant's look for a select's trigger.
-func selectLookOf(v Variant, t *ui.Theme) selectLook {
-	switch v {
-	case Primary:
-		return selectLook{bg: t.Background, border: t.Accent, width: 1}
-	case Outline:
-		return selectLook{bg: t.Background, border: t.Border, width: 1}
-	case Ghost:
-		return selectLook{bg: ui.Transparent, border: ui.Transparent, width: 0}
-	case Destructive:
-		return selectLook{bg: t.Background, border: t.Danger, width: 1}
-	case Link:
-		return selectLook{bg: ui.Transparent, border: ui.Transparent, width: 0}
-	default:
-		// Native: the look of an input field.
-		return selectLook{bg: t.Surface, border: t.Border, width: 1}
+//
+// The trigger of a select has no built-in look — MyGo's SelectBase hands
+// over a bare button — so the field look is its default one.
+func selectLookOf(v Variant, t *ui.Theme) fieldLook {
+	l := fieldLookOf(v, t)
+	if l.native {
+		return fieldLook{bg: t.Surface, border: t.Border, width: 1}
 	}
+	return l
 }

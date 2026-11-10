@@ -26,6 +26,7 @@ type field[T any] struct {
 	value    *string
 	variant  Variant
 	size     Size
+	shape    Shape
 	invalid  bool
 	readOnly bool
 	cleared  bool
@@ -75,7 +76,10 @@ func (f *field[T]) Primary() T { return f.Variant(Primary) }
 // Secondary is Variant(myui.Secondary), alias of Native.
 func (f *field[T]) Secondary() T { return f.Variant(Secondary) }
 
-// Native is Variant(myui.Native).
+// Default is Variant(myui.Default), the built-in look.
+func (f *field[T]) Default() T { return f.Variant(Default) }
+
+// Native is Variant(myui.Native), the old name of Default.
 func (f *field[T]) Native() T { return f.Variant(Native) }
 
 // Outline is Variant(myui.Outline).
@@ -90,6 +94,15 @@ func (f *field[T]) Destructive() T { return f.Variant(Destructive) }
 // Link is Variant(myui.Link).
 func (f *field[T]) Link() T { return f.Variant(Link) }
 
+// Success is Variant(myui.Success).
+func (f *field[T]) Success() T { return f.Variant(Success) }
+
+// Info is Variant(myui.Info).
+func (f *field[T]) Info() T { return f.Variant(Info) }
+
+// Warning is Variant(myui.Warning).
+func (f *field[T]) Warning() T { return f.Variant(Warning) }
+
 // Size applies the sizing of s and returns the widget, for chaining.
 func (f *field[T]) Size(s Size) T {
 	f.size = s
@@ -97,8 +110,26 @@ func (f *field[T]) Size(s Size) T {
 	return f.self
 }
 
+// Width sets the width of the field in DIPs and returns the widget,
+// for chaining.
+func (f *field[T]) Width(w float32) T {
+	f.frame = f.frame.Width(w)
+	return f.self
+}
+
+// Shape sets the shape of the field and returns the widget, for
+// chaining: a pill or a circle, or the theme's own corners.
+func (f *field[T]) Shape(s Shape) T {
+	f.shape = s
+	f.apply()
+	return f.self
+}
+
 // Sm sizes the field down.
 func (f *field[T]) Sm() T { return f.Size(SizeSm) }
+
+// Xs sizes the field to the smallest size.
+func (f *field[T]) Xs() T { return f.Size(SizeXs) }
 
 // Md gives the built-in sizing.
 func (f *field[T]) Md() T { return f.Size(SizeMd) }
@@ -198,7 +229,9 @@ func (f *field[T]) Clearable() T {
 			d = 20
 		}
 		t := c.Theme()
-		b := ui.ButtonBase(c).Size(d, d).KeepFocus().TabStop(false).Label("清除")
+		// The button keeps the focus in the field while it is pressed, and
+		// it is a stop of the Tab key, as a clear button is in Ant Design.
+		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label("清除")
 		b.Children(func() {
 			ic := ui.Icon(c, icons.X()).Size(d-4, d-4)
 			if b.Hovered() {
@@ -294,15 +327,27 @@ func (f *field[T]) apply() {
 			// which the frame fades into.
 			border = t.Accent
 		}
-		f.frame = f.frame.Background(l.bg).Border(l.width, border).Radius(t.Radius)
+		f.frame = f.frame.Background(l.bg).Border(l.width, border)
 		f.frame = f.frame.Padding(f.padding())
 		// The text has no border of its own: the frame has it.
 		f.inner = f.inner.Background(ui.Transparent).Border(0, ui.Transparent).Padding(0)
 	}
+	f.frame = f.frame.Radius(f.radius())
 	if l.hasText {
 		f.inner = f.inner.TextColor(l.text)
 	}
 	f.inner = f.inner.FontSize(f.fontSize())
+}
+
+// radius is the corner radius of the frame of the field, on its shape.
+func (f *field[T]) radius() float32 {
+	t := f.c.Theme()
+	switch f.shape {
+	case ShapeRound, ShapeCircle:
+		return 1000
+	default:
+		return t.Radius
+	}
 }
 
 // fieldLook is the colors one variant paints for a field.
@@ -315,11 +360,13 @@ type fieldLook struct {
 	hasText bool
 }
 
-// fieldLookOf resolves one variant's look on a theme.
+// fieldLookOf resolves one variant's look for the frame of a field.
 func fieldLookOf(v Variant, t *ui.Theme) fieldLook {
 	switch v {
-	case Native:
+	case Default:
 		return fieldLook{native: true}
+	case Secondary:
+		return fieldLook{bg: t.Surface, border: ui.Transparent, width: 0}
 	case Primary:
 		return fieldLook{bg: t.Background, border: t.Accent, width: 1}
 	case Outline:
@@ -330,6 +377,9 @@ func fieldLookOf(v Variant, t *ui.Theme) fieldLook {
 		return fieldLook{bg: t.Background, border: t.Danger, width: 1}
 	case Link:
 		return fieldLook{bg: ui.Transparent, border: ui.Transparent, width: 0, text: t.Accent, hasText: true}
+	case Success, Info, Warning:
+		role, _ := semanticOf(v)
+		return fieldLook{bg: t.Background, border: semanticColor(t, role), width: 1}
 	}
 	return fieldLook{native: true}
 }
@@ -343,8 +393,10 @@ func (f *field[T]) fontSize() float32 { return fieldFontSize(f.c.Theme(), f.size
 // fieldPadding is the inset of the frame of a field, on its size.
 func fieldPadding(t *ui.Theme, size Size) (v, h float32) {
 	switch size {
+	case SizeXs:
+		return t.Space(0.5), t.Space(2)
 	case SizeSm:
-		return t.Space(1), t.Space(2)
+		return t.Space(1), t.Space(2.5)
 	case SizeLg:
 		return t.Space(2.5), t.Space(4)
 	default:
@@ -355,6 +407,8 @@ func fieldPadding(t *ui.Theme, size Size) (v, h float32) {
 // fieldFontSize is the size of the text of a field, on its size.
 func fieldFontSize(t *ui.Theme, size Size) float32 {
 	switch size {
+	case SizeXs:
+		return TextSize(t, TextXs)
 	case SizeSm:
 		return TextSize(t, TextSm)
 	case SizeLg:

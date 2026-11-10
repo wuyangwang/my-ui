@@ -7,42 +7,6 @@ import (
 	"github.com/wuyangwang/my-ui/icons"
 )
 
-// Variant names what a Button looks like, the shadcn set. The zero
-// value is Native: no preset is painted, so the button keeps the
-// built-in look of the underlying ui.Button (which follows the theme).
-type Variant uint8
-
-const (
-	// Native leaves the button's built-in look untouched. Zero value.
-	Native Variant = iota
-	// Primary fills with the accent, as ui.PrimaryButton does.
-	Primary
-	// Outline is a bordered face over the background, muting as it
-	// hovers.
-	Outline
-	// Ghost is bare until hovered.
-	Ghost
-	// Destructive fills with the theme's Danger, as a Delete button.
-	Destructive
-	// Link looks like a link: the accent's text over nothing, a faint
-	// accent under the pointer.
-	Link
-)
-
-// Secondary is the shadcn "secondary" variant: an alias of Native, so
-// it keeps the button's built-in look.
-const Secondary Variant = Native
-
-// Size names how roomy a Button is.
-type Size uint8
-
-const (
-	// SizeMd is the built-in sizing. The zero value.
-	SizeMd Size = iota
-	SizeSm
-	SizeLg
-)
-
 // Button is a ui button with a variant's preset look:
 //
 //	myui.NewButton(c, "Save").Primary()
@@ -62,12 +26,12 @@ const (
 //	myui.NewButton(c, "").Icon(icons.Save()).Label("Save")
 type Button struct {
 	ui.Element
-	c    *ui.Context
-	icon ui.Element // the slot of the icon before the text
-	text ui.Element // the text of the button
-	end  ui.Element // the slot of the icon after the text
-	size Size
-	spun bool
+	c     *ui.Context
+	icon  ui.Element // the slot of the icon before the text
+	text  ui.Element // the text of the button
+	end   ui.Element // the slot of the icon after the text
+	size  Size
+	shape Shape
 }
 
 // NewButton creates a button with the native preset: myui.NewButton(c,
@@ -113,8 +77,13 @@ type look struct {
 // come from Shades, which is where those rules live.
 func lookOf(v Variant, t *ui.Theme) look {
 	switch v {
-	case Native:
+	case Default:
 		return look{native: true}
+	case Secondary:
+		return look{
+			rest: t.Surface, hover: t.SurfaceHover, pressed: t.SurfacePressed,
+			width: 0, border: t.Border,
+		}
 	case Primary:
 		return look{
 			rest: t.Accent, hover: t.AccentHover, pressed: t.AccentPressed,
@@ -142,8 +111,16 @@ func lookOf(v Variant, t *ui.Theme) look {
 			rest: ui.Transparent, hover: a.Alpha(0.08), pressed: a.Alpha(0.16),
 			width: 0, border: t.Border, text: a, hasText: true,
 		}
+	case Success, Info, Warning:
+		role, _ := semanticOf(v)
+		base := semanticColor(t, role)
+		hover, pressed, ink := shades(base, t.Dark)
+		return look{
+			rest: base, hover: hover, pressed: pressed,
+			width: 0, border: t.Border, text: ink, hasText: true,
+		}
 	}
-	// An unknown variant reads as native.
+	// An unknown variant reads as the built-in look.
 	return look{native: true}
 }
 
@@ -180,7 +157,10 @@ func (b *Button) Primary() *Button { return b.Variant(Primary) }
 // alias of Native, so the button keeps the theme's built-in face.
 func (b *Button) Secondary() *Button { return b.Variant(Secondary) }
 
-// Native is Variant(myui.Native).
+// Default is Variant(myui.Default), the built-in look.
+func (b *Button) Default() *Button { return b.Variant(Default) }
+
+// Native is Variant(myui.Native), the old name of Default.
 func (b *Button) Native() *Button { return b.Variant(Native) }
 
 // Outline is Variant(myui.Outline).
@@ -195,6 +175,15 @@ func (b *Button) Destructive() *Button { return b.Variant(Destructive) }
 // Link is Variant(myui.Link).
 func (b *Button) Link() *Button { return b.Variant(Link) }
 
+// Success is Variant(myui.Success).
+func (b *Button) Success() *Button { return b.Variant(Success) }
+
+// Info is Variant(myui.Info).
+func (b *Button) Info() *Button { return b.Variant(Info) }
+
+// Warning is Variant(myui.Warning).
+func (b *Button) Warning() *Button { return b.Variant(Warning) }
+
 // Size applies the sizing of s and returns the button, for chaining.
 func (b *Button) Size(s Size) *Button {
 	b.size = s
@@ -204,6 +193,9 @@ func (b *Button) Size(s Size) *Button {
 
 // Sm sizes the button down.
 func (b *Button) Sm() *Button { return b.Size(SizeSm) }
+
+// Xs sizes the button to the smallest size.
+func (b *Button) Xs() *Button { return b.Size(SizeXs) }
 
 // Md gives the sizing of the built-in button.
 func (b *Button) Md() *Button { return b.Size(SizeMd) }
@@ -237,7 +229,6 @@ func (b *Button) EndIcon(svg *ui.SVG) *Button {
 // is busy. It returns the button, for chaining.
 func (b *Button) Loading() *Button {
 	c := b.c
-	b.spun = true
 	b.icon.Children(func() {
 		spinner := ui.Icon(c, icons.LoaderCircle())
 		spinner = spinner.Rotate(spinner.Loop("spin", time.Second, ui.Linear) * 360)
@@ -261,11 +252,47 @@ func (b *Button) Label(s string) *Button {
 func (b *Button) applySizing() {
 	t := b.c.Theme()
 	switch b.size {
+	case SizeXs:
+		b.Padding(t.Space(0.5), t.Space(2)).FontSize(TextSize(t, TextXs))
 	case SizeSm:
 		b.Padding(t.Space(1), t.Space(2.5)).FontSize(TextSize(t, TextSm))
 	case SizeLg:
 		b.Padding(t.Space(2.5), t.Space(4.5)).FontSize(TextSize(t, TextLg))
 	default:
 		b.Padding(t.Space(1.5), t.Space(3.5)).FontSize(t.FontSize)
+	}
+	b.applyShape()
+}
+
+// Width sets the width of the button in DIPs and returns it, for
+// chaining.
+func (b *Button) Width(w float32) *Button {
+	b.Element = b.Element.Width(w)
+	return b
+}
+
+// Block makes the button fill the width of its row and returns it, for
+// chaining.
+func (b *Button) Block() *Button {
+	b.Element = b.Element.AlignSelf(ui.Stretch)
+	return b
+}
+
+// Shape sets the shape of the button and returns it, for chaining: a
+// pill or a circle, or the theme's own corners.
+func (b *Button) Shape(s Shape) *Button {
+	b.shape = s
+	b.applyShape()
+	return b
+}
+
+// applyShape rounds the corners of the button as its shape says.
+func (b *Button) applyShape() {
+	t := b.c.Theme()
+	switch b.shape {
+	case ShapeRound, ShapeCircle:
+		b.Radius(1000)
+	default:
+		b.Radius(t.Radius)
 	}
 }

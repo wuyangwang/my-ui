@@ -26,9 +26,21 @@ _Avoid_：夜间模式、暗黑模式
 ### 控件
 
 **预设 (Preset)**:
-一个控件的一段可命名的完整外观定义（变体 Variant、尺寸 Size 属于预设的两根轴），由一行构造 + 链式方法选择。
+一个控件的一段可命名的完整外观定义（变体 Variant、尺寸 Size、形态 Shape 属于预设的三根轴），由一行构造 + 链式方法选择。
 _Avoid_：样式类、皮肤
 
 **变体 (Variant)**:
-预设中"长什么样"的轴（Native/Primary/Outline/Ghost/Destructive/Link），共享根包词表。零值 `Native` 不涂预设，保留底层控件原生观感；`Secondary` 为 `Native` 的 shadcn 别名。它只决定颜色三态与边框；尺寸是另一根轴。
+预设中"长什么样"的轴（Default/Secondary/Primary/Outline/Ghost/Destructive/Link/Success/Info/Warning），共享根包词表。零值 `Default` 是控件自带的观感；`Secondary` 是弱填充面；`Native` 是 `Default` 的旧名。Success/Info/Warning 是语义色。
 _Avoid_：类型（type 与 Go 类型系统撞词）
+
+**尺寸 (Size)**:
+预设中"多大"的轴（SizeMd 零值、SizeSm、SizeLg、SizeXs），走主题的间距与字号刻度。
+_Avoid_：宽度（宽度是单个控件的事，不是档位）
+
+**形态 (Shape)**:
+预设中"什么形状"的轴（ShapeRect 零值、ShapeRound 胶囊、ShapeCircle 圆形）。
+_Avoid_：圆角（圆角是主题的事，形态是控件的事）
+
+**语义色 (Semantic)**:
+主题层的一类颜色（success/warning/info），明暗各一套；像 shadcn 的主题变量那样，将来可由 app 自定义。
+_Avoid_：状态色（状态是控件的事，语义色是主题的事）

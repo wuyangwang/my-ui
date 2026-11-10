@@ -37,12 +37,30 @@
 | 方法 | 作用 |
 |---|---|
 | `NewButton(c *ui.Context, label string) *Button` | 创建按钮（`label` 留空即只有图标） |
-| `Variant(v Variant)` · `Primary()` · `Secondary()` · `Native()` · `Outline()` · `Ghost()` · `Destructive()` · `Link()` | 变体：底色、边框、文字色与 hover/pressed 三态 |
-| `Size(s Size)` · `Sm()` · `Md()` · `Lg()` | 尺寸：内衬与字号 |
+| `Variant(v Variant)` · `Default()` · `Native()` · `Secondary()` · `Primary()` · `Outline()` · `Ghost()` · `Destructive()` · `Link()` · `Success()` · `Info()` · `Warning()` | 变体：底色、边框、文字色与 hover/pressed 三态 |
+| `Size(s Size)` · `Xs()` · `Sm()` · `Md()` · `Lg()` | 尺寸：内衬与字号 |
+| `Shape(s Shape)` | 形态：`ShapeRect`（默认）/ `ShapeRound`（胶囊）/ `ShapeCircle`（圆形） |
 | `Icon(svg *ui.SVG)` | 文字之前的图标（取文字色与字号） |
 | `EndIcon(svg *ui.SVG)` | 文字之后的图标 |
 | `Loading()` | 忙碌态：转圈并停止响应点击 |
 | `Label(s string)` | 无障碍名（只有图标时必须给） |
+| `Width(w float32)` | 宽度（DIP） |
+| `Block()` | 占满整行 |
+
+变体词表（与 shadcn 对齐）：
+
+| 变体 | 观感 |
+|---|---|
+| `Default`（零值） | 控件自带的观感：主题的面 + 描边（mygo 的按钮外观） |
+| `Secondary` | 弱填充面：主题的面，无描边 |
+| `Primary` | 强调色填充 |
+| `Outline` | 背景上的描边面 |
+| `Ghost` | 平时无底，悬停才现 |
+| `Destructive` | 危险色填充 |
+| `Link` | 纯文字，强调色 |
+| `Success`/`Info`/`Warning` | 语义色填充（主题层的三种语义色，明暗各一套） |
+
+`Native` 是 `Default` 的旧名，保留以免旧代码失效。
 
 用法：
 
@@ -51,6 +69,7 @@ myui.NewButton(c, "保存").Primary()
 myui.NewButton(c, "删除").Destructive().Sm()
 myui.NewButton(c, "保存").Icon(icons.Save()).Primary()
 myui.NewButton(c, "").Icon(icons.Settings()).Label("设置")   // 只有图标
+myui.NewButton(c, "筛选").Outline().Shape(myui.ShapeRound)
 ```
 
 ## 6. 状态

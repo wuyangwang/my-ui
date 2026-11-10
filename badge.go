@@ -36,8 +36,10 @@ type badgeLook struct {
 
 func badgeLookOf(v Variant, t *ui.Theme) badgeLook {
 	switch v {
-	case Native:
+	case Default:
 		return badgeLook{native: true}
+	case Secondary:
+		return badgeLook{bg: t.Surface, border: ui.Transparent, width: 0}
 	case Primary:
 		return badgeLook{bg: t.Accent, border: t.Accent, width: 0, text: t.AccentText, hasText: true}
 	case Outline:
@@ -49,6 +51,11 @@ func badgeLookOf(v Variant, t *ui.Theme) badgeLook {
 		return badgeLook{bg: t.Danger, border: t.Danger, width: 0, text: ink, hasText: true}
 	case Link:
 		return badgeLook{bg: ui.Transparent, border: ui.Transparent, width: 0, text: t.Accent, hasText: true}
+	case Success, Info, Warning:
+		role, _ := semanticOf(v)
+		base := semanticColor(t, role)
+		_, _, ink := shades(base, t.Dark)
+		return badgeLook{bg: base, border: base, width: 0, text: ink, hasText: true}
 	}
 	return badgeLook{native: true}
 }
@@ -68,10 +75,13 @@ func (b *Badge) Variant(v Variant) *Badge {
 // Primary is Variant(myui.Primary).
 func (b *Badge) Primary() *Badge { return b.Variant(Primary) }
 
-// Secondary is Variant(myui.Secondary), alias of Native.
+// Secondary is Variant(myui.Secondary), a muted fill.
 func (b *Badge) Secondary() *Badge { return b.Variant(Secondary) }
 
-// Native is Variant(myui.Native).
+// Default is Variant(myui.Default), the built-in look.
+func (b *Badge) Default() *Badge { return b.Variant(Default) }
+
+// Native is Variant(myui.Native), the old name of Default.
 func (b *Badge) Native() *Badge { return b.Variant(Native) }
 
 // Outline is Variant(myui.Outline).
@@ -85,6 +95,15 @@ func (b *Badge) Destructive() *Badge { return b.Variant(Destructive) }
 
 // Link is Variant(myui.Link).
 func (b *Badge) Link() *Badge { return b.Variant(Link) }
+
+// Success is Variant(myui.Success).
+func (b *Badge) Success() *Badge { return b.Variant(Success) }
+
+// Info is Variant(myui.Info).
+func (b *Badge) Info() *Badge { return b.Variant(Info) }
+
+// Warning is Variant(myui.Warning).
+func (b *Badge) Warning() *Badge { return b.Variant(Warning) }
 
 // Size applies the sizing of s and returns the badge, for chaining.
 func (b *Badge) Size(s Size) *Badge {

@@ -14,15 +14,16 @@ func (s *showcase) buttonPage(c *ui.Context, t *ui.Theme) {
 			name, cn, tip, label string
 			preset               func(*myui.Button) *myui.Button
 		}{
+			{"Default", "默认", "内置原样，零值即得", "取消", (*myui.Button).Default},
+			{"Secondary", "次要", "弱填充面，无描边", "草稿", (*myui.Button).Secondary},
 			{"Primary", "主要", "悬停渐深，压下更深", "保存更改", (*myui.Button).Primary},
-			{"Secondary", "次要", "内置原样，零值即得", "取消", (*myui.Button).Secondary},
 			{"Outline", "描边", "白底描边，悬停转淡", "浏览更多", (*myui.Button).Outline},
 			{"Ghost", "幽灵", "裸底，悬停才现形", "轻触一下", (*myui.Button).Ghost},
 			{"Destructive", "危险", "删除类动作", "删除项目", (*myui.Button).Destructive},
 			{"Link", "链接", "文字态，悬停浮起", "阅读文档", (*myui.Button).Link},
 		}
 		for i := 0; i < len(variants); i += 2 {
-			pair := variants[i : i+2]
+			pair := variants[i:min(i+2, len(variants))]
 			ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Start).Children(func() {
 				for _, v := range pair {
 					v := v
@@ -34,16 +35,41 @@ func (s *showcase) buttonPage(c *ui.Context, t *ui.Theme) {
 		}
 	})
 
+	s.sectionNote(c, t, "语义色", "成功/信息/警告各有自己的颜色，明暗各一套", func() {
+		s.card(c, t, func() {
+			ui.Row(c).Gap(t.Space(3)).Children(func() {
+				myui.NewButton(c.Key("btn-success"), "成功").Success()
+				myui.NewButton(c.Key("btn-info"), "信息").Info()
+				myui.NewButton(c.Key("btn-warning"), "警告").Warning()
+			})
+		})
+	})
+
 	s.sectionNote(c, t, "尺寸", "内衬与字号只是 Size 档，与变体正交", func() {
 		s.card(c, t, func() {
 			sizes := []struct {
 				label string
 				pick  func(*myui.Button) *myui.Button
-			}{{"小", (*myui.Button).Sm}, {"中", (*myui.Button).Md}, {"大", (*myui.Button).Lg}}
+			}{
+				{"最小", (*myui.Button).Xs},
+				{"小", (*myui.Button).Sm},
+				{"中", (*myui.Button).Md},
+				{"大", (*myui.Button).Lg},
+			}
 			for _, sz := range sizes {
 				b := myui.NewButton(c.Key("size "+sz.label), sz.label).Primary()
 				sz.pick(b)
 			}
+		})
+	})
+
+	s.sectionNote(c, t, "形态", "Shape 决定圆角：胶囊、圆形", func() {
+		s.card(c, t, func() {
+			ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
+				myui.NewButton(c.Key("btn-rect"), "直角").Primary()
+				myui.NewButton(c.Key("btn-round"), "胶囊").Primary().Shape(myui.ShapeRound)
+				myui.NewButton(c.Key("btn-circle"), "圆形").Primary().Shape(myui.ShapeCircle)
+			})
 		})
 	})
 

@@ -39,6 +39,9 @@ func (i *Icon) Variant(v Variant) *Icon {
 		i.TextColor(t.Accent)
 	case Destructive:
 		i.TextColor(t.Danger)
+	case Success, Info, Warning:
+		role, _ := semanticOf(v)
+		i.TextColor(semanticColor(t, role))
 	}
 	return i
 }
@@ -46,11 +49,23 @@ func (i *Icon) Variant(v Variant) *Icon {
 // Primary is Variant(myui.Primary).
 func (i *Icon) Primary() *Icon { return i.Variant(Primary) }
 
-// Secondary is Variant(myui.Secondary), alias of Native.
+// Secondary is Variant(myui.Secondary), a muted fill.
 func (i *Icon) Secondary() *Icon { return i.Variant(Secondary) }
 
-// Native is Variant(myui.Native).
+// Default is Variant(myui.Default), the built-in look.
+func (i *Icon) Default() *Icon { return i.Variant(Default) }
+
+// Native is Variant(myui.Native), the old name of Default.
 func (i *Icon) Native() *Icon { return i.Variant(Native) }
+
+// Success is Variant(myui.Success).
+func (i *Icon) Success() *Icon { return i.Variant(Success) }
+
+// Info is Variant(myui.Info).
+func (i *Icon) Info() *Icon { return i.Variant(Info) }
+
+// Warning is Variant(myui.Warning).
+func (i *Icon) Warning() *Icon { return i.Variant(Warning) }
 
 // Outline is Variant(myui.Outline); an icon has no border of its own.
 func (i *Icon) Outline() *Icon { return i.Variant(Outline) }
