@@ -11,11 +11,11 @@ import (
 // The build's widgets take the values from the theme's font size, so a
 // bigger text scale (the desktop's TextScale preference) scales them all.
 const (
-	TextXs float32 = 0.75
-	TextSm float32 = 0.875
-	TextMd float32 = 1
-	TextLg float32 = 1.25
-	TextXl float32 = 1.5
+	TextXs  float32 = 0.75
+	TextSm  float32 = 0.875
+	TextMd  float32 = 1
+	TextLg  float32 = 1.25
+	TextXl  float32 = 1.5
 	Text2Xl float32 = 2
 )
 
@@ -27,11 +27,11 @@ func TextSize(t *ui.Theme, n float32) float32 { return t.Rem(n) }
 // and gaps take the theme's Space of one of these, so a looser or denser
 // theme (Theme.Spacing) spaces them all in kind.
 const (
-	SpacingXs float32 = 1
-	SpacingSm float32 = 2
-	SpacingMd float32 = 3
-	SpacingLg float32 = 4
-	SpacingXl float32 = 6
+	SpacingXs  float32 = 1
+	SpacingSm  float32 = 2
+	SpacingMd  float32 = 3
+	SpacingLg  float32 = 4
+	SpacingXl  float32 = 6
 	Spacing2Xl float32 = 8
 )
 

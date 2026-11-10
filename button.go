@@ -64,31 +64,86 @@ func NewButton(c *ui.Context, label string) *Button {
 	return b
 }
 
+// look is the colors one variant paints on a build's theme: the fill at
+// rest, while hovered and while pressed, and the outline and the ink
+// beside them. native marks the built-in look, which the variant keeps
+// and paints nothing over.
+type look struct {
+	native  bool
+	rest    ui.Color
+	hover   ui.Color
+	pressed ui.Color
+	width   float32
+	border  ui.Color
+	text    ui.Color
+	hasText bool
+}
+
+// lookOf resolves one variant's look on a theme. The sizing of a
+// variant is not here: it rides the Size scale, which runs beside the
+// variants. The theme's triplet slots feed the primary straight, the
+// surface's feed ghost and outline; the destructive and the link shades
+// come from Shades, which is where those rules live.
+func lookOf(v ButtonVariant, t *ui.Theme) look {
+	switch v {
+	case Secondary:
+		return look{native: true}
+	case Primary:
+		return look{
+			rest: t.Accent, hover: t.AccentHover, pressed: t.AccentPressed,
+			width: 0, border: t.Border, text: t.AccentText, hasText: true,
+		}
+	case Outline:
+		return look{
+			rest: t.Background, hover: t.SurfaceHover, pressed: t.SurfacePressed,
+			width: 1, border: t.Border,
+		}
+	case Ghost:
+		return look{
+			rest: ui.Transparent, hover: t.SurfaceHover, pressed: t.SurfacePressed,
+			width: 0, border: t.Border,
+		}
+	case Destructive:
+		hover, pressed, ink := shades(t.Danger, t.Dark)
+		return look{
+			rest: t.Danger, hover: hover, pressed: pressed,
+			width: 0, border: t.Border, text: ink, hasText: true,
+		}
+	case Link:
+		a := t.Accent
+		return look{
+			rest: ui.Transparent, hover: a.Alpha(0.08), pressed: a.Alpha(0.16),
+			width: 0, border: t.Border, text: a, hasText: true,
+		}
+	}
+	// An unknown variant reads as the secondary.
+	return look{native: true}
+}
+
 // Variant applies the look of v and returns the button, for chaining.
 // The zero variant is the secondary.
 func (b *Button) Variant(v ButtonVariant) *Button {
 	b.variant = v
 	b.applySizing()
-	t := b.c.Theme()
-	switch b.variant {
-	case Secondary:
-		// The look the built-in button already has.
-	case Primary:
-		b.Background(b.shade(t.Accent, t.AccentHover, t.AccentPressed)).
-			Border(0, t.Border).
-			TextColor(t.AccentText)
-	case Outline:
-		b.Background(t.Background).Border(1, t.Border)
-	case Ghost:
-		b.Background(ui.Transparent).Border(0, t.Border)
-	case Destructive:
-		b.Background(b.shade(t.Danger, darken(t.Danger, 0.12), darken(t.Danger, 0.24))).
-			Border(0, t.Border).
-			TextColor(OnAccent(t.Danger))
-	case Link:
-		b.Background(ui.Transparent).Border(0, t.Border).TextColor(t.Accent)
+	if l := lookOf(v, b.c.Theme()); !l.native {
+		b.Background(l.rest).Border(l.width, l.border)
+		if l.hasText {
+			b.TextColor(l.text)
+		}
+		// Hover and pressed paint over the rest, each frame, where the
+		// built-in button's own state colors do not reach a preset's
+		// rebuilt look. MyGo's transitions fade the changes as the
+		// pointer comes and goes, and a disabled button keeps its rest
+		// colors as the theme dims it.
+		if !b.IsDisabled() {
+			switch {
+			case b.Pressed():
+				b.Background(l.pressed)
+			case b.Hovered():
+				b.Background(l.hover)
+			}
+		}
 	}
-	b.applyVariantState(t)
 	return b
 }
 
@@ -140,52 +195,4 @@ func (b *Button) applySizing() {
 	default:
 		b.Padding(t.Space(1.5), t.Space(3.5)).FontSize(t.FontSize)
 	}
-}
-
-// applyVariantState paints the pointer's colors of the variant over its
-// base ones, each frame: hover and pressed, where the built-in button's
-// own state colors do not reach a rebuilt look. MyGo's transitions fade
-// the changes as the pointer comes and goes.
-func (b *Button) applyVariantState(t *ui.Theme) {
-	if b.IsDisabled() || b.variant == Secondary {
-		return
-	}
-	a := b.c.Theme().Accent
-	var hover, pressed ui.Color
-	switch b.variant {
-	case Primary:
-		hover, pressed = t.AccentHover, t.AccentPressed
-	case Ghost, Outline:
-		hover, pressed = t.SurfaceHover, t.SurfacePressed
-	case Destructive:
-		hover, pressed = darken(t.Danger, 0.12), darken(t.Danger, 0.24)
-	case Link:
-		hover, pressed = a.Alpha(0.08), a.Alpha(0.16)
-	default:
-		return
-	}
-	switch {
-	case b.Pressed():
-		b.Background(pressed)
-	case b.Hovered():
-		b.Background(hover)
-	}
-}
-
-// shade returns the colors a filled button paints at rest, hovered and
-// pressed.
-func (b *Button) shade(rest, hover, pressed ui.Color) ui.Color {
-	switch {
-	case b.Pressed():
-		return pressed
-	case b.Hovered():
-		return hover
-	}
-	return rest
-}
-
-// darken returns the color c a little darker, by t of the way toward
-// black in Oklab.
-func darken(c ui.Color, t float32) ui.Color {
-	return c.MixOklab(ui.RGB(0, 0, 0), t)
 }

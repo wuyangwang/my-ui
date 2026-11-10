@@ -93,9 +93,23 @@ func TestButtonDestructivePaintsTheDanger(t *testing.T) {
 	if !ok {
 		t.Fatal("the label is not on screen")
 	}
+	x, y := label.X-4, label.Y+label.H/2
 	tt.Advance(time.Second)
-	r, g, b := pixel(tt, label.X-4, label.Y+label.H/2)
+	r, g, b := pixel(tt, x, y)
 	samePixel(t, r, g, b, ui.Hex("#dc2626"), "the destructive at rest")
+
+	// Held down, Shades' pressed shades underline the pressed pixel;
+	// released, the hover one holds while the pointer does.
+	hover, pressed, _ := shades(ui.Hex("#dc2626"), false)
+	tt.Press(x, y)
+	tt.Advance(time.Second)
+	r, g, b = pixel(tt, x, y)
+	samePixel(t, r, g, b, pressed, "the destructive pressed")
+
+	tt.Release(x, y)
+	tt.Advance(time.Second)
+	r, g, b = pixel(tt, x, y)
+	samePixel(t, r, g, b, hover, "the destructive hovered after the release")
 }
 
 func TestButtonSizesGiveRoomierBounds(t *testing.T) {
