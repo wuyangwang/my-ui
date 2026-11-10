@@ -2,15 +2,21 @@
 
 > 状态：**已实现**（`select.go`）。
 
-## 1. 参考实现
+## 1. 参考实现（已核到具体条目）
 
-| 来源 | 可借鉴之处 | mygo 下的差异 |
+| 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| [shadcn/ui Select](https://ui.shadcn.com/docs/components/select) | 触发器**长得像输入框**（边框、底色、圆角），右侧一个箭头；弹层是浮起的面板，选项行有高亮与选中标记 | React 组合件；状态在 React 里 |
-| [Element Plus el-select](https://element-plus.org/zh-CN/component/select) | `multiple`、`disabled`、`clearable`、`filterable`（可搜索）、分组、自定义选项模板 | Vue 插槽 |
-| [Ant Design Select](https://ant.design/components/select-cn) | 触发器与弹层的尺寸/宽度联动、`dropdownRender`、状态色 | React |
-| [Lobe MyGo Select](https://mygo.lobehub.com/skills/components/select) | 触发器用 Input 的外观、弹层标记选中项、尺寸与变体跟 Input 一致 | 与我们的目标最接近 |
-| **mygo 官方 `ui.SelectBase`** | 官方文档即给出「自绘」的用法：`sel.Trigger`（一个裸按钮）与 `sel.Popup(func(panel))`（弹层面板，选项用 `sel.Item(value)` 造）——**触发器与弹层都可自己排版** | 官方只给骨架，样式要 app 自己写；这正是我们要包的部分 |
+| [shadcn/ui Select（v4 registry 源码）](https://github.com/shadcn-ui/ui/blob/main/apps/v4/registry/new-york-v4/ui/select.tsx) | 触发器 `flex w-fit items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm` + `data-[size=default]:h-9` / `data-[size=sm]:h-8` + `data-[placeholder]:text-muted-foreground` + `focus-visible:border-ring` + `aria-invalid:border-destructive` + `transition-[color,box-shadow]`；箭头 `ChevronDown size-4 opacity-50`；弹层 `min-w-[8rem] rounded-md border bg-popover shadow-md p-1`；选项行 `py-1.5 pr-8 pl-2` + 高亮 `focus:bg-accent` + 勾 `absolute right-2` + 禁用 `opacity-50` | 触发器与 Input 同观感；占位文字弱化色；聚焦/错误态换描边色；箭头弱化；弹层有边框、底色、圆角、内衬与**最小宽度**；选项行右侧留勾的位置；高亮用强调色弱化底；禁用变灰 |
+| [Element Plus el-select](https://element-plus.org/en-US/component/select.html) | 选项形如 `{value, label, disabled}`（label 缺省即 value）；`clearable`「a clear icon will appear」+ `clear` 事件 + `value-on-clear`；`clear-icon` 默认 CircleClose、`suffix-icon` 默认 ArrowDown；`size` 三档；`placeholder`；`filterable`/`multiple`/`grouping`/`allow-create`/`remote`；`fit-input-width`；`value-on-clear`/`empty-values` | 选项结构 `{Label,Value,Disabled}`（**标签与值可不同**）；**可选清除**：有值时右侧出现清除图标，点击清空并回调；箭头在清除图标之后；尺寸三档；占位文字 |
+| [Ant Design Select](https://ant.design/components/select-cn) | `allowClear`、`showSearch`、`optionRender`、`labelInValue`、`popupRender`；示例里用 `style={{width: 120}}` 固定宽度 | 宽度由 app 明确给出（我们给 `Width` 方法 + 默认宽度）；`labelInValue` 对应我们「绑定值、显示标签」 |
+| [Lobe MyGo Select](https://mygo.lobehub.com/skills/components/select) | 触发器用 Input 的外观，弹层标记选中项，变体与尺寸跟 Input 一致 | 与我们的目标一致：触发器=Input 观感，弹层打勾 |
+
+**宽度这件事，参考实现的结论**：
+- element-plus 自 2.5.0 起默认宽度是 **100%**（填满容器），文档明确说「行内使用时宽度会塌掉，要自己给宽度」，其示例统一写 `style="width: 240px"`。
+- shadcn 的触发器是 `w-fit`（随内容收缩），但**弹层**有 `min-w-[8rem]`（128px）兜底。
+- 结论：**宽度是 app 的事，但库要给一个不会塌掉的默认值** → 我们取「内容宽 + 默认最小宽度（约 200 DIP）+ `Width(w)` 显式指定」。
+
+**清除图标这件事**：element-plus 的 `clearable` 是显式开关，图标是 CircleClose，点了走 `clear` 事件与 `value-on-clear`；shadcn 没有。→ 我们把它做成**默认有**（用户要求）：有值时出现，点击清空并回调，图标与 Input 的清除按钮一致（普通 ×，不是圆圈 ×）。
 
 ## 2. 能否实现（mygo v0.8.3 公开 API）
 
@@ -24,26 +30,30 @@
 | 禁用选项 | `Item` 的行可 `Disabled(true)` ✓ | ✅ |
 | 图标（箭头、勾） | `ui.Icon` + 我们的 `icons` 包 ✓ | ✅ |
 | 尺寸/变体 | 与 Input 同一套 `Variant`/`Size`；取色走 `fieldLookOf` ✓ | ✅ |
+| **清除按钮的无障碍** | 清除按钮是触发器的**子节点**，而触发器的角色是 `RolePopUpButton`（leaf role）——mygo 的无障碍树不展开 leaf-role 元素的子节点（`ui/access.go:772`），所以清除按钮**不出现在无障碍树里**（可点、可见，读屏用户摸不到） | ⚠️ 已知限制：清除按钮与 Input 的清除按钮同款做法；若要可达，需把清除按钮挪到触发器之外（触发器就窄了，弹层也窄） |
 
 不可行/需规避：不做依赖 `Element.Access(func(*platform.AccessNode))` 的定制（internal 泄漏）。
 
 ## 3. 实现到何种程度
 
 **已实现**
-- 选项是结构体 `{Label, Value, Disabled}`：**标签与值可以不同**（绑定的是 `Value`，触发器显示 `Label`；`Label` 留空则显示 `Value`）——这是 shadcn/antd 的写法。
-- 触发器**与 Input 同一套外观**（外框、边框、底色、圆角、内衬、字号），右侧一个下拉箭头（`icons.ChevronDown()`），点击开合；开合状态由 mygo 维护。
-- 弹层面板：底色、边框、圆角、内衬；选项行有内衬；高亮行用主题的强调色弱化底；**选中项带勾**（`icons.Check()`）。
+- 选项是结构体 `{Label, Value, Disabled}`：**标签与值可以不同**（绑定的是 `Value`，触发器显示 `Label`；`Label` 留空则显示 `Value`）——element-plus 的选项形状 ✓。
+- 触发器**与 Input 同一套外观**（边框、底色、圆角、内衬、字号），右侧依次是**清除图标**与下拉箭头（箭头弱化，`opacity-50` 的等价）。
+- **宽度**：随内容，但有默认最小宽度（约 200 DIP，`t.Space(50)`），不塌成文字宽；`Width(w)` 可显式指定（element-plus 写死 `style="width: 240px"` 的做法）。
+- **清除**：有值时出现清除图标（与 Input 的清除按钮同款：纯 ×、悬停变深、不抢焦点），点击清空绑定值并回调 `OnCleared`。
+- **Native 的观感**：Select 的触发器没有「内置外观」（mygo 的 `SelectBase` 给的是裸按钮），所以 Native = **输入框那套外观**（`Surface` 底 + `Border` 描边），不是「什么都不画」——否则触发器会是个没有内衬的空壳（这正是之前的样式错乱）。`Outline` 与它相差在底色（`Background` vs `Surface`）。
+- 弹层面板：底色、边框、圆角、内衬、阴影；选项行有内衬；高亮行用强调色弱化底；**选中项带勾**（`icons.Check()`）；禁用项变灰。
 - 禁用选项（`Disabled: true`）与整个触发器禁用（`Disabled(bool)`）。
-- 事件：`OnChanged(func(value string))`；查询式 `Value()`、`Open()`、`Changed()`。
+- 事件：`OnChanged(func(value string))`、`OnCleared(func())`；查询式 `Value()`、`Open()`、`Changed()`。
 - 无障碍：`Label(string)`；触发器是 `RolePopUpButton`，选项是 `RoleOption`。
 - 占位文字：未选中时显示（弱化色）。
 - 尺寸与变体：`Variant`/`Size` 与 Input 同义。
 
 **后置**
 - 自定义选项内容（图标、分组、说明文字）。
-- 可搜索（`ui.Combobox` 的路子）。
-- 多选、清空（clearable）。
-- 弹层的宽度与触发器对齐、滚动、选项的虚拟化。
+- 可搜索（`ui.Combobox` 的路子）、远程搜索。
+- 多选、标签折叠。
+- 弹层滚动到底的提示（shadcn 的上下箭头按钮）。
 
 ## 4. 项目结构是否合理
 
@@ -70,10 +80,12 @@ func (s *Select) Size(s Size) *Select         // 与 Input 同义
 func (s *Select) Sm() *Select
 func (s *Select) Md() *Select
 func (s *Select) Lg() *Select
+func (s *Select) Width(w float32) *Select     // 显式宽度（默认随内容，最小约 200 DIP）
 func (s *Select) Placeholder(s string) *Select // 未选中时显示
 func (s *Select) Label(s string) *Select       // 无障碍名
 func (s *Select) Disabled(on bool) *Select
 func (s *Select) OnChanged(fn func(value string)) *Select
+func (s *Select) OnCleared(fn func()) *Select   // 清除图标被点时
 func (s *Select) Value() string
 func (s *Select) Open() bool
 func (s *Select) Changed() bool

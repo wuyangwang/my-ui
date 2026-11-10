@@ -29,13 +29,23 @@ func (s *showcase) selectPage(c *ui.Context, t *ui.Theme) {
 		})
 	})
 
-	s.sectionNote(c, t, "变体与尺寸", "与 Input 同一套预设", func() {
+	s.sectionNote(c, t, "变体与尺寸", "与 Input 同一套预设：Native 是输入框那套外观（底色+描边），不是空壳", func() {
 		s.card(c, t, func() {
 			ui.Column(c).Gap(t.Space(2)).Children(func() {
-				myui.NewSelect(c.Key("sel-native"), &s.size, []myui.SelectOption{{Value: "原生"}}).Label("Native")
-				myui.NewSelect(c.Key("sel-ghost"), &s.size, []myui.SelectOption{{Value: "幽灵"}}).Ghost().Label("Ghost")
-				myui.NewSelect(c.Key("sel-sm"), &s.size, []myui.SelectOption{{Value: "小"}}).Sm().Outline().Label("小")
-				myui.NewSelect(c.Key("sel-lg"), &s.size, []myui.SelectOption{{Value: "大"}}).Lg().Outline().Label("大")
+				myui.NewSelect(c.Key("sel-native"), &s.size, []myui.SelectOption{{Value: "原生"}}).Label("Native").Placeholder("Native")
+				myui.NewSelect(c.Key("sel-ghost"), &s.size, []myui.SelectOption{{Value: "幽灵"}}).Ghost().Label("Ghost").Placeholder("Ghost")
+				myui.NewSelect(c.Key("sel-sm"), &s.size, []myui.SelectOption{{Value: "小"}}).Sm().Outline().Label("小").Placeholder("小")
+				myui.NewSelect(c.Key("sel-md"), &s.size, []myui.SelectOption{{Value: "中"}}).Md().Outline().Label("中").Placeholder("中")
+				myui.NewSelect(c.Key("sel-lg"), &s.size, []myui.SelectOption{{Value: "大"}}).Lg().Outline().Label("大").Placeholder("大")
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "宽度", "随内容，但有默认最小宽度；Width 可显式指定", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(2)).Children(func() {
+				myui.NewSelect(c.Key("sel-w-default"), &s.size, []myui.SelectOption{{Value: "小"}}).Outline().Label("默认宽").Placeholder("默认宽度")
+				myui.NewSelect(c.Key("sel-w-wide"), &s.size, []myui.SelectOption{{Value: "小"}}).Outline().Width(320).Label("指定宽").Placeholder("320 DIP")
 			})
 		})
 	})

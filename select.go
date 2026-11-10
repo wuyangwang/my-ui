@@ -52,9 +52,11 @@ type Select struct {
 	options         []SelectOption
 	valueSlot       ui.Element // the slot of the choice
 	placeholderSlot ui.Element // the slot of the placeholder
+	clearSlot       ui.Element // the slot of the clear button
 	variant         Variant
 	size            Size
 	disabled        bool
+	cleared         bool
 }
 
 // NewSelect creates a drop-down choosing one of options into *selected,
@@ -64,11 +66,12 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 	s := &Select{c: c, value: selected, options: options}
 	s.parts = ui.SelectBase(c, selected)
 
-	// The trigger holds the choice, the placeholder and the arrow that
-	// opens the popup.
+	// The trigger holds the choice, the placeholder, the button that
+	// empties the choice and the arrow that opens the popup.
 	s.parts.Trigger.Children(func() {
 		s.valueSlot = ui.Row(c).Grow(1).AlignItems(ui.Center)
 		s.placeholderSlot = ui.Row(c).AlignItems(ui.Center)
+		s.clearSlot = ui.Row(c).AlignItems(ui.Center)
 		ui.Icon(c, icons.ChevronDown()).Margin(0, 0, 0, c.Theme().Space(1.5))
 	})
 
@@ -80,14 +83,34 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 		}
 	})
 
+	// The button that empties the choice, while there is one.
+	s.clearSlot.Children(func() {
+		if _, ok := s.chosen(); !ok {
+			return
+		}
+		t := c.Theme()
+		d := float32(16)
+		b := ui.ButtonBase(c).Size(d, d).KeepFocus().TabStop(false).Label("清除")
+		b.Children(func() {
+			ic := ui.Icon(c, icons.X()).Size(d-5, d-5).TextColor(t.TextMuted)
+			if b.Hovered() {
+				ic = ic.TextColor(t.Text)
+			}
+		})
+		if b.Clicked() {
+			*selected = ""
+			s.cleared = true
+		}
+	})
+
 	// The popup holds the options.
 	s.parts.Popup(func(panel ui.Element) {
 		t := c.Theme()
 		panel.Background(t.Background).Border(1, t.Border).Radius(t.Radius).
-			Padding(t.Space(1))
+			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
 		for _, o := range options {
 			o := o
-			item := s.parts.Item(o.Value).Padding(t.Space(1), t.Space(2)).Radius(t.Radius / 2)
+			item := s.parts.Item(o.Value).Padding(t.Space(1.5), t.Space(2)).Radius(t.Radius / 2)
 			if item.Highlighted() {
 				item.Background(t.Accent.Alpha(0.10))
 			}
@@ -104,6 +127,9 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 	})
 
 	s.Element = s.parts.Trigger
+	// The trigger takes the room of its content, but keeps a width of
+	// its own so that it does not collapse to the width of a word.
+	s.Element = s.Element.MinWidth(c.Theme().Space(30))
 	return s
 }
 
@@ -152,6 +178,14 @@ func (s *Select) Md() *Select { return s.Size(SizeMd) }
 // Lg sizes the select up.
 func (s *Select) Lg() *Select { return s.Size(SizeLg) }
 
+// Width sets the width of the trigger in DIPs and returns the select,
+// for chaining. Without it the trigger takes the room of its content,
+// with a width of its own as the floor.
+func (s *Select) Width(w float32) *Select {
+	s.Element = s.Element.Width(w)
+	return s
+}
+
 // Placeholder shows s while nothing is chosen and returns the select,
 // for chaining.
 func (s *Select) Placeholder(text string) *Select {
@@ -187,6 +221,15 @@ func (s *Select) OnChanged(fn func(value string)) *Select {
 	return s
 }
 
+// OnCleared calls fn when the clear button emptied the choice, and
+// returns the select, for chaining.
+func (s *Select) OnCleared(fn func()) *Select {
+	if fn != nil && s.cleared {
+		fn()
+	}
+	return s
+}
+
 // Value returns the value of the choice.
 func (s *Select) Value() string { return *s.value }
 
@@ -207,14 +250,41 @@ func (s *Select) chosen() (SelectOption, bool) {
 }
 
 // apply paints the look of the variant and the size on the trigger.
+//
+// The trigger of a select has no built-in look of its own — MyGo's
+// SelectBase hands over a bare button — so the native variant takes the
+// look of an input field: a face and a border, or the trigger would be
+// a shell with no room in it.
 func (s *Select) apply() {
 	t := s.c.Theme()
-	l := fieldLookOf(s.variant, t)
-	if l.native {
-		s.Element = s.Element.Background(ui.Transparent).Border(0, ui.Transparent).Padding(0)
-	} else {
-		s.Element = s.Element.Background(l.bg).Border(l.width, l.border).Radius(t.Radius)
-	}
+	l := selectLookOf(s.variant, t)
+	s.Element = s.Element.Background(l.bg).Border(l.width, l.border).Radius(t.Radius)
 	v, h := fieldPadding(t, s.size)
 	s.Element = s.Element.Padding(v, h).FontSize(fieldFontSize(t, s.size))
+}
+
+// selectLook is the colors one variant paints for the trigger.
+type selectLook struct {
+	bg     ui.Color
+	border ui.Color
+	width  float32
+}
+
+// selectLookOf resolves one variant's look for a select's trigger.
+func selectLookOf(v Variant, t *ui.Theme) selectLook {
+	switch v {
+	case Primary:
+		return selectLook{bg: t.Background, border: t.Accent, width: 1}
+	case Outline:
+		return selectLook{bg: t.Background, border: t.Border, width: 1}
+	case Ghost:
+		return selectLook{bg: ui.Transparent, border: ui.Transparent, width: 0}
+	case Destructive:
+		return selectLook{bg: t.Background, border: t.Danger, width: 1}
+	case Link:
+		return selectLook{bg: ui.Transparent, border: ui.Transparent, width: 0}
+	default:
+		// Native: the look of an input field.
+		return selectLook{bg: t.Surface, border: t.Border, width: 1}
+	}
 }
