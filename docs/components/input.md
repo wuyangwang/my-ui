@@ -48,8 +48,10 @@
 ## 4. 项目结构是否合理
 
 - 位置：根包 L3（变体化控件），与 `Button`/`Badge`/`Icon` 同层。
+- **共用基座**：`field[T]`（`field.go`）是文本字段的公共部分——外框、四个槽位（前后缀/清除/文本）、消息槽、变体与尺寸的取色、事件与查询式接口。泛型参数 `T` 是包裹它的控件类型，所以 `Input` 的链返回 `*Input`、`TextArea` 的链返回 `*TextArea`（各自的类型不丢）。
+  - 为什么不复制一份：Input 与 TextArea 的 API 有 30 余个方法重合，复制会让两者日后漂移；泛型基座让新增字段类控件（搜索框、下拉触发器）直接复用。
 - 依赖：`myui` → `mygo/ui` + `myui/icons`（只用清除按钮那一个图标，实测对二进制影响约等于零）。
-- 入口：既可 `myui.NewInput(c, &v)`，也可用每帧句柄 `myui.Bind(c).Input(&v)`（见 [../../docs/components/handle.md](../../docs/components/handle.md) 备注）。
+- 入口：既可 `myui.NewInput(c, &v)`，也可用每帧句柄 `myui.Bind(c).Input(&v)`（见 [handle.md](handle.md)）。
 - 组合件不另立 `InputGroup`：清除与前后缀都是「输入框的一部分」，同源同预设；shadcn 拆开是因为 CSS 组合方便，Go 里槽位方案已经解决。
 
 ## 5. API 契约

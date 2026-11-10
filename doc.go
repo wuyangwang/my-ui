@@ -17,6 +17,8 @@
 //	Button   a push button: Primary, Outline, Ghost, Destructive, Link
 //	Input    a text field: a frame, a prefix and a suffix, a clear button,
 //	         events, and an error state
+//	TextArea a multi-line text field, as an Input is, that grows with
+//	         its text
 //	Badge    a small label: the variants, in three sizes
 //	Icon     an SVG icon in the sizes 14, 20 and 24 DIPs
 //	Scaffold a page: the title bar's safe area, a header, the scrollable

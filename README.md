@@ -25,11 +25,11 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方�
 
 ## 当前状态
 
-- **已完成**：tokens 刻度；`Apply`/`NewTheme`（明暗三态 + 8 套 Palette + 系统强调色/高对比/文本缩放）；共享 `Variant`/`Size` 词表（零值 `Native`，`Secondary` 为别名）；`Button`（图标/忙碌态/hover+pressed/禁用）、`Input`（前缀图标如搜索框、后缀、清除按钮、事件、错误态）、`Badge`、`Icon`（Lucide）、`Scaffold`；`icons/` 二级包；`myui.Bind(c)` 每帧句柄；动效约定（状态色渐变、出现渐显）。
+- **已完成**：tokens 刻度；`Apply`/`NewTheme`（明暗三态 + 8 套 Palette + 系统强调色/高对比/文本缩放）；共享 `Variant`/`Size` 词表（零值 `Native`，`Secondary` 为别名）；`Button`（图标/忙碌态/hover+pressed/禁用）、`Input`（前缀图标如搜索框、后缀、清除按钮、事件、错误态）、`TextArea`（随内容增高）、`Badge`、`Icon`（Lucide）、`Scaffold`；`icons/` 二级包；`myui.Bind(c)` 每帧句柄；动效约定（状态色渐变）。
 - **进行中**：一期后的表单与反馈组件（TextArea、Select、Checkbox、Radio、Switch、Slider、Alert、Tooltip），按 [docs/roadmap.md](docs/roadmap.md) 顺序推进，每个组件含规格书、实现、`ui.Tester` 测试与 showcase 示例。
 - **后置**：i18n 文案表、品牌标子包 `icons/brand`、`fonts/`。
 
-每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [badge](docs/components/badge.md) · [scaffold](docs/components/scaffold.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
+每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [textarea](docs/components/textarea.md) · [badge](docs/components/badge.md) · [scaffold](docs/components/scaffold.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
 
 ## 示例
 

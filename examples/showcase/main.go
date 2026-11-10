@@ -22,6 +22,7 @@ type showcase struct {
 	name      string
 	email     string
 	query     string
+	draft     string
 	disabled  string
 	readonly  string
 	lastEvent string
@@ -34,6 +35,7 @@ var pages = []struct {
 }{
 	{"button", "Button"},
 	{"input", "Input"},
+	{"textarea", "TextArea"},
 	{"badge", "Badge"},
 	{"icon", "Icon"},
 	{"scaffold", "Scaffold"},
@@ -89,10 +91,11 @@ func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 			s.nav(c, t, 2)
 			s.nav(c, t, 3)
 			s.nav(c, t, 4)
+			s.nav(c, t, 5)
 		})
 		ui.Column(c).Gap(t.Space(2)).Children(func() {
 			ui.Text(c, "主题").FontSize(myui.TextSize(t, myui.TextXs)).Bold().TextColor(t.TextMuted)
-			s.nav(c, t, 5)
+			s.nav(c, t, 6)
 		})
 	})
 }
@@ -127,12 +130,14 @@ func (s *showcase) pages(c *ui.Context, t *ui.Theme) func() {
 	case 1:
 		return func() { s.inputPage(c, t) }
 	case 2:
-		return func() { s.badgePage(c, t) }
+		return func() { s.textAreaPage(c, t) }
 	case 3:
-		return func() { s.iconPage(c, t) }
+		return func() { s.badgePage(c, t) }
 	case 4:
-		return func() { s.scaffoldPage(c, t) }
+		return func() { s.iconPage(c, t) }
 	case 5:
+		return func() { s.scaffoldPage(c, t) }
+	case 6:
 		return func() { s.themePage(c, t) }
 	default:
 		return func() { s.buttonPage(c, t) }
@@ -324,6 +329,38 @@ func (s *showcase) iconPage(c *ui.Context, t *ui.Theme) {
 				myui.NewIcon(c.Key("icon-lg"), icons.Star()).Lg().Label("大")
 				myui.NewIcon(c.Key("icon-accent"), icons.Star()).Primary().Md().Label("强调")
 				myui.NewIcon(c.Key("icon-danger"), icons.Star()).Destructive().Md().Label("危险")
+			})
+		})
+	})
+}
+
+// textAreaPage is the TextArea's page: variants, sizes, the growing
+// height and the states.
+func (s *showcase) textAreaPage(c *ui.Context, t *ui.Theme) {
+	s.sectionNote(c, t, "变体与尺寸", "与 Input 同一套预设：变体管外观，尺寸管内衬与字号", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(3)).Children(func() {
+				myui.NewTextArea(c.Key("ta-outline"), &s.draft).Outline().Label("Outline").Placeholder("写点什么…")
+				myui.NewTextArea(c.Key("ta-sm"), &s.draft).Sm().Outline().Label("小").Placeholder("小尺寸")
+				myui.NewTextArea(c.Key("ta-ghost"), &s.draft).Ghost().Label("Ghost").Placeholder("无边框")
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "随内容增高", "Lines(最少, 最多)：超出上限后滚动", func() {
+		s.card(c, t, func() {
+			myui.NewTextArea(c.Key("ta-lines"), &s.draft).Outline().Label("随内容增高").
+				Lines(3, 6).Placeholder("输入几行试试")
+		})
+	})
+
+	s.sectionNote(c, t, "状态与组合", "清除按钮、错误提示与事件", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(3)).Children(func() {
+				myui.NewTextArea(c.Key("ta-clear"), &s.draft).Outline().Label("可清除").
+					Clearable().OnCleared(func() { s.lastEvent = "cleared" })
+				myui.NewTextArea(c.Key("ta-error"), &s.draft).Outline().Label("错误态").
+					Invalid(true).ErrorText("内容太长了")
 			})
 		})
 	})

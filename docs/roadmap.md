@@ -31,7 +31,7 @@
 
 | 顺序 | 组件 | 要点 | 状态 |
 |---|---|---|---|
-| 10 | TextArea | 多行输入，`Variant/Size`、占位/禁用/只读、随内容增长（适用时） | ⏳ 未开始 |
+| 10 | TextArea | 规格书 [components/textarea.md](components/textarea.md)；`textarea.go`：与 Input 同构（共用 `field[T]` 基座），多行文本域，随内容增高（`Lines(min,max)`）、清除/前后缀/错误态/事件；`textarea_test.go` 覆盖尺寸、增高、事件、禁用只读、错误文案、清除；showcase「TextArea」页 | ✅ 已完成 |
 | 11 | Select | 单选下拉，触发器与弹层样式预设、选中态、禁用 | ⏳ 未开始 |
 | 12 | Checkbox | 勾选/半选态、标签与组布局、禁用与键盘可达 | ⏳ 未开始 |
 | 13 | Radio | 单选组、方向与禁用态 | ⏳ 未开始 |
