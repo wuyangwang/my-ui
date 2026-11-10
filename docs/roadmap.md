@@ -35,7 +35,7 @@
 | 尺寸与形态 | 尺寸加 `SizeXs`（4 档）；新增 `Shape` 轴（`ShapeRect`/`ShapeRound`/`ShapeCircle`） | ✅ 已完成 |
 | 宽度与占满 | `Width(w)`（Button/Input/TextArea/Select）、`Block()`（Button） | ✅ 已完成 |
 | 清除按钮 | 有值即出现、**进 Tab 键序**（antd 做法）、点击保持焦点 | ✅ 已完成 |
-| 表单字段层 | `Field`（标签+控件+说明+错误，容器式）+ 可视 `Label`（可点击聚焦、必填星号）+ `Description` + `Error`（`role="alert"`）；校验规则留��� app | ⏳ 进行中 |
+| 表单字段层 | `Field`（标签+控件+说明+错误，容器式）+ 可视 `Label`（可点击聚焦、必填星号）+ `Description` + `Error`（`role="alert"`）；校验规则留给 app | ⏳ 进行中 |
 | 密码输入 | 独立 `PasswordInput` 组件（眼睛按钮切换，mygo 无公开的取消隐藏 API，靠两个 key 切换） | ⏳ 待做 |
 | 已知限制 | 清除按钮嵌在触发器内 → mygo 的无障碍树不展开 leaf-role 子节点（`ui/access.go:772`），读屏摸不到；密码显隐受限于 mygo | 📌 已记录 |
 
