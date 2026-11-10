@@ -10,9 +10,9 @@ import (
 // shows its value. The group of an option names the group it sits in:
 // the popup shows the name above the options of the group.
 //
-//	{Label: "简体中文", Value: "zh-Hans"}
+//	{Label: "绠€浣撲腑鏂?, Value: "zh-Hans"}
 //	{Value: "zh-Hant"}
-//	{Group: "最近", Label: "英语", Value: "en"}
+//	{Group: "鏈€杩?, Label: "鑻辫", Value: "en"}
 type SelectOption struct {
 	Label    string
 	Value    string
@@ -30,11 +30,11 @@ func (o SelectOption) label() string {
 
 // Select is a drop-down choosing one of its options:
 //
-//	myui.NewSelect(c, &size, []myui.SelectOption{{Value: "小"}, {Value: "大"}}).Outline()
+//	myui.NewSelect(c, &size, []myui.SelectOption{{Value: "灏?}, {Value: "澶?}}).Outline()
 //	myui.NewSelect(c, &lang, []myui.SelectOption{
-//		{Label: "简体中文", Value: "zh-Hans"},
+//		{Label: "绠€浣撲腑鏂?, Value: "zh-Hans"},
 //		{Label: "English", Value: "en"},
-//	}).Placeholder("选择语言").OnChanged(func(v string) { app.lang = v })
+//	}).Placeholder("閫夋嫨璇█").OnChanged(func(v string) { app.lang = v })
 //
 // The trigger looks like an input: the same frame, the same border, the
 // same sizes, with an arrow at its end that opens the popup. The popup
@@ -95,7 +95,7 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 		d := float32(16)
 		// The button keeps the focus in the field while it is pressed, and
 		// it is a stop of the Tab key, as a clear button is in Ant Design.
-		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label("清除")
+		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label("娓呴櫎")
 		b.Children(func() {
 			ic := ui.Icon(c, icons.X()).Size(d-5, d-5).TextColor(t.TextMuted)
 			if b.Hovered() {
@@ -109,10 +109,16 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 	})
 
 	// The popup holds the options.
+	//
+	// The popup's content is the machinery's: the options it builds are
+	// the popup's children, and what a view adds to the panel beside
+	// them is dropped. A filter can therefore not live in the popup 鈥?	// the trigger of a select is a button, and a button takes no text.
+	// A select that can be searched is another component, a ComboBox.
 	s.parts.Popup(func(panel ui.Element) {
 		t := c.Theme()
 		panel.Background(t.Background).Border(1, t.Border).Radius(t.Radius).
 			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
+
 		group := ""
 		for _, o := range options {
 			o := o
@@ -282,8 +288,8 @@ func (s *Select) chosen() (SelectOption, bool) {
 
 // apply paints the look of the variant and the size on the trigger.
 //
-// The trigger of a select has no built-in look of its own — MyGo's
-// SelectBase hands over a bare button — so the native variant takes the
+// The trigger of a select has no built-in look of its own 鈥?MyGo's
+// SelectBase hands over a bare button 鈥?so the native variant takes the
 // look of an input field: a face and a border, or the trigger would be
 // a shell with no room in it.
 func (s *Select) apply() {
@@ -296,8 +302,8 @@ func (s *Select) apply() {
 
 // selectLookOf resolves one variant's look for a select's trigger.
 //
-// The trigger of a select has no built-in look — MyGo's SelectBase hands
-// over a bare button — so the field look is its default one.
+// The trigger of a select has no built-in look 鈥?MyGo's SelectBase hands
+// over a bare button 鈥?so the field look is its default one.
 func selectLookOf(v Variant, t *ui.Theme) fieldLook {
 	l := fieldLookOf(v, t)
 	if l.native {

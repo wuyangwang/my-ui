@@ -39,7 +39,8 @@
 | 密码输入 | 规格书 [components/password.md](components/password.md)；`password.go`：独立 `PasswordInput`，眼睛按钮切换明暗（mygo 无公开的取消隐藏 API → 两个 key 切换，值不丢、编辑状态重置） | ✅ 已完成 |
 | 字数限制与计数 | `MaxLength(n)`（mygo 原生 ✓）+ `Count()`（按 rune 计，显示 "12/100" ✓）；Input/TextArea 共用 | ✅ 已完成 |
 | Select 分组 | 选项带 `Group`，弹层按组给标题 ✓（element-plus 的 `el-option-group` ✓） | ✅ 已完成 |
-| Select 可搜索 / 多选 | 可搜索=弹层内的过滤输入框（触发器是按钮，不能直接输入 ✗）；多选=另一个组件（值变成切片 ✗） | ⏳ 待做 |
+| ComboBox（可搜索下拉） | 触发器就是输入框（mygo 的 `ui.ComboboxBase` ✓），弹层按输入过滤；Select 的弹层装不下过滤框（内容由机制接管 ✗） | ⏳ 待做 |
+| MultiSelect（多选） | 值变成切片 + 标签形态 | ⏳ 待做 |
 | 已知限制 | 清除按钮嵌在触发器内 → mygo 的无障碍树不展开 leaf-role 子节点（`ui/access.go:772`），读屏摸不到；密码显隐受限于 mygo；聚焦即校验做不了（无 focus-gained 事件） | 📌 已记录 |
 
 ## 一期后：表单与反馈补齐（按序）
