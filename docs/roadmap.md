@@ -37,7 +37,10 @@
 | 清除按钮 | 有值即出现、**进 Tab 键序**（antd 做法）、点击保持焦点 | ✅ 已完成 |
 | 表单字段层 | 规格书 [components/field.md](components/field.md)；`form.go` + `rules.go`：`NewField(c, 标签, 造控件)` 容器式字段（标签可点击聚焦控件、必填星号、说明 `DescribedBy`、错误 `role=alert` + 控件 `Invalid`）；**校验层**：`Validate(value, rules...)`（被离开后与值变化时检查）+ `Required`/`MinLength`/`MaxLength`/`Pattern`/`Email` 规则 + `Touched`/`Dirty`/`Valid` 状态 | ✅ 已完成 |
 | 密码输入 | 规格书 [components/password.md](components/password.md)；`password.go`：独立 `PasswordInput`，眼睛按钮切换明暗（mygo 无公开的取消隐藏 API → 两个 key 切换，值不丢、编辑状态重置） | ✅ 已完成 |
-| 已知限制 | 清除按钮嵌在触发器内 → mygo 的无障碍树不展开 leaf-role 子节点（`ui/access.go:772`），读屏摸不到；密码显隐受限于 mygo | 📌 已记录 |
+| 字数限制与计数 | `MaxLength(n)`（mygo 原生 ✓）+ `Count()`（按 rune 计，显示 "12/100" ✓）；Input/TextArea 共用 | ✅ 已完成 |
+| Select 分组 | 选项带 `Group`，弹层按组给标题 ✓（element-plus 的 `el-option-group` ✓） | ✅ 已完成 |
+| Select 可搜索 / 多选 | 可搜索=弹层内的过滤输入框（触发器是按钮，不能直接输入 ✗）；多选=另一个组件（值变成切片 ✗） | ⏳ 待做 |
+| 已知限制 | 清除按钮嵌在触发器内 → mygo 的无障碍树不展开 leaf-role 子节点（`ui/access.go:772`），读屏摸不到；密码显隐受限于 mygo；聚焦即校验做不了（无 focus-gained 事件） | 📌 已记录 |
 
 ## 一期后：表单与反馈补齐（按序）
 

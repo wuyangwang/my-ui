@@ -7,13 +7,16 @@ import (
 
 // SelectOption is one option of a Select: the label the trigger and the
 // popup show, and the value the app holds. An option without a label
-// shows its value.
+// shows its value. The group of an option names the group it sits in:
+// the popup shows the name above the options of the group.
 //
 //	{Label: "简体中文", Value: "zh-Hans"}
 //	{Value: "zh-Hant"}
+//	{Group: "最近", Label: "英语", Value: "en"}
 type SelectOption struct {
 	Label    string
 	Value    string
+	Group    string
 	Disabled bool
 }
 
@@ -110,8 +113,15 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 		t := c.Theme()
 		panel.Background(t.Background).Border(1, t.Border).Radius(t.Radius).
 			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
+		group := ""
 		for _, o := range options {
 			o := o
+			// The name of a group shows above its options.
+			if o.Group != "" && o.Group != group {
+				group = o.Group
+				ui.Text(c, group).FontSize(TextSize(t, TextXs)).TextColor(t.TextMuted).
+					Padding(t.Space(1), t.Space(2))
+			}
 			item := s.parts.Item(o.Value).Padding(t.Space(1.5), t.Space(2)).Radius(t.Radius / 2)
 			if item.Highlighted() {
 				item.Background(t.Accent.Alpha(0.10))

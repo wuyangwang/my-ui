@@ -69,6 +69,7 @@
 type SelectOption struct {
 	Label    string
 	Value    string
+	Group    string
 	Disabled bool
 }
 

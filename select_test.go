@@ -102,6 +102,31 @@ func TestSelectDisabledTakesNoClick(t *testing.T) {
 	}
 }
 
+func TestSelectGroupsItsOptions(t *testing.T) {
+	var value string
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		NewSelect(c, &value, []SelectOption{
+			{Group: "最近", Label: "英语", Value: "en"},
+			{Group: "最近", Label: "日语", Value: "ja"},
+			{Group: "更多", Label: "韩语", Value: "ko"},
+		}).Outline().Label("语言")
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	if err := tt.Click("语言"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	// The name of a group shows above its options.
+	if _, ok := tt.Find("最近"); !ok {
+		t.Error("the group is not on screen")
+	}
+	if _, ok := tt.Find("更多"); !ok {
+		t.Error("the second group is not on screen")
+	}
+}
+
 func TestSelectClearEmptiesTheChoice(t *testing.T) {
 	var value string
 	cleared := false

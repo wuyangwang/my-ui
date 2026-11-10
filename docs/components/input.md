@@ -68,6 +68,8 @@
 | `ErrorMessage(fn func())` | 自定义错误内容（显示在外框下方） |
 | `ReadOnly(on bool)` | 只读 |
 | `Disabled(on bool)` | 禁用 |
+| `MaxLength(n int)` | 限制用户输入的长度（mygo 原生 ✓，按 rune 计） |
+| `Count()` | 显示当前长度（有上限时显示 "12/100" ✓，按 rune 计） |
 | `Password()` | 隐藏所输入的内容 |
 | `Prefix(fn func())` | 前缀内容（图标、文字、控件皆可） |
 | `PrefixIcon(svg *ui.SVG)` | 前缀图标（取文字色与字号） |

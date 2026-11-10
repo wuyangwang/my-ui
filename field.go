@@ -1,6 +1,8 @@
 package myui
 
 import (
+	"strconv"
+
 	"github.com/egoist/mygo/ui"
 	"github.com/wuyangwang/my-ui/icons"
 )
@@ -22,6 +24,7 @@ type field[T any] struct {
 	pre      ui.Element // the slot before the text
 	suf      ui.Element // the slot after the text
 	clear    ui.Element // the slot of the clear button
+	count    ui.Element // the slot of the count
 	msg      ui.Element // the slot of the error message
 	value    *string
 	variant  Variant
@@ -30,6 +33,8 @@ type field[T any] struct {
 	invalid  bool
 	readOnly bool
 	cleared  bool
+	limit    int
+	counted  bool
 }
 
 // newField builds the frame of a text field. The text itself is made
@@ -49,6 +54,7 @@ func newField[T any](c *ui.Context, value *string, make func(c *ui.Context, valu
 	f.frame.Children(func() {
 		f.pre = ui.Row(c).AlignItems(ui.Center)
 		f.mid = ui.Row(c).AlignItems(ui.Center).Grow(1)
+		f.count = ui.Row(c).AlignItems(ui.Center)
 		f.suf = ui.Row(c).AlignItems(ui.Center)
 		f.clear = ui.Row(c).AlignItems(ui.Center)
 	})
@@ -116,6 +122,38 @@ func (f *field[T]) Size(s Size) T {
 // frame, which is the one that takes the focus and the one the label,
 // the description and the error speak of.
 func (f *field[T]) Control() ui.Element { return f.inner }
+
+// MaxLength keeps the user from making the value longer than n, and
+// returns the widget, for chaining. The count is in runes, as HTML's
+// maxlength counts them is in code units — a rune is one character of
+// the text as the user sees it.
+func (f *field[T]) MaxLength(n int) T {
+	f.limit = n
+	f.inner = f.inner.MaxLength(n)
+	return f.self
+}
+
+// Count shows how long the value is, and how long it may be, and
+// returns the widget, for chaining. The count is in runes.
+func (f *field[T]) Count() T {
+	f.counted = true
+	c := f.c
+	t := c.Theme()
+	f.count.Children(func() {
+		n := len([]rune(*f.value))
+		text := ""
+		if f.limit > 0 {
+			text = itoa(n) + "/" + itoa(f.limit)
+		} else {
+			text = itoa(n)
+		}
+		ui.Text(c, text).TextColor(t.TextMuted).FontSize(TextSize(t, TextXs))
+	})
+	return f.self
+}
+
+// itoa is the number as a string.
+func itoa(n int) string { return strconv.Itoa(n) }
 
 // Width sets the width of the field in DIPs and returns the widget,
 // for chaining.

@@ -77,6 +77,45 @@ func TestInputDarkTheme(t *testing.T) {
 	}
 }
 
+func TestInputCountsItsValue(t *testing.T) {
+	var value string
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewInput(c, &value).Outline().Label("名称").MaxLength(10).Count()
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	if _, ok := tt.Find("0/10"); !ok {
+		t.Error("the count does not show")
+	}
+	if err := tt.Click("名称"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("hello")
+	tt.Advance(time.Second)
+	if _, ok := tt.Find("5/10"); !ok {
+		t.Error("the count does not follow the value")
+	}
+}
+
+func TestInputKeepsToItsLimit(t *testing.T) {
+	var value string
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewInput(c, &value).Outline().Label("名称").MaxLength(5)
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	if err := tt.Click("名称"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("abcdefgh")
+	tt.Advance(time.Second)
+	if n := len([]rune(value)); n > 5 {
+		t.Errorf("the value holds %d characters, over the limit of 5", n)
+	}
+}
+
 func TestInputClearableEmptiesTheValue(t *testing.T) {
 	var value string
 	cleared := false

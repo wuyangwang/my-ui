@@ -59,6 +59,8 @@
 | `ErrorText(s string)` | 错误文案（显示在外框下方） |
 | `ErrorMessage(fn func())` | 自定义错误内容 |
 | `ReadOnly(on bool)` · `Disabled(on bool)` | 只读 / 禁用 |
+| `MaxLength(n int)` | 限制用户输入的长度（mygo 原生 ✓，按 rune 计） |
+| `Count()` | 显示当前长度（有上限时显示 "12/100" ✓，按 rune 计） |
 | `Prefix(fn func())` · `PrefixIcon(svg)` | 前缀内容 / 前缀图标 |
 | `Suffix(fn func())` · `SuffixIcon(svg)` | 后缀内容 / 后缀图标 |
 | `Clearable()` | 清除按钮 |
