@@ -17,6 +17,11 @@ type showcase struct {
 	page       int
 	appearance myui.Appearance
 	palette    myui.PaletteID
+
+	name     string
+	email    string
+	disabled string
+	readonly string
 }
 
 // pages is one sidebar entry: the page key and its label.
@@ -25,6 +30,9 @@ var pages = []struct {
 	label string
 }{
 	{"button", "Button"},
+	{"input", "Input"},
+	{"badge", "Badge"},
+	{"scaffold", "Scaffold"},
 	{"theme", "外观"},
 }
 
@@ -73,10 +81,13 @@ func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 		ui.Column(c).Gap(t.Space(2)).Children(func() {
 			ui.Text(c, "组件").FontSize(myui.TextSize(t, myui.TextXs)).Bold().TextColor(t.TextMuted)
 			s.nav(c, t, 0)
+			s.nav(c, t, 1)
+			s.nav(c, t, 2)
+			s.nav(c, t, 3)
 		})
 		ui.Column(c).Gap(t.Space(2)).Children(func() {
 			ui.Text(c, "主题").FontSize(myui.TextSize(t, myui.TextXs)).Bold().TextColor(t.TextMuted)
-			s.nav(c, t, 1)
+			s.nav(c, t, 4)
 		})
 	})
 }
@@ -109,6 +120,12 @@ func (s *showcase) main(c *ui.Context, t *ui.Theme) {
 func (s *showcase) pages(c *ui.Context, t *ui.Theme) func() {
 	switch s.page {
 	case 1:
+		return func() { s.inputPage(c, t) }
+	case 2:
+		return func() { s.badgePage(c, t) }
+	case 3:
+		return func() { s.scaffoldPage(c, t) }
+	case 4:
 		return func() { s.themePage(c, t) }
 	default:
 		return func() { s.buttonPage(c, t) }
@@ -182,6 +199,120 @@ func (s *showcase) presetCard(c *ui.Context, t *ui.Theme, name, cn, tip, label s
 		s.cardHead(c, t, cn, name+" · "+tip)
 		b := myui.NewButton(c.Key("button "+name), label)
 		preset(b)
+	})
+}
+
+// inputPage is the Input's page: variants, sizes and states.
+func (s *showcase) inputPage(c *ui.Context, t *ui.Theme) {
+	s.sectionNote(c, t, "变体", "边框与底色随 Variant 预设变化", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(3)).Children(func() {
+				myui.NewInput(c.Key("in-native"), &s.name).Placeholder("Native / 默认").Label("Native")
+				myui.NewInput(c.Key("in-outline"), &s.email).Outline().Placeholder("Outline").Label("Outline")
+				myui.NewInput(c.Key("in-ghost"), &s.name).Ghost().Placeholder("Ghost").Label("Ghost")
+				myui.NewInput(c.Key("in-primary"), &s.name).Primary().Placeholder("Primary（强调边框）").Label("Primary")
+				myui.NewInput(c.Key("in-danger"), &s.name).Destructive().Placeholder("Destructive").Label("Destructive")
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "尺寸", "内衬与字号沿用 Size 档，与变体正交", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(2)).Children(func() {
+				myui.NewInput(c.Key("in-sm"), &s.name).Sm().Outline().Placeholder("小尺寸").Label("小")
+				myui.NewInput(c.Key("in-md"), &s.name).Md().Outline().Placeholder("中尺寸（默认）").Label("中")
+				myui.NewInput(c.Key("in-lg"), &s.name).Lg().Outline().Placeholder("大尺寸").Label("大")
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "状态", "禁用与只读遵循 ui 输入约定", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(2)).Children(func() {
+				myui.NewInput(c.Key("in-disabled"), &s.disabled).Outline().Placeholder("不可编辑").Label("禁用").Disabled(true)
+				s.readonly = "只读内容"
+				myui.NewInput(c.Key("in-readonly"), &s.readonly).Outline().Label("只读").ReadOnly(true)
+			})
+		})
+	})
+}
+
+// badgePage is the Badge's page: variants and sizes.
+func (s *showcase) badgePage(c *ui.Context, t *ui.Theme) {
+	s.sectionNote(c, t, "变体", "标签/徽标的语义预设", func() {
+		s.card(c, t, func() {
+			ui.Row(c).Gap(t.Space(2)).Children(func() {
+				myui.NewBadge(c.Key("badge-native"), "Native").Native()
+				myui.NewBadge(c.Key("badge-primary"), "Primary").Primary()
+				myui.NewBadge(c.Key("badge-outline"), "Outline").Outline()
+				myui.NewBadge(c.Key("badge-ghost"), "Ghost").Ghost()
+				myui.NewBadge(c.Key("badge-destructive"), "Danger").Destructive()
+				myui.NewBadge(c.Key("badge-link"), "Link").Link()
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "尺寸", "内衬与字号随 Size 变化", func() {
+		s.card(c, t, func() {
+			ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center).Children(func() {
+				myui.NewBadge(c.Key("badge-sm"), "Sm").Primary().Sm()
+				myui.NewBadge(c.Key("badge-md"), "Md").Primary().Md()
+				myui.NewBadge(c.Key("badge-lg"), "Lg").Primary().Lg()
+			})
+		})
+	})
+
+	s.sectionNote(c, t, "组合示例", "与按钮等组件并排展示", func() {
+		s.card(c, t, func() {
+			ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center).Children(func() {
+				myui.NewButton(c.Key("badge-btn"), "消息").Outline()
+				myui.NewBadge(c.Key("badge-count"), "12").Primary().Sm()
+			})
+		})
+	})
+}
+
+// scaffoldPage demonstrates the Scaffold layout skeleton.
+func (s *showcase) scaffoldPage(c *ui.Context, t *ui.Theme) {
+	s.sectionNote(c, t, "用途", "Scaffold 用于统一页面结构：可选标题栏安全区/顶部栏、可滚动内容区、底部栏，并为底部栏预留滚动空间（避免最后内容被遮挡）", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(3)).Children(func() {
+				ui.Text(c, "示例预览（卡片内模拟一个页面）").
+					FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+				ui.Column(c).Height(300).Background(t.Background).Border(1, t.Border).Radius(t.Radius).Children(func() {
+					myui.Scaffold(c, myui.ScaffoldOptions{
+						Top: func() {
+							ui.Row(c).Fill().Padding(t.Space(2), t.Space(3)).Background(t.Surface).AlignItems(ui.Center).Children(func() {
+								ui.Text(c, "页面标题 / 顶部栏").FontSize(myui.TextSize(t, myui.TextSm)).Bold()
+							})
+						},
+						Bottom: func() {
+							ui.Row(c).Fill().Padding(t.Space(2), t.Space(3)).Background(t.Surface).Border(1, t.Border).AlignItems(ui.Center).Children(func() {
+								ui.Row(c).Grow(1).Children(func() {})
+								myui.NewButton(c.Key("scaffold-cancel"), "取消").Outline().Sm()
+								myui.NewButton(c.Key("scaffold-ok"), "保存").Primary().Sm()
+							})
+						},
+						BottomInset: 56,
+						Content: func() {
+							ui.Column(c).Padding(t.Space(3)).Gap(t.Space(2)).Children(func() {
+								ui.Text(c, "这里是可滚动内容区").Bold()
+								for i := 1; i <= 10; i++ {
+									ui.Text(c, "列表项 / 内容行")
+								}
+								ui.Text(c, "最后一行（应在底部栏上方可见）").TextColor(t.TextMuted)
+							})
+						},
+					})
+				})
+			})
+		})
+	})
+	s.sectionNote(c, t, "标题栏安全区", "隐藏系统标题栏时可用 UseTitleBar 让顶部区域避开窗口控件并可拖拽", func() {
+		s.card(c, t, func() {
+			ui.Text(c, "myui.Scaffold(c, myui.ScaffoldOptions{UseTitleBar: true, Top: ..., Bottom: ..., Content: ...})").
+				FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+		})
 	})
 }
 

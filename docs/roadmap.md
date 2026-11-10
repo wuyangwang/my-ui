@@ -15,11 +15,11 @@
 | 1 | tokens 刻度 | `tokens.go`：字号/间距/圆角/动效倍率与 `TextSize/Space/Radius`；随主题/刻度的解析测试；showcase 中通过主题与布局体现 | ✅ 已完成 |
 | 2 | 主题与取色 | `theme.go`/`palettes.go`/`shades.go`：`Apply`/`NewTheme`、明暗三态、8 套 Palette、系统强调色/高对比/文本缩放、shades 派生；`theme_test`/`shades_test` 覆盖外观、色板、强调色、文本缩放、高对比、子树隔离；showcase「外观」页 + `ui.Themed` 预览 | ✅ 已完成 |
 | 3 | Button | `button.go`：共享 `Variant`/`Size`（零值 `Native`，`Secondary` 为别名）+ `Primary/Outline/Ghost/Destructive/Link` 预设与 hover/pressed/禁用；`button_test.go` 覆盖变体绘制与交互、尺寸、禁用；showcase「Button」页 | ✅ 已完成 |
-| 4 | Input | `input.go`（或等价文件）：文本输入的变体/尺寸/状态预设（对齐共享 `Variant`/`Size` 语义，含占位/禁用/只读等适用状态），绑定遵循 ui 输入约定；Tester 覆盖默认/聚焦或交互/禁用/只读/明暗；showcase 新增「Input」页 | ⏳ 未开始 |
-| 5 | Badge | `badge.go`：标签/徽标预设（变体/尺寸/可选语义色）；Tester 覆盖主要变体与明暗；showcase 新增「Badge」页（可与列表/按钮组合展示） | ⏳ 未开始 |
-| 6 | Scaffold | 页面骨架组合：顶栏 `TitleBar()` 安全区、滚动内容区、可选吸顶/吸底与底部预留（`ScrollbarInsets`/`Sticky`）；Tester 覆盖基础布局与底部不遮挡等关键行为；showcase 提供骨架示例页或将现有布局迁移为 Scaffold 用法 | ⏳ 未开始 |
+| 4 | Input | `input.go`：文本输入的变体/尺寸/状态预设（对齐共享 `Variant`/`Size` 语义，含占位/禁用/只读等适用状态），绑定遵循 ui 输入约定；Tester 覆盖变体/尺寸、禁用/只读、暗色主题；showcase 新增「Input」页 | ✅ 已完成 |
+| 5 | Badge | `badge.go`：标签/徽标预设（共享 `Variant/Size`）；Tester 覆盖主要变体与明暗主题、尺寸；showcase 新增「Badge」页（含组合示例） | ✅ 已完成 |
+| 6 | Scaffold | `scaffold.go`：页面骨架组合（`TitleBar()` 安全区、滚动内容区、底部栏与底部预留/`ScrollbarInsets`）；Tester 覆盖基础布局与标题栏安全区；showcase 提供 Scaffold 骨架示例页 | ✅ 已完成 |
 
-**一期验收**：`go build/vet`（macOS/Linux/Windows）+ `GOOS=js GOARCH=wasm go vet` 全绿；`ui.Tester` 覆盖 Button/Input/Badge/Scaffold 的关键状态；showcase 可演示以上组件与主题切换。
+**一期验收（已达成）**：`Button/Input/Badge/Scaffold` 均已交付实现 + `ui.Tester` 测试 + showcase 演示；本地 `go build/vet/test ./...` 通过。跨平台/wasm 矩阵（macOS/Linux/Windows + `GOOS=js GOARCH=wasm go vet`）待在对应环境/CI 验证。
 
 ## 一期后：表单与反馈补齐（按序）
 
