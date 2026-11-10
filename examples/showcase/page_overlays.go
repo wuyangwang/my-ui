@@ -38,10 +38,10 @@ func (s *showcase) overlaysPage(c *ui.Context, t *ui.Theme) {
 				// The panel is the dialog as assistive technology sees
 				// it: name it, so a screen reader says what it is for.
 				panel.Label("删除项目")
-				ui.Column(c).Gap(t.Space(3)).Children(func() {
+				ui.Column(c).Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, "确定删除这个项目吗？").Bold().FontSize(t.FontSize + 2)
 					ui.Text(c, "这个操作不能撤销。").TextColor(t.TextMuted)
-					ui.Row(c).Gap(t.Space(2)).AlignItems(ui.End).Children(func() {
+					ui.Row(c).Gap(t.Space(2)).Children(func() {
 						cancel := myui.NewButton(c, "取消").Ghost()
 						if cancel.Clicked() {
 							s.modalOpen = false

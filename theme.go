@@ -133,6 +133,21 @@ func OnAccent(c ui.Color) ui.Color {
 	return ui.RGB(255, 255, 255)
 }
 
+// InverseColors are the colors a tip shows in: the theme turned over, so
+// that the tip stands out from what it is over. A theme that leaves
+// Inverse and InverseText alone gets the ink and the background of the
+// window, as MyGo does for its own tips and toasts.
+func InverseColors(t *ui.Theme) (fill, text ui.Color) {
+	fill, text = t.Inverse, t.InverseText
+	if fill == ui.Transparent {
+		fill = t.Text
+	}
+	if text == ui.Transparent {
+		text = t.Background
+	}
+	return fill, text
+}
+
 // luma is the color's lightness, from 0, black, to 1, white, by the
 // weights the built-in themes read intensities by.
 func luma(c ui.Color) float32 {

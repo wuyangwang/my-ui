@@ -10,9 +10,10 @@ import (
 //	myui.NewTooltip(c, myui.NewButton(c, "帮助").Element, "这是帮助文字")
 //
 // The tip is styled by the library, as shadcn's: the theme turned over
-// (Inverse on InverseText), a small text, rounded corners and a shadow,
-// above the anchor. The tip's text becomes the anchor's description too,
-// so assistive technology reads it with the anchor.
+// (the ink of the window on its background, or the theme's own inverse),
+// a small text, rounded corners and a shadow, above the anchor. The
+// tip's text becomes the anchor's description too, so assistive
+// technology reads it with the anchor.
 type Tooltip struct {
 	ui.Element
 }
@@ -31,7 +32,10 @@ func NewTooltip(c *ui.Context, anchor ui.Element, text string) *Tooltip {
 	anchor = anchor.Description(text)
 	tip := ui.TooltipBase(c, anchor, func(tip ui.Element) {
 		th := c.Theme()
-		tip.Background(th.Inverse).TextColor(th.InverseText).
+		// The tip is the theme turned over, so that it stands out from
+		// what it is over.
+		fill, ink := InverseColors(th)
+		tip.Background(fill).TextColor(ink).
 			Padding(th.Space(1.5), th.Space(3)).
 			Radius(th.Radius).
 			FontSize(TextSize(th, TextXs)).

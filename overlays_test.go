@@ -59,6 +59,53 @@ func TestTooltipDescribesItsAnchor(t *testing.T) {
 	}
 }
 
+// TestTooltipDrawsItsText looks at the pixels: the tip is the theme
+// turned over, and the text of it is the ink on that ground.
+func TestTooltipDrawsItsText(t *testing.T) {
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		ui.Column(c).Children(func() {
+			ui.Box(c).Height(140)
+			NewTooltip(c, NewButton(c, "帮助").Element, "这是帮助文字")
+		})
+	}
+	tt := ui.NewTester(view, 320, 300)
+	tt.Advance(time.Second)
+	anchor, ok := tt.Find("帮助")
+	if !ok {
+		t.Fatal("the anchor is not on screen")
+	}
+	tt.Move(anchor.X+anchor.W/2, anchor.Y+anchor.H/2)
+	tt.Advance(2 * time.Second)
+	text, ok := tt.Find("这是帮助文字")
+	if !ok {
+		t.Fatal("the tip is not on screen")
+	}
+	tip, ok := tt.AccessByRole(ui.RoleTooltip, "")
+	if !ok {
+		t.Fatal("the tip is not in the tree of the assistive technology")
+	}
+	// The tip has a ground of its own: the ink of the theme.
+	b := tip.Bounds
+	cr, _, _, _ := tt.Image().At(int(b.X+2), int(b.Y+b.H/2)).RGBA()
+	if cr > 0x8000 {
+		t.Error("the tip has no ground of its own")
+	}
+	// The text of it is drawn in the ink on that ground.
+	light := 0
+	for x := int(text.X); x < int(text.X+text.W); x++ {
+		for y := int(text.Y); y < int(text.Y+text.H); y++ {
+			r, g, bl, _ := tt.Image().At(x, y).RGBA()
+			if r > 0xA000 && g > 0xA000 && bl > 0xA000 {
+				light++
+			}
+		}
+	}
+	if light == 0 {
+		t.Error("the text of the tip is not drawn")
+	}
+}
+
 func TestPopoverOpensOverItsAnchor(t *testing.T) {
 	open := false
 	view := func(c *ui.Context) {
@@ -209,5 +256,49 @@ func TestPopoverClosesWhenThePointerClicksOutside(t *testing.T) {
 	tt.Advance(time.Second)
 	if _, ok := tt.Find("面板里的内容"); ok {
 		t.Error("the panel is still on screen after a click outside it")
+	}
+}
+
+// TestModalCentersItsButtons checks the dialog's layout: the buttons
+// of it sit in the middle of the panel, as the content around them does.
+func TestModalCentersItsButtons(t *testing.T) {
+	open := false
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		NewModal(c, &open, func() ui.Element {
+			return NewButton(c, "打开").Element
+		}, func(panel ui.Element) {
+			ui.Column(c).AlignItems(ui.Center).Children(func() {
+				ui.Text(c, "确定吗？")
+				ui.Row(c).Gap(c.Theme().Space(2)).Children(func() {
+					NewButton(c, "取消")
+					NewButton(c, "删除")
+				})
+			})
+		})
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	if err := tt.Click("打开"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	cancel, ok := tt.Find("取消")
+	if !ok {
+		t.Fatal("the button is not on screen")
+	}
+	remove, ok := tt.Find("删除")
+	if !ok {
+		t.Fatal("the button is not on screen")
+	}
+	dialog, ok := tt.AccessByRole(ui.RoleDialog, "")
+	if !ok {
+		t.Fatal("the dialog is not in the tree of the assistive technology")
+	}
+	b := dialog.Bounds
+	left := cancel.X - b.X
+	right := (b.X + b.W) - (remove.X + remove.W)
+	if diff := left - right; diff > 2 || diff < -2 {
+		t.Errorf("the buttons sit %v from the left and %v from the right of the dialog", left, right)
 	}
 }

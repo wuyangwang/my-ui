@@ -22,7 +22,10 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
 - **Colors and metrics come from `c.Theme()` at build time.** Never cache
   colors in package level state; components must follow `SetTheme` and
   system appearance/accent/high-contrast/text-scale changes on the next
-  frame. The tokens layer derives everything from a `*ui.Theme`.
+  frame. The tokens layer derives everything from a `*ui.Theme`. A theme
+  field the framework leaves empty (`Inverse`, `InverseText`) reads as
+  transparent: take the framework's own fallback (`myui.InverseColors`),
+  not the bare field, or the thing shows as an empty box.
 - **Follow ui's binding convention** ("the input is the returned value"):
   components take state as pointers, return their output, and end where
   the next statement can read the edit. No channels as state, no manual

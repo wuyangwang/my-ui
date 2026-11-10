@@ -6,7 +6,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| [shadcn/ui Tooltip](https://ui.shadcn.com/docs/components/tooltip)（源码 `ui/tooltip.tsx`） | `TooltipProvider`（`delayDuration` 延迟）· `TooltipTrigger`（`asChild` 触发器）· `TooltipContent`（`Portal` + `bg-foreground text-background rounded-md px-3 py-1.5 text-xs shadow-md`，`sideOffset`）· `TooltipPrimitive.Arrow`（小箭头） | 延迟取主题 ✓；触发器=锚点 ✓；外观照抄（`Inverse`/`InverseText` + `Space(1.5)/Space(3)` + `TextXs` + 圆角 + 阴影 ✓）；**箭头缺** ✗（框架没有 ✗） |
+| [shadcn/ui Tooltip](https://ui.shadcn.com/docs/components/tooltip)（源码 `ui/tooltip.tsx`） | `TooltipProvider`（`delayDuration` 延迟）· `TooltipTrigger`（`asChild` 触发器）· `TooltipContent`（`Portal` + `bg-foreground text-background rounded-md px-3 py-1.5 text-xs shadow-md`，`sideOffset`）· `TooltipPrimitive.Arrow`（小箭头） | 延迟取主题 ✓；触发器=锚点 ✓；外观照抄（主题翻转 `InverseColors` + `Space(1.5)/Space(3)` + `TextXs` + 圆角 + 阴影 ✓）；**箭头缺** ✗（框架没有 ✗） |
 | mygo 的 `ui.TooltipBase(c, anchor, fn)` | 提示挂在**锚点**上（默认 `AttachTo(anchor, AnchorTop, AnchorBottom)`：上面放不下就放下面 ✓）；指针停留/键盘聚焦时出现 ✓；延迟由主题的 `TooltipDelay` 给 ✓；按下锚点则提示消失 ✓；`IgnoreInput` 让指针穿过提示 ✓ | 锚点 + 我们自绘的提示卡 ✓ |
 | [Element Plus el-tooltip](https://element-plus.org/en-US/component/tooltip.html) | `content`/`raw-content`、`placement`（12 向）、`effect`（dark/light）、`show-after`、`trigger`（hover/click/focus）、`popper-class` | 位置与效果由框架给 ✓；触发方式固定为悬停+聚焦 ✓（框架如此 ✗） |
 
@@ -37,6 +37,9 @@
 - `ui.TooltipBase` 的回调里，`c` 的父节点是**覆盖层**，不是提示本身 → 提示里的文字必须用
   `tip.Children(func(){ ui.Text(c, text) })` 建在提示里，否则文字落到窗口左上角 ✗。
   （回归测试 `TestTooltipShowsOverItsAnchor` 断言提示在锚点上方、不在窗口角上 ✓。）
+- 主题的 `Inverse`/`InverseText` **留空时是零值**（框架内部自己兜底成 `Text`/`Background`）→
+  直接读这两个字段会拿到透明色，提示只剩一个空框 ✗。用 `myui.InverseColors(th)` 取兜底后的颜色 ✓
+  （回归测试 `TestTooltipDrawsItsText` 看像素 ✓）。
 
 ## 4. 项目结构是否合理
 
