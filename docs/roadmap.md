@@ -1,41 +1,71 @@
 # my-ui 路线图
 
-> "mygo 已有"列指 mygo v0.8.3 现状（证据见 [research.md](research.md)）；"my-ui 补"列为本库产出。条件：基线已验证外部 module 可编译、可发布。
+> 基线 mygo **v0.8.3**（证据见 [research.md](research.md)）。本文是按序实施计划：**每一项交付 = 实现 + `ui.Tester` 测试 + `examples/showcase` 示例页/区块**（适用时）。当前无 tag，开发中不考虑历史兼容。
 
-## 优先级排序原则
+## 原则
 
-1. 差异化优先：`ai/` 是 mygo 独有能力（流式 Markdown + 虚拟化列表）之上的库级卖点。
-2. 范式先行：先做 tokens + theme + 2~3 个变体控件，把"一行构造器 + 预设"的范式定稿，后续组件照抄。
-3. 无风险项优先：瀑布流已明确不做。
+1. **范式先行**：先定稿 tokens/theme 与变体控件范式，后续组件照抄。
+2. **顺序推进**：按下表从上到下逐项完成；未完成项不跳到后续阶段宣称"已覆盖"。
+3. **差异化后置并行**：`ai/` 等能力在一期范式稳定后推进。
 
-## 一期（范式与卖点）
+## 一期：范式定稿（当前阶段）
 
-| 项 | mygo 已有 | my-ui 补 |
+| 顺序 | 项目 | 交付内容（实现 / 测试 / 示例） | 状态 |
+|---|---|---|---|
+| 1 | tokens 刻度 | `tokens.go`：字号/间距/圆角/动效倍率与 `TextSize/Space/Radius`；随主题/刻度的解析测试；showcase 中通过主题与布局体现 | ✅ 已完成 |
+| 2 | 主题与取色 | `theme.go`/`palettes.go`/`shades.go`：`Apply`/`NewTheme`、明暗三态、8 套 Palette、系统强调色/高对比/文本缩放、shades 派生；`theme_test`/`shades_test` 覆盖外观、色板、强调色、文本缩放、高对比、子树隔离；showcase「外观」页 + `ui.Themed` 预览 | ✅ 已完成 |
+| 3 | Button | `button.go`：共享 `Variant`/`Size`（零值 `Native`，`Secondary` 为别名）+ `Primary/Outline/Ghost/Destructive/Link` 预设与 hover/pressed/禁用；`button_test.go` 覆盖变体绘制与交互、尺寸、禁用；showcase「Button」页 | ✅ 已完成 |
+| 4 | Input | `input.go`（或等价文件）：文本输入的变体/尺寸/状态预设（对齐共享 `Variant`/`Size` 语义，含占位/禁用/只读等适用状态），绑定遵循 ui 输入约定；Tester 覆盖默认/聚焦或交互/禁用/只读/明暗；showcase 新增「Input」页 | ⏳ 未开始 |
+| 5 | Badge | `badge.go`：标签/徽标预设（变体/尺寸/可选语义色）；Tester 覆盖主要变体与明暗；showcase 新增「Badge」页（可与列表/按钮组合展示） | ⏳ 未开始 |
+| 6 | Scaffold | 页面骨架组合：顶栏 `TitleBar()` 安全区、滚动内容区、可选吸顶/吸底与底部预留（`ScrollbarInsets`/`Sticky`）；Tester 覆盖基础布局与底部不遮挡等关键行为；showcase 提供骨架示例页或将现有布局迁移为 Scaffold 用法 | ⏳ 未开始 |
+
+**一期验收**：`go build/vet`（macOS/Linux/Windows）+ `GOOS=js GOARCH=wasm go vet` 全绿；`ui.Tester` 覆盖 Button/Input/Badge/Scaffold 的关键状态；showcase 可演示以上组件与主题切换。
+
+## 一期后：表单与反馈补齐（按序）
+
+在一期范式定稿后，优先补齐高频输入与反馈组件（优先基于 mygo 已有控件做 `Variant/Size/状态` 预设包装）。每项交付 = **实现 + `ui.Tester` 测试 + showcase 示例**。
+
+| 顺序 | 组件 | 要点 | 状态 |
+|---|---|---|---|
+| 7 | TextArea | 多行输入，`Variant/Size`、占位/禁用/只读、随内容增长（适用时） | ⏳ 未开始 |
+| 8 | Select | 单选下拉，触发器与弹层样式预设、选中态、禁用 | ⏳ 未开始 |
+| 9 | Checkbox | 勾选/半选态、标签与组布局、禁用与键盘可达 | ⏳ 未开始 |
+| 10 | Radio | 单选组、方向与禁用态 | ⏳ 未开始 |
+| 11 | Switch | 开关预设与动效跟随主题/Reduced Motion | ⏳ 未开始 |
+| 12 | Slider | 单值滑杆（必要时扩展区间），步进/禁用/状态样式 | ⏳ 未开始 |
+| 13 | Alert | 语义类型（info/success/warn/error 等映射主题槽）、标题/描述/可关闭 | ⏳ 未开始 |
+| 14 | Tooltip | 文本提示预设，延迟/位置封装（基于 ui 能力） | ⏳ 未开始 |
+
+> 后续可按需插入：`InputPassword`、`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
+
+## 二期：导航、展示与桌面细粒度组件（按需排期）
+
+按优先级逐项推进，每项同样要求 **实现 + Tester 测试 + showcase 示例**。
+
+| 类别 | 组件 | 状态 |
 |---|---|---|
-| tokens | `Theme.Space/Rem`、`Color.Hex/Mix/MixOklab` | 色板常量、字号/间距/圆角/动效/内衬刻度体系 |
-| 主题 | `LightTheme/DarkTheme`、`SetTheme`、`ui.Themed`、系统外观/强调色自动跟随 | 主题 preset 集、明暗切换入口（跟随/强制）、色板强调色切换入口 |
-| 中英文 | `c.Locale()`/`c.Region()`、公开 `i18n` 包（CLDR） | 内置 `en`/`zh-Hans`/`zh-Hant` 小文案表 + 回退链 + app 覆盖 |
-| 变体控件 | Button/PrimaryButton 等 uigen themed 包装 | `Button`、`Input`、`Badge` 三件套的 Variant/Size 预设范式 |
-| 常用图标 | `ui.Icon`（currentColor 变色、多色 SVG 保留原色） | `icons/`：Lucide typed 注册表 + go generate 管线 |
-| 页面骨架 | `Scroll`+`ScrollbarInsets`+`Sticky`+`ScrollState`+`TitleBar()` | `Scaffold`（顶栏安全区/滚区/吸顶吸底 + 底部预留默认不遮挡） |
+| 导航/覆盖层 | Tabs、Breadcrumb、Pagination、Drawer(Sheet)、Modal/Dialog、Popover、DropdownMenu、ContextMenu、Accordion/Collapsible、Command Palette、应用内 Menubar | ⏳ 未开始（Pagination/Drawer 已在早期候选中） |
+| 展示/布局 | Card/Block、Divider、Avatar、Tag、Kbd/Hotkey、Skeleton、EmptyState、Result、Progress、Spin、HoverCard、Carousel、AspectRatio | ⏳ 未开始（部分已在早期候选中） |
+| 数据/复杂 | Table（样式与排序/过滤预设）、SortableList 等 | ⏳ 未开始 |
 
-一期验收：`go build/vet` 三主机 + wasm 全绿；`ui.Tester` 状态测试覆盖三件套 + Scaffold；一个最小 demo 说明页。
+## 三期：AI 二级包（`ai/`）
 
-## 二期（补桌面细粒度件）
+`ChatList`（虚拟化流式气泡、贴底跟随等）、`ModelPicker`、`Reasoning`。依赖一期范式与页面骨架形态，可与二期部分并行；每项含实现、测试与示例。当前 `ai/` 仅占位。
 
-Card / Kbd / Skeleton / EmptyState / Pagination / HoverCard / Drawer(Sheet) / Command Palette(⌘K) / 应用内 Menubar / Table 排序与过滤 / Carousel / AspectRatio——依据：overlays/custom-widgets/web-view 文档有官方手写样例，均为组合封装。
+## 后置（随需推进）
 
-## 三期（AI 包）
+| 项目 | 说明 | 状态 |
+|---|---|---|
+| i18n 文案表 | 根包内置 `en`/`zh-Hans`/`zh-Hant` 小消息表 + `c.Locale()` 回退链 + app 覆盖（控件内固定文案） | ⏳ 后置 |
+| icons 二级包 | Lucide + 品牌标 typed `*ui.SVG` 注册表与 `go generate` 管线（`icons/`） | ⏳ 后置，规划中无代码 |
+| fonts 二级包 | OFL 字体内嵌与 `ui.RegisterFont` 注册（`fonts/`） | ⏳ 后置，规划中无代码 |
 
-`ai/ChatList`（虚拟化气钢布局、typing 指示、贴底跟随、注入条与底部预留整合）、`ai/ModelPicker`（分组 Combobox + 厂商标 + 速度/价格徽标）、`ai/Reasoning`（Segmented 推理档 + temperature 刻度）。依赖一期 tokens/page 的 `ai/` 联动形态，故排三期；也可与二期并行。
+## 依赖上游
 
-## 依赖上游的项
-
-- `Element.Access` 的 internal 泄漏（research.md §五）：修复前 my-ui 不实现依赖该 API 的无障碍定制功能。
-- `ui.Themed`/`SetTheme` 语义若上游变动，切换入口随之调整（已锁版，风险受控）。
+- `Element.Access` 的 internal 类型泄漏（见 [research.md](research.md) §五）：修复前不实现依赖该 API 的无障碍定制。
+- `ui.Themed` / `SetTheme` 语义若上游变动，随锁版升级调整。
 
 ## 明确不做
 
-- 瀑布流（`ui` 无布局原语，自定义虚拟化成本与收益不匹配）。
-- CEF 窗口路径（mygo 范围约定内明确 out of scope）。
-- 通过 npm/Bun 发布（native-only，纯 Go module）。
+- CEF 窗口路径（超出当前范围）。
+- 通过 npm/Bun 发布（纯 Go module）。

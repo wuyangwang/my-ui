@@ -50,7 +50,7 @@
 - ChatList：`ui.List` 为锚点式虚拟化列表，行高动态可变、行可增删（`docs/architecture.md` "Lists"）；`ui/markdown` 专为 LLM 逐 token 流式回复构建（增量解析成本与回复长度恒定、半成品语法按终态显示、文本淡入）。
 - 模型选择器：`Combobox` + `Avatar`/`Icon` + `ComboboxParts.Chosen` 选中态可包。
 - 推理档位/温度：`Segmented` + `RangeSlider`/`Stepper` 可包。
-- **瀑布流：`ui` 无此布局原语**（GridView 为等行高网格，List 为线性），已决定不做。
+- 瀑布流：`ui` 无等价布局原语（GridView 为等行高网格，List 为线性），当前不列入计划。
 
 ### 8. 页面骨架（padding / 滚动 / 底部遮挡）
 
@@ -63,9 +63,9 @@
 Base 内核 + uigen 生成 themed 包装：Accordion、AlertDialog、Autocomplete、Avatar、Badge、Breadcrumbs、Button/PrimaryButton、Calendar、Checkbox(组、State)、Collapsible/Accordion、ColorPicker、ColorWell、Combobox、ContextMenu、DataDragOver/DropData、DateInput、DecimalInput、Dialog、Divider、EditableText、Field/Fieldset、FindBar、Form、Grid/GridView、Icon/Image/Video、Link、MenuBase/MenuButton、Meter、Modal、NativeView、NumberInput、Overlay、Popover、Progress、RadioGroup、RangeSlider、Rating、RichText、Scroll/SearchField、Segmented、Select、Sidebar、Slider/StepSlider、Split、Spinner、Stepper、Switch、Table、Tabs、Text/Textf、TextArea、TextInput、Themed、TimeInput、Toast、Toggle/ToggleGroup、TokenField、Toolbar、Tooltip、Tree、WebView……
 另含重型件：`ui/chart`、`ui/editor`（代码编辑器）、`ui/markdown`、`ui/richtext`、shader/glass。
 
-## 四、上 lib 才补的桌面件（gap 表详见 roadmap.md）
+## 四、上 lib 可补的桌面件（按序计划见 roadmap.md）
 
-Card、Kbd、HoverCard、应用内 Menubar、Drawer/Sheet、Command Palette、Skeleton、EmptyState、Pagination、Carousel、AspectRatio、表格排序/过滤。上述均有官方手写样例可循（overlays/custom-widgets/web-view 文档），属组合封装、非引擎工作。
+Card、Kbd、HoverCard、应用内 Menubar、Drawer/Sheet、Command Palette、Skeleton、EmptyState、Pagination、Carousel、AspectRatio、表格排序/过滤等均为组合封装，有官方样例可循。
 
 ## 五、上游问题（建议向上游反馈）
 

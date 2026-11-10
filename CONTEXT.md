@@ -30,5 +30,5 @@ _Avoid_：夜间模式、暗黑模式
 _Avoid_：样式类、皮肤
 
 **变体 (Variant)**:
-预设中"长什么样"的轴（Primary/Secondary/Outline/Ghost/Destructive/Link）。它只决定颜色三态与边框；尺寸是另一根轴。
+预设中"长什么样"的轴（Native/Primary/Outline/Ghost/Destructive/Link），共享根包词表。零值 `Native` 不涂预设，保留底层控件原生观感；`Secondary` 为 `Native` 的 shadcn 别名。它只决定颜色三态与边框；尺寸是另一根轴。
 _Avoid_：类型（type 与 Go 类型系统撞词）

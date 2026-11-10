@@ -1,55 +1,55 @@
 # my-ui
 
-MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的组件库，独立发布的第三方 module —— 不依赖 webview，只面向 MyGo 自绘的原生 UI（macOS / Linux / Windows，同一份代码还能跑进浏览器的 wasm 构建）。
+MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方组件库（独立 module，`go get` 导入即用）。面向 MyGo 自绘的原生 UI（macOS / Linux / Windows，亦支持 wasm 构建），不依赖 webview。
 
-定位：**主题包 + 语义常量 + 变体化控件预设 + 框架没有的组合组件**，而不是重造控件。`mygo` 的 `ui` 已经是完整的立即模式控件层；my-ui 在其公开 API 之上补设计系统与桌面/AI 应用组件。
+定位：**主题包 + 语义常量 + 变体化控件预设 + 框架没有的组合组件**。`mygo/ui` 已是完整的立即模式控件层；my-ui 在其公开 API 之上补设计系统与桌面/AI 应用组件（shadcn 式 `Variant/Size` 预设词汇）。
 
-## 特性目标（与 shadcn 对照的六项决定）
+## 特性目标（对标 shadcn 的词汇与设计系统）
 
-| | |
+| 方向 | 说明 |
 |---|---|
-| 多种主题 | 内置主题 preset 集（衍生自系统外观/强调色/高对比/文本缩放，自动跟随），配合 `ui.Themed` 做子树级主题；详见 [docs/architecture.md](docs/architecture.md) |
-| 动画与过渡 | 全部基于框架自带的弹簧/曲线/AnimatePose/compositor 级动画体系，库只出动效刻度与雅致默认值 |
-| 易用 | 一行构造器 + Variant/Size 参数，沿用 ui 的"输入即返回值"绑定约定，无需手动接回调 |
-| 常量体系 | 常见字体（可选内嵌）、颜色调色板、padding/margin/圆角/动效/滚动内衬刻度 |
-| 细粒度桌面组件 | Card、Kbd、HoverCard、Drawer、Command Palette、Skeleton、EmptyState、Pagination、表格排序等 `ui` 未封装的常见件 |
-| AI 组件 | ChatList（虚拟化流式气泡）、模型选择器、推理档位等 AI 应用常见控件 |
-
-已明确**不做**瀑布流（`ui` 无此布局原语，性价比不足）。
+| 多种主题 | 基于系统外观/强调色/高对比/文本缩放派生主题，支持跟随/强制与 `ui.Themed` 子树级主题；详见 [docs/architecture.md](docs/architecture.md) |
+| 动画与过渡 | 复用框架弹簧/曲线/AnimatePose/compositor 级动画，库出动效刻度与默认值 |
+| 易用 | 一行构造 + 链式预设：`NewButton(c, "Save").Primary().Sm()`，沿用 ui "输入即返回值"绑定约定 |
+| 常量体系 | 字号/间距/圆角/动效刻度、Palette 色板与取色派生 |
+| 细粒度桌面组件 | Card、Kbd、HoverCard、Drawer、Command Palette、Skeleton、EmptyState、Pagination、表格排序等（规划） |
+| AI 组件 | ChatList、模型选择器、推理档位等（规划，见二级包 `ai/`） |
 
 ## 包结构
 
-- 根包 `myui`（import path 含 `-`，Go 包名取 `myui`）：tokens、主题预设、变体化控件、Page 页面骨架。
-- 二级包按需引入，不 import 不链接（遵循 mygo "apps pay for what they use"）：
-  - `icons/` —— 内嵌 Lucide（ISC）与品牌标（simple-icons, CC0），`currentColor` 机制天然支持变色；
-  - `fonts/` —— 内嵌常见开源字体（OFL），通过 `ui.RegisterFont` 注册字族；
-  - `ai/` —— ChatList、模型选择器、推理档位等重组件。
+- 根包 `myui`：tokens 刻度、主题预设（`Apply`/`NewTheme`）、变体化控件与页面骨架。
+- 二级包按需引入，不 import 不链接（遵循 "apps pay for what they use"）：
+  - `icons/`（规划中）—— Lucide 与品牌标 typed 注册表；
+  - `fonts/`（规划中）—— 内嵌 OFL 字体与 `ui.RegisterFont` 注册；
+  - `ai/`（规划中）—— ChatList、ModelPicker、Reasoning 等重组件。
 
-## 状态
+## 当前状态
 
-已实现（一期进行中）：tokens 刻度、`theme.Apply`（明暗三态 + 8 套Palette 色板 + 系统强调色/高对比/文本缩放）、`NewButton` 流式变体（`Primary/Secondary/Outline/Ghost/Destructive/Link × Sm/Md/Lg`，含 hover/pressed 三态与禁用）。实现中的排期见 [docs/roadmap.md](docs/roadmap.md)，工程结论与证据见 [docs/research.md](docs/research.md)，分层与发布策略见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
+- **已完成**：tokens 刻度；`Apply`/`NewTheme`（明暗三态 + 8 套 Palette + 系统强调色/高对比/文本缩放）；`Button`（共享 `Variant`/`Size`，`Native` 零值 + `Secondary` 别名，`Primary/Outline/Ghost/Destructive/Link × Sm/Md/Lg`，hover/pressed/禁用）。
+- **进行中**：一期控件范式（`Input` / `Badge` / `Scaffold`）—— 按 [docs/roadmap.md](docs/roadmap.md) 顺序推进，每个组件含实现、`ui.Tester` 测试与 showcase 示例。
+- **后置**：i18n 文案表（`strings`）、`icons/` 生成管线。
+
+工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
 
 ## 示例
 
-`examples/showcase` 是桌面示例：侧栏按组件分页（Button、外观），全中文界面，可现场切换明暗、色板，并用 `ui.Themed` 预览子树级独立主题。
+`examples/showcase`：侧栏分页（Button、外观），可切换明暗/色板并用 `ui.Themed` 预览子树主题。
 
 ```sh
-go run ./examples/showcase        # 直接跑
+go run ./examples/showcase
 ```
 
-或用 mygo 自带的 CLI（版本与上方锁定的 mygo 一致）：
+或用 mygo CLI（与锁定版本一致）：
 
 ```sh
 go install github.com/egoist/mygo/cmd/mygo@v0.8.3
-mygo dev examples/showcase        # 热重载开发窗口；r 重建、q 退出
-mygo build -skip-installer examples/showcase   # 打包 exe，产出在 examples/showcase/dist
+mygo dev examples/showcase
+mygo build -skip-installer examples/showcase
 ```
-
-showcase 是纯原生 UI 应用（无 mygo.json、无前端），两套入口都不需要额外配置。
 
 ## 版本约定
 
-锁定所发布 mygo 版本（当前 **v0.8.3**，已写入 `go.mod`；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)）。`ui` 的 element API 上游有过破坏性迁移（官方提供 `mygo migrate-ui`），my-ui 发版与其一一对应；消费者应直接使用与该版 mygo 匹配的 my-ui 版本。
+锁定 mygo **v0.8.3**（`go.mod`）；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)。my-ui 发版与 mygo 版本一一对应（当前未打 tag，待一期范式定稿）。
 
 ## 许可
 

@@ -65,11 +65,14 @@ CI-safe on all three desktop OSes plus js/wasm.
 
 ## Conventions
 
-- One-line constructors with `Variant`/`Size`/`Inset` enums; fluent options
-  fall through to the widget's own methods after the preset is applied.
+- One-line constructors + fluent preset methods: `NewXxx(c, ...).Primary().Sm()`
+  applies shared `Variant`/`Size` presets and returns the widget; fluent
+  options fall through to the widget's own methods after the preset is applied.
+  `Variant`/`Size` 是根包共享词表，`Variant` 零值为 `Native`（不涂预设），
+  `Secondary` 为其 shadcn 别名。
 - Package docs in code comments are written in English (Go ecosystem
   style); the files under `docs/` and `README.md` are written in Chinese.
-- New components first: the gap table in docs/roadmap.md decides what
+- New components first: the ordered plan in docs/roadmap.md decides what
   exists. A component that only renames a `ui` widget with no added
   styling or behavior does not belong here.
 - Version releases of my-ui correspond one-to-one with the mygo version

@@ -4,14 +4,14 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// ButtonVariant names what a Button looks like, the shadcn set.
-type ButtonVariant uint8
+// Variant names what a Button looks like, the shadcn set. The zero
+// value is Native: no preset is painted, so the button keeps the
+// built-in look of the underlying ui.Button (which follows the theme).
+type Variant uint8
 
 const (
-	// Secondary is the built-in look: the theme's face, which the button
-	// itself hovers and presses. The zero value, so an unchained Button
-	// is a secondary one.
-	Secondary ButtonVariant = iota
+	// Native leaves the button's built-in look untouched. Zero value.
+	Native Variant = iota
 	// Primary fills with the accent, as ui.PrimaryButton does.
 	Primary
 	// Outline is a bordered face over the background, muting as it
@@ -26,12 +26,16 @@ const (
 	Link
 )
 
-// ButtonSize names how roomy a Button is.
-type ButtonSize uint8
+// Secondary is the shadcn "secondary" variant: an alias of Native, so
+// it keeps the button's built-in look.
+const Secondary Variant = Native
+
+// Size names how roomy a Button is.
+type Size uint8
 
 const (
 	// SizeMd is the built-in sizing. The zero value.
-	SizeMd ButtonSize = iota
+	SizeMd Size = iota
 	SizeSm
 	SizeLg
 )
@@ -49,12 +53,11 @@ const (
 // button as the theme dims disabled ones), Children and the rest.
 type Button struct {
 	ui.Element
-	c       *ui.Context
-	variant ButtonVariant
-	size    ButtonSize
+	c    *ui.Context
+	size Size
 }
 
-// NewButton creates a button with the secondary preset: myui.NewButton(c,
+// NewButton creates a button with the native preset: myui.NewButton(c,
 // "Save"). Clicked() reports the click on it as on ui.Button.
 func NewButton(c *ui.Context, label string) *Button {
 	b := &Button{Element: ui.Button(c, label), c: c}
@@ -84,9 +87,9 @@ type look struct {
 // variants. The theme's triplet slots feed the primary straight, the
 // surface's feed ghost and outline; the destructive and the link shades
 // come from Shades, which is where those rules live.
-func lookOf(v ButtonVariant, t *ui.Theme) look {
+func lookOf(v Variant, t *ui.Theme) look {
 	switch v {
-	case Secondary:
+	case Native:
 		return look{native: true}
 	case Primary:
 		return look{
@@ -116,14 +119,13 @@ func lookOf(v ButtonVariant, t *ui.Theme) look {
 			width: 0, border: t.Border, text: a, hasText: true,
 		}
 	}
-	// An unknown variant reads as the secondary.
+	// An unknown variant reads as native.
 	return look{native: true}
 }
 
 // Variant applies the look of v and returns the button, for chaining.
-// The zero variant is the secondary.
-func (b *Button) Variant(v ButtonVariant) *Button {
-	b.variant = v
+// The zero variant is Native.
+func (b *Button) Variant(v Variant) *Button {
 	b.applySizing()
 	if l := lookOf(v, b.c.Theme()); !l.native {
 		b.Background(l.rest).Border(l.width, l.border)
@@ -150,9 +152,12 @@ func (b *Button) Variant(v ButtonVariant) *Button {
 // Primary is Variant(myui.Primary).
 func (b *Button) Primary() *Button { return b.Variant(Primary) }
 
-// Secondary is Variant(myui.Secondary), the look the button already has
-// from the theme.
+// Secondary is Variant(myui.Secondary), the shadcn secondary look: an
+// alias of Native, so the button keeps the theme's built-in face.
 func (b *Button) Secondary() *Button { return b.Variant(Secondary) }
+
+// Native is Variant(myui.Native).
+func (b *Button) Native() *Button { return b.Variant(Native) }
 
 // Outline is Variant(myui.Outline).
 func (b *Button) Outline() *Button { return b.Variant(Outline) }
@@ -167,7 +172,7 @@ func (b *Button) Destructive() *Button { return b.Variant(Destructive) }
 func (b *Button) Link() *Button { return b.Variant(Link) }
 
 // Size applies the sizing of s and returns the button, for chaining.
-func (b *Button) Size(s ButtonSize) *Button {
+func (b *Button) Size(s Size) *Button {
 	b.size = s
 	b.applySizing()
 	return b
