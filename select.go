@@ -195,6 +195,10 @@ func (s *Select) Md() *Select { return s.Size(SizeMd) }
 // Lg sizes the select up.
 func (s *Select) Lg() *Select { return s.Size(SizeLg) }
 
+// Control returns the element a field describes: the trigger, which is
+// the one that takes the focus.
+func (s *Select) Control() ui.Element { return s.Element }
+
 // Width sets the width of the trigger in DIPs and returns the select,
 // for chaining. Without it the trigger takes the room of its content,
 // with a width of its own as the floor.

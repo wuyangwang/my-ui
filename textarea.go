@@ -23,7 +23,7 @@ type TextArea struct {
 // native preset.
 func NewTextArea(c *ui.Context, value *string) *TextArea {
 	ta := &TextArea{}
-	ta.field = *newField[*TextArea](c, value, func(c *ui.Context, value *string) ui.Element {
+	ta.field = *newField[*TextArea](c, value, func(c *ui.Context, value *string, host ui.Element) ui.Element {
 		return ui.TextArea(c, value)
 	})
 	ta.self = ta

@@ -34,7 +34,9 @@ type field[T any] struct {
 
 // newField builds the frame of a text field. The text itself is made
 // by make, so that a one-line input and a text area share the frame.
-func newField[T any](c *ui.Context, value *string, make func(c *ui.Context, value *string) ui.Element) *field[T] {
+// The host is the slot the text goes in, for a control that keeps a
+// state of its own there.
+func newField[T any](c *ui.Context, value *string, make func(c *ui.Context, value *string, host ui.Element) ui.Element) *field[T] {
 	f := &field[T]{c: c, value: value}
 	// The field holds the frame and the message under it.
 	column := ui.Column(c)
@@ -54,7 +56,7 @@ func newField[T any](c *ui.Context, value *string, make func(c *ui.Context, valu
 
 	// The text goes into the slot in the middle.
 	f.mid.Children(func() {
-		f.inner = make(c, value)
+		f.inner = make(c, value, f.mid)
 	})
 
 	f.Element = column
@@ -109,6 +111,11 @@ func (f *field[T]) Size(s Size) T {
 	f.apply()
 	return f.self
 }
+
+// Control returns the element a field describes: the text inside the
+// frame, which is the one that takes the focus and the one the label,
+// the description and the error speak of.
+func (f *field[T]) Control() ui.Element { return f.inner }
 
 // Width sets the width of the field in DIPs and returns the widget,
 // for chaining.

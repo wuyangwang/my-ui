@@ -27,6 +27,7 @@ type showcase struct {
 	draft     string
 	lang      string
 	size      string
+	password  string
 	disabled  string
 	readonly  string
 	lastEvent string

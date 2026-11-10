@@ -23,7 +23,7 @@ type Input struct {
 // NewInput creates a text input editing *value with the native preset.
 func NewInput(c *ui.Context, value *string) *Input {
 	in := &Input{}
-	in.field = *newField[*Input](c, value, func(c *ui.Context, value *string) ui.Element {
+	in.field = *newField[*Input](c, value, func(c *ui.Context, value *string, host ui.Element) ui.Element {
 		return ui.TextInput(c, value)
 	})
 	in.self = in

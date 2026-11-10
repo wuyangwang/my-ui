@@ -17,7 +17,7 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方�
 
 ## 包结构
 
-- 根包 `myui`：tokens 刻度、主题预设（`Apply`/`NewTheme`）、变体化控件（`Button`/`Input`/`Badge`/`Icon`）、页面骨架（`Scaffold`）、帧句柄（`Bind`）。
+- 根包 `myui`：tokens 刻度、主题预设（`Apply`/`NewTheme`）、变体化控件（`Button`/`Input`/`TextArea`/`Select`/`Badge`/`Icon`）、表单字段层（`Field`/`PasswordInput`）、页面骨架（`Scaffold`）、帧句柄（`Bind`）。
 - 二级包按需引入，不 import 不链接（遵循 "apps pay for what they use"）：
   - `icons/` —— Lucide（ISC）全量 2,318 个图标，函数式 API（`icons.Save()`），未调用的图标不进二进制；
   - `fonts/`（规划中）—— 内嵌 OFL 字体与 `ui.RegisterFont` 注册；
@@ -29,7 +29,7 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方�
 - **进行中**：一期后的表单与反馈组件（TextArea、Select、Checkbox、Radio、Switch、Slider、Alert、Tooltip），按 [docs/roadmap.md](docs/roadmap.md) 顺序推进，每个组件含规格书、实现、`ui.Tester` 测试与 showcase 示例。
 - **后置**：i18n 文案表、品牌标子包 `icons/brand`、`fonts/`。
 
-每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [textarea](docs/components/textarea.md) · [badge](docs/components/badge.md) · [scaffold](docs/components/scaffold.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
+每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [textarea](docs/components/textarea.md) · [select](docs/components/select.md) · [field](docs/components/field.md) · [password](docs/components/password.md) · [badge](docs/components/badge.md) · [scaffold](docs/components/scaffold.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
 
 ## 示例
 
