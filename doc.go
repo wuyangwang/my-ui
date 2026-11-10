@@ -21,6 +21,8 @@
 //	         its text
 //	Select   a drop-down: the trigger looks like an input, the popup
 //	         holds the options, the chosen one marked
+//	ComboBox a drop-down whose trigger is a text field: what is typed
+//	         narrows the options down
 //	Field    a form field: its label, the control in it, a description
 //	         and an error, laid out as one thing
 //	Badge    a small label: the variants, in three sizes

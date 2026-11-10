@@ -56,6 +56,12 @@ func (u UI) Select(value *string, options []SelectOption) *Select {
 	return NewSelect(u.c, value, options)
 }
 
+// ComboBox creates a drop-down whose trigger is a text field: what is
+// typed narrows the options down.
+func (u UI) ComboBox(text *string, options []SelectOption) *ComboBox {
+	return NewComboBox(u.c, text, options)
+}
+
 // Badge creates a badge.
 func (u UI) Badge(text string) *Badge { return NewBadge(u.c, text) }
 

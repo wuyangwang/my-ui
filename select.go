@@ -146,8 +146,10 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 
 	s.Element = s.parts.Trigger
 	// The trigger takes the room of its content, but keeps a width of
-	// its own so that it does not collapse to the width of a word.
-	s.Element = s.Element.MinWidth(c.Theme().Space(30))
+	// its own so that it does not collapse to the width of a word. It
+	// does not fill the row it is in: a drop-down that is as wide as the
+	// page is not a drop-down.
+	s.Element = s.Element.AlignSelf(ui.Start).MinWidth(c.Theme().Space(30))
 	return s
 }
 
