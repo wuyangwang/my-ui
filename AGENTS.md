@@ -27,6 +27,13 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
   components take state as pointers, return their output, and end where
   the next statement can read the edit. No channels as state, no manual
   onChange wiring. Give list-like state a stable `Context.Key`.
+- **Overlay content lives in the overlay.** `ui.TooltipBase`,
+  `ui.PopoverBase` and `ui.DialogBase` build their panel inside the
+  overlay layer, where the context's parent is the layer and not the
+  panel: build the content with `panel.Children(func(){ ... })`, or it
+  lands in the window's corner. A trigger that opens an overlay is built
+  before the overlay, so its click lands in the same frame; the flag it
+  writes is the app's, the library only reads the trigger's `Clicked()`.
 - **Main thread.** Components are constructed from views that run on the
   main thread; no goroutines may touch UI state. Post work like mygo does.
 - **Optional weight stays out of the root package.** Heavy or rare things

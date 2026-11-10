@@ -205,21 +205,31 @@ func (b *Button) Lg() *Button { return b.Size(SizeLg) }
 
 // Icon puts an icon before the text of the button and returns the
 // button, for chaining. The icon takes the color of the text and the
-// size of it.
+// size of it. A button with no text takes the icon alone, in the middle
+// of it.
 func (b *Button) Icon(svg *ui.SVG) *Button {
 	c := b.c
 	b.icon.Children(func() {
-		ui.Icon(c, svg).Margin(0, c.Theme().Space(1.5), 0, 0)
+		icon := ui.Icon(c, svg)
+		// The room between the icon and the text rides on the icon, and
+		// a button with no text has no room to keep.
+		if b.text.Valid() {
+			icon.Margin(0, c.Theme().Space(1.5), 0, 0)
+		}
 	})
 	return b
 }
 
 // EndIcon puts an icon after the text of the button and returns the
-// button, for chaining.
+// button, for chaining. A button with no text takes the icon alone, in
+// the middle of it.
 func (b *Button) EndIcon(svg *ui.SVG) *Button {
 	c := b.c
 	b.end.Children(func() {
-		ui.Icon(c, svg).Margin(0, 0, 0, c.Theme().Space(1.5))
+		icon := ui.Icon(c, svg)
+		if b.text.Valid() {
+			icon.Margin(0, 0, 0, c.Theme().Space(1.5))
+		}
 	})
 	return b
 }

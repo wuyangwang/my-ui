@@ -67,6 +67,21 @@ func (u UI) MultiSelect(tokens *[]string, options []SelectOption) *MultiSelect {
 	return NewMultiSelect(u.c, tokens, options)
 }
 
+// Tooltip shows a tip with a text over the anchor.
+func (u UI) Tooltip(anchor ui.Element, text string) *Tooltip {
+	return NewTooltip(u.c, anchor, text)
+}
+
+// Popover shows a panel over its anchor while open is true.
+func (u UI) Popover(open *bool, anchor func() ui.Element, build func(panel ui.Element)) *Popover {
+	return NewPopover(u.c, open, anchor, build)
+}
+
+// Modal shows a dialog over the window while open is true.
+func (u UI) Modal(open *bool, trigger func() ui.Element, build func(panel ui.Element)) *Modal {
+	return NewModal(u.c, open, trigger, build)
+}
+
 // Badge creates a badge.
 func (u UI) Badge(text string) *Badge { return NewBadge(u.c, text) }
 

@@ -27,6 +27,7 @@ var pages = []page{
 	{key: "select", label: "Select", group: "组件", build: (*showcase).selectPage},
 	{key: "combobox", label: "ComboBox", group: "组件", build: (*showcase).comboBoxPage},
 	{key: "multiselect", label: "MultiSelect", group: "组件", build: (*showcase).multiSelectPage},
+	{key: "overlays", label: "弹层", group: "组件", build: (*showcase).overlaysPage},
 	{key: "form", label: "表单", group: "组件", build: (*showcase).formPage},
 	{key: "badge", label: "Badge", group: "组件", build: (*showcase).badgePage},
 	{key: "icon", label: "Icon", group: "组件", build: (*showcase).iconPage},

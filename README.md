@@ -17,7 +17,7 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方�
 
 ## 包结构
 
-- 根包 `myui`：tokens 刻度、主题预设（`Apply`/`NewTheme`）、变体化控件（`Button`/`Input`/`TextArea`/`Select`/`Badge`/`Icon`）、表单字段层（`Field`/`PasswordInput`）、页面骨架（`Scaffold`）、帧句柄（`Bind`）。
+- 根包 `myui`：tokens 刻度、主题预设（`Apply`/`NewTheme`）、变体化控件（`Button`/`Input`/`TextArea`/`Select`/`ComboBox`/`MultiSelect`/`Badge`/`Icon`）、表单字段层（`Field`/`PasswordInput`）、弹层（`Tooltip`/`Popover`/`Modal`）、页面骨架（`Scaffold`）、帧句柄（`Bind`）。
 - 二级包按需引入，不 import 不链接（遵循 "apps pay for what they use"）：
   - `icons/` —— Lucide（ISC）全量 2,318 个图标，函数式 API（`icons.Save()`），未调用的图标不进二进制；
   - `fonts/`（规划中）—— 内嵌 OFL 字体与 `ui.RegisterFont` 注册；
@@ -25,15 +25,15 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方�
 
 ## 当前状态
 
-- **已完成**：tokens 刻度；`Apply`/`NewTheme`（明暗三态 + 8 套 Palette + 系统强调色/高对比/文本缩放）；共享 `Variant`/`Size` 词表（零值 `Default`，`Native` 为旧名）；`Button`（图标/忙碌态/hover+pressed/禁用）、`Input`（前缀图标如搜索框、后缀、清除按钮、事件、错误态）、`TextArea`（随内容增高）、`Select`（分组/清除/默认宽度）、`ComboBox`（可搜索下拉）、`MultiSelect`（芯片多选）、`Badge`、`Icon`（Lucide）、`Field`/`PasswordInput`（表单字段层与校验）、`Scaffold`；`icons/` 二级包；`myui.Bind(c)` 每帧句柄；动效约定（状态色渐变）。
-- **进行中**：一期后的表单与反馈组件（TextArea、Select、Checkbox、Radio、Switch、Slider、Alert、Tooltip），按 [docs/roadmap.md](docs/roadmap.md) 顺序推进，每个组件含规格书、实现、`ui.Tester` 测试与 showcase 示例。
+- **已完成**：tokens 刻度；`Apply`/`NewTheme`（明暗三态 + 8 套 Palette + 系统强调色/高对比/文本缩放）；共享 `Variant`/`Size` 词表（零值 `Default`，`Native` 为旧名）；`Button`（图标/忙碌态/hover+pressed/禁用）、`Input`（前缀图标如搜索框、后缀、清除按钮、事件、错误态）、`TextArea`（随内容增高）、`Select`（分组/清除/默认宽度）、`ComboBox`（可搜索下拉）、`MultiSelect`（芯片多选）、`Badge`、`Icon`（Lucide）、`Field`/`PasswordInput`（表单字段层与校验）、`Tooltip`/`Popover`/`Modal`（弹层）、`Scaffold`；`icons/` 二级包；`myui.Bind(c)` 每帧句柄；动效约定（状态色渐变）。
+- **进行中**：一期后的表单与反馈组件（Checkbox、Radio、Switch、Slider、Alert、Toast），按 [docs/roadmap.md](docs/roadmap.md) 顺序推进，每个组件含规格书、实现、`ui.Tester` 测试与 showcase 示例。
 - **后置**：i18n 文案表、品牌标子包 `icons/brand`、`fonts/`。
 
-每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [textarea](docs/components/textarea.md) · [select](docs/components/select.md) · [field](docs/components/field.md) · [password](docs/components/password.md) · [badge](docs/components/badge.md) · [scaffold](docs/components/scaffold.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
+每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [textarea](docs/components/textarea.md) · [select](docs/components/select.md) · [combobox](docs/components/combobox.md) · [multiselect](docs/components/multiselect.md) · [field](docs/components/field.md) · [password](docs/components/password.md) · [badge](docs/components/badge.md) · [tooltip](docs/components/tooltip.md) · [popover](docs/components/popover.md) · [modal](docs/components/modal.md) · [scaffold](docs/components/scaffold.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
 
 ## 示例
 
-`examples/showcase`：侧栏分页（Button、Input、TextArea、Badge、Icon、Scaffold、外观），可切换明暗/色板并用 `ui.Themed` 预览子树主题。示例本身也按库的规矩写：**每个页面一个文件**（`page_*.go`），在 `pages.go` 的页面表里登记，窗口与侧栏都不需要知道有哪些页面。
+`examples/showcase`：侧栏分页（Button、Input、TextArea、Select、ComboBox、MultiSelect、Badge、Icon、弹层、Scaffold、外观），可切换明暗/色板并用 `ui.Themed` 预览子树主题。示例本身也按库的规矩写：**每个页面一个文件**（`page_*.go`），在 `pages.go` 的页面表里登记，窗口与侧栏都不需要知道有哪些页面。
 
 ```sh
 go run ./examples/showcase

@@ -21,17 +21,19 @@ type showcase struct {
 	appearance myui.Appearance
 	palette    myui.PaletteID
 
-	name      string
-	email     string
-	query     string
-	draft     string
-	lang      string
-	langs     []string
-	size      string
-	password  string
-	disabled  string
-	readonly  string
-	lastEvent string
+	name        string
+	email       string
+	query       string
+	draft       string
+	lang        string
+	langs       []string
+	size        string
+	password    string
+	popoverOpen bool
+	modalOpen   bool
+	disabled    string
+	readonly    string
+	lastEvent   string
 }
 
 // view builds one frame. Apply runs first, every frame, so the theme

@@ -26,6 +26,9 @@
 //	MultiSelect a field of tags: the chosen options show as chips
 //	Field    a form field: its label, the control in it, a description
 //	         and an error, laid out as one thing
+//	Tooltip  a tip over an anchor, when the pointer rests on it
+//	Popover  a panel over an anchor, opened by a click on it
+//	Modal    a dialog over the window, opened by a trigger
 //	Badge    a small label: the variants, in three sizes
 //	Icon     an SVG icon in the sizes 14, 20 and 24 DIPs
 //	Scaffold a page: the title bar's safe area, a header, the scrollable
