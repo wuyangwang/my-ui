@@ -21,6 +21,7 @@ type showcase struct {
 
 	name      string
 	email     string
+	query     string
 	disabled  string
 	readonly  string
 	lastEvent string
@@ -253,9 +254,11 @@ func (s *showcase) inputPage(c *ui.Context, t *ui.Theme) {
 		})
 	})
 
-	s.sectionNote(c, t, "组合", "清除按钮、前后缀与错误提示都由库排版", func() {
+	s.sectionNote(c, t, "组合", "前缀图标（如搜索框的放大镜）、后缀、清除按钮与错误提示都由库排版", func() {
 		s.card(c, t, func() {
 			ui.Column(c).Gap(t.Space(3)).Children(func() {
+				myui.NewInput(c.Key("in-search"), &s.query).Outline().Label("搜索").
+					PrefixIcon(icons.Search()).Placeholder("搜索…").Clearable()
 				myui.NewInput(c.Key("in-clear"), &s.name).Outline().Label("可清除").Placeholder("输入后可清除").
 					Clearable().OnCleared(func() { s.lastEvent = "cleared" })
 				myui.NewInput(c.Key("in-affix"), &s.email).Outline().Label("带前后缀").

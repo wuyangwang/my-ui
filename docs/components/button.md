@@ -34,28 +34,15 @@
 
 ## 5. API 契约
 
-```go
-func NewButton(c *ui.Context, label string) *Button
-
-func (b *Button) Variant(v Variant) *Button
-func (b *Button) Primary() *Button
-func (b *Button) Secondary() *Button
-func (b *Button) Native() *Button
-func (b *Button) Outline() *Button
-func (b *Button) Ghost() *Button
-func (b *Button) Destructive() *Button
-func (b *Button) Link() *Button
-
-func (b *Button) Size(s Size) *Button
-func (b *Button) Sm() *Button
-func (b *Button) Md() *Button
-func (b *Button) Lg() *Button
-
-func (b *Button) Icon(svg *ui.SVG) *Button      // 文字之前
-func (b *Button) EndIcon(svg *ui.SVG) *Button   // 文字之后
-func (b *Button) Loading() *Button              // 忙碌态：转圈且不响应点击
-func (b *Button) Label(s string) *Button        // 无障碍名
-```
+| 方法 | 作用 |
+|---|---|
+| `NewButton(c *ui.Context, label string) *Button` | 创建按钮（`label` 留空即只有图标） |
+| `Variant(v Variant)` · `Primary()` · `Secondary()` · `Native()` · `Outline()` · `Ghost()` · `Destructive()` · `Link()` | 变体：底色、边框、文字色与 hover/pressed 三态 |
+| `Size(s Size)` · `Sm()` · `Md()` · `Lg()` | 尺寸：内衬与字号 |
+| `Icon(svg *ui.SVG)` | 文字之前的图标（取文字色与字号） |
+| `EndIcon(svg *ui.SVG)` | 文字之后的图标 |
+| `Loading()` | 忙碌态：转圈并停止响应点击 |
+| `Label(s string)` | 无障碍名（只有图标时必须给） |
 
 用法：
 

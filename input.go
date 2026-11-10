@@ -57,6 +57,7 @@ func NewInput(c *ui.Context, value *string) *Input {
 		in.suf = ui.Row(c).AlignItems(ui.Center)
 		in.clear = ui.Row(c).AlignItems(ui.Center)
 	})
+	in.frame = in.frame.Transition(stateTransition())
 
 	// The text goes into the slot in the middle.
 	in.mid.Children(func() {
@@ -192,6 +193,17 @@ func (in *Input) Prefix(fn func()) *Input {
 	return in
 }
 
+// PrefixIcon puts an icon before the text of the input and returns the
+// input, for chaining. The icon takes the color of the text and the
+// size of it, as an icon in a button does.
+func (in *Input) PrefixIcon(svg *ui.SVG) *Input {
+	c := in.c
+	in.Prefix(func() {
+		ui.Icon(c, svg).Margin(0, c.Theme().Space(1.5), 0, 0)
+	})
+	return in
+}
+
 // Suffix builds the content after the text and returns the input, for
 // chaining.
 func (in *Input) Suffix(fn func()) *Input {
@@ -201,24 +213,45 @@ func (in *Input) Suffix(fn func()) *Input {
 	return in
 }
 
+// SuffixIcon puts an icon after the text of the input and returns the
+// input, for chaining. The icon takes the color of the text and the
+// size of it, as an icon in a button does.
+func (in *Input) SuffixIcon(svg *ui.SVG) *Input {
+	c := in.c
+	in.Suffix(func() {
+		ui.Icon(c, svg).Margin(0, 0, 0, c.Theme().Space(1.5))
+	})
+	return in
+}
+
 // Clearable puts a button that empties the input beside it, and returns
 // the input, for chaining. The button shows while the input holds text
 // and can be edited, and it keeps the focus in the input.
+//
+// The button is the icon alone, without the face a button has: it turns
+// darker under the pointer.
 func (in *Input) Clearable() *Input {
 	c := in.c
 	in.clear.Children(func() {
 		if *in.value == "" || in.in.IsDisabled() || in.readOnly {
 			return
 		}
-		d := float32(16)
+		d := float32(18)
 		if in.size == SizeLg {
 			d = 20
 		}
-		b := ui.Button(c, "").Size(d, d).KeepFocus().TabStop(false).
-			Background(ui.Transparent).Label("清除")
+		t := c.Theme()
+		b := ui.ButtonBase(c).Size(d, d).KeepFocus().TabStop(false).Label("清除")
 		b.Children(func() {
-			ui.Icon(c, icons.X()).Size(d-6, d-6)
+			ic := ui.Icon(c, icons.X()).Size(d-4, d-4)
+			if b.Hovered() {
+				ic = ic.TextColor(t.Text)
+			} else {
+				ic = ic.TextColor(t.TextMuted)
+			}
 		})
+		// The button was not there before, so it fades in.
+		fadeIn(b)
 		if b.Clicked() {
 			*in.value = ""
 			in.cleared = true
@@ -234,6 +267,8 @@ func (in *Input) ErrorText(s string) *Input {
 	c := in.c
 	in.msg.Children(func() {
 		msg := ui.Text(c, s).TextColor(c.Theme().Danger)
+		// The message was not there before, so it fades in.
+		fadeIn(msg)
 		in.in = in.in.ErrorMessage(msg)
 	})
 	return in
@@ -316,8 +351,13 @@ func (in *Input) apply() {
 		in.frame = in.frame.Background(ui.Transparent).Border(0, ui.Transparent).Padding(0)
 	} else {
 		border := l.border
-		if in.invalid {
+		switch {
+		case in.invalid:
 			border = t.Danger
+		case in.in.Focused():
+			// The focused input takes the accent color of its border,
+			// which the frame fades into.
+			border = t.Accent
 		}
 		in.frame = in.frame.Background(l.bg).Border(l.width, border).Radius(t.Radius)
 		in.frame = in.frame.Padding(in.padding())

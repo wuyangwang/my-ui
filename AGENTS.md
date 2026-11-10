@@ -36,6 +36,13 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
 - **Motion respects the desktop.** Use `Animate*`/transitions from ui;
   components carry no timers of their own, so reduced motion and
   background-unwanted frames come free.
+- **Every component moves a little, and says how.** A state change
+  fades its colors through `Element.Transition`, an element that
+  appears or goes fades through `AnimatePose`, and the durations come
+  from the motion tokens (`MotionFast`/`MotionNormal`/`MotionSlow`).
+  Motion belongs to the component that has it: a button's hover, an
+  input's focus and clear button, a badge that changes. No timers, no
+  goroutines, no motion that ignores the desktop's Reduce Motion.
 - **Keep embedded assets licensed.** Lucide SVGs (ISC), simple-icons
   (CC0), fonts (OFL) only; record additions and their licenses in the
   subpackage README.
@@ -71,6 +78,10 @@ CI-safe on all three desktop OSes plus js/wasm.
   component belongs in the packages, and the API it offers. The spec is
   settled before the first line of code, and it is what the component
   is held to.
+- **Every component is documented twice.** Go doc comments on every
+  exported symbol, and the spec page's API table: one row per prop
+  (method, option or field) with what it does. A prop without a row is
+  a prop without a doc.
 - One-line constructors + fluent preset methods: `NewXxx(c, ...).Primary().Sm()`
   applies shared `Variant`/`Size` presets and returns the widget; fluent
   options fall through to the widget's own methods after the preset is applied.

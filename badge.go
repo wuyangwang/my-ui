@@ -21,6 +21,7 @@ type Badge struct {
 func NewBadge(c *ui.Context, text string) *Badge {
 	b := &Badge{Element: ui.Badge(c, text), c: c}
 	b.AlignSelf(ui.Start)
+	b.Element = b.Element.Transition(stateTransition())
 	return b
 }
 

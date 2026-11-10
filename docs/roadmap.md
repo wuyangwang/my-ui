@@ -21,6 +21,7 @@
 | 6 | Scaffold | 规格书 [components/scaffold.md](components/scaffold.md)；`scaffold.go`：页面布局骨架（`TitleBar()` 安全区、顶栏、滚动内容区、底栏与底部预留/`ScrollbarInsets`）；Tester 覆盖基础布局与标题栏安全区；showcase「Scaffold」页 | ✅ 已完成 |
 | 7 | Icon | 规格书 [components/icons.md](components/icons.md)；`icon.go`：尺寸档（14/20/24 DIP）、语义色、`Label` 无障碍名、`Spin` 旋转；`icons/` 二级包（Lucide 全量 2,318 个图标 + 14 个别名，函数式 API，未用不进二进制）；`icons/icons_test.go` + `icon_test.go`；showcase「Icon」页 | ✅ 已完成 |
 | 8 | 帧句柄 | 规格书 [components/handle.md](components/handle.md)；`bind.go`：`myui.Bind(c)` 每帧绑定一次，组件不再逐个传 `c`；不引入包级状态 | ✅ 已完成 |
+| 9 | 动效约定 | 规格书 [components/motion.md](components/motion.md)；`motion.go`：状态色渐变（`Element.Transition`）与出现渐显（`AnimatePose`）；Button/Input/Badge 用上；时长取自动效刻度，Reduce Motion 由框架兜底 | ✅ 已完成 |
 
 **一期验收（已达成）**：`Button/Input/Badge/Scaffold/Icon` 均已交付实现 + `ui.Tester` 测试 + showcase 演示；本地 `go build/vet/test ./...` 通过。跨平台/wasm 矩阵（macOS/Linux/Windows + `GOOS=js GOARCH=wasm go vet`）待在对应环境/CI 验证。
 
@@ -30,14 +31,14 @@
 
 | 顺序 | 组件 | 要点 | 状态 |
 |---|---|---|---|
-| 9 | TextArea | 多行输入，`Variant/Size`、占位/禁用/只读、随内容增长（适用时） | ⏳ 未开始 |
-| 10 | Select | 单选下拉，触发器与弹层样式预设、选中态、禁用 | ⏳ 未开始 |
-| 11 | Checkbox | 勾选/半选态、标签与组布局、禁用与键盘可达 | ⏳ 未开始 |
-| 12 | Radio | 单选组、方向与禁用态 | ⏳ 未开始 |
-| 13 | Switch | 开关预设与动效跟随主题/Reduced Motion | ⏳ 未开始 |
-| 14 | Slider | 单值滑杆（必要时扩展区间），步进/禁用/状态样式 | ⏳ 未开始 |
-| 15 | Alert | 语义类型（info/success/warn/error 等映射主题槽）、标题/描述/可关闭 | ⏳ 未开始 |
-| 16 | Tooltip | 文本提示预设，延迟/位置封装（基于 ui 能力） | ⏳ 未开始 |
+| 10 | TextArea | 多行输入，`Variant/Size`、占位/禁用/只读、随内容增长（适用时） | ⏳ 未开始 |
+| 11 | Select | 单选下拉，触发器与弹层样式预设、选中态、禁用 | ⏳ 未开始 |
+| 12 | Checkbox | 勾选/半选态、标签与组布局、禁用与键盘可达 | ⏳ 未开始 |
+| 13 | Radio | 单选组、方向与禁用态 | ⏳ 未开始 |
+| 14 | Switch | 开关预设与动效跟随主题/Reduced Motion | ⏳ 未开始 |
+| 15 | Slider | 单值滑杆（必要时扩展区间），步进/禁用/状态样式 | ⏳ 未开始 |
+| 16 | Alert | 语义类型（info/success/warn/error 等映射主题槽）、标题/描述/可关闭 | ⏳ 未开始 |
+| 17 | Tooltip | 文本提示预设，延迟/位置封装（基于 ui 能力） | ⏳ 未开始 |
 
 > 后续可按需插入：`InputPassword`（含显隐切换）、`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 

@@ -84,7 +84,7 @@ func NewButton(c *ui.Context, label string) *Button {
 	})
 	// The room between the icon and the text rides on the icon, so that
 	// a button without an icon has no room in it.
-	b.Element = btn.Gap(0)
+	b.Element = btn.Gap(0).Transition(stateTransition())
 	// Size to the content as a button does: a column stretches its
 	// children across, which a button never asks for.
 	b.AlignSelf(ui.Start)
