@@ -19,6 +19,8 @@
 //	         events, and an error state
 //	TextArea a multi-line text field, as an Input is, that grows with
 //	         its text
+//	Select   a drop-down: the trigger looks like an input, the popup
+//	         holds the options, the chosen one marked
 //	Badge    a small label: the variants, in three sizes
 //	Icon     an SVG icon in the sizes 14, 20 and 24 DIPs
 //	Scaffold a page: the title bar's safe area, a header, the scrollable

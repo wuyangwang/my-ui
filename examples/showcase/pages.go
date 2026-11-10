@@ -24,6 +24,7 @@ var pages = []page{
 	{key: "button", label: "Button", group: "组件", build: (*showcase).buttonPage},
 	{key: "input", label: "Input", group: "组件", build: (*showcase).inputPage},
 	{key: "textarea", label: "TextArea", group: "组件", build: (*showcase).textAreaPage},
+	{key: "select", label: "Select", group: "组件", build: (*showcase).selectPage},
 	{key: "badge", label: "Badge", group: "组件", build: (*showcase).badgePage},
 	{key: "icon", label: "Icon", group: "组件", build: (*showcase).iconPage},
 	{key: "scaffold", label: "Scaffold", group: "组件", build: (*showcase).scaffoldPage},

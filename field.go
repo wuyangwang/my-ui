@@ -335,9 +335,14 @@ func fieldLookOf(v Variant, t *ui.Theme) fieldLook {
 }
 
 // padding is the inset of the frame of the field, on its size.
-func (f *field[T]) padding() (v, h float32) {
-	t := f.c.Theme()
-	switch f.size {
+func (f *field[T]) padding() (v, h float32) { return fieldPadding(f.c.Theme(), f.size) }
+
+// fontSize is the size of the text of the field, on its size.
+func (f *field[T]) fontSize() float32 { return fieldFontSize(f.c.Theme(), f.size) }
+
+// fieldPadding is the inset of the frame of a field, on its size.
+func fieldPadding(t *ui.Theme, size Size) (v, h float32) {
+	switch size {
 	case SizeSm:
 		return t.Space(1), t.Space(2)
 	case SizeLg:
@@ -347,10 +352,9 @@ func (f *field[T]) padding() (v, h float32) {
 	}
 }
 
-// fontSize is the size of the text of the field, on its size.
-func (f *field[T]) fontSize() float32 {
-	t := f.c.Theme()
-	switch f.size {
+// fieldFontSize is the size of the text of a field, on its size.
+func fieldFontSize(t *ui.Theme, size Size) float32 {
+	switch size {
 	case SizeSm:
 		return TextSize(t, TextSm)
 	case SizeLg:

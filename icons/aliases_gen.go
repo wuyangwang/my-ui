@@ -48,4 +48,3 @@ func Success() *ui.SVG {
 func Warning() *ui.SVG {
 	return TriangleAlert()
 }
-

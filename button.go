@@ -62,12 +62,12 @@ const (
 //	myui.NewButton(c, "").Icon(icons.Save()).Label("Save")
 type Button struct {
 	ui.Element
-	c     *ui.Context
-	icon  ui.Element // the slot of the icon before the text
-	text  ui.Element // the text of the button
-	end   ui.Element // the slot of the icon after the text
-	size  Size
-	spun  bool
+	c    *ui.Context
+	icon ui.Element // the slot of the icon before the text
+	text ui.Element // the text of the button
+	end  ui.Element // the slot of the icon after the text
+	size Size
+	spun bool
 }
 
 // NewButton creates a button with the native preset: myui.NewButton(c,

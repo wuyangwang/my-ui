@@ -25,6 +25,8 @@ type showcase struct {
 	email     string
 	query     string
 	draft     string
+	lang      string
+	size      string
 	disabled  string
 	readonly  string
 	lastEvent string
@@ -99,7 +101,6 @@ func (s *showcase) openPage(c *ui.Context, t *ui.Theme) func() {
 	p := pageOf(s.page)
 	return func() { p.build(s, c, t) }
 }
-
 func main() {
 	s := &showcase{page: pages[0].key}
 	mygo.App.WhenReady(func() {

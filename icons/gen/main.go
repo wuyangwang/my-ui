@@ -14,6 +14,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"go/format"
 	"os"
 	"sort"
 	"strings"
@@ -31,7 +32,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	names := map[string]string{} // the Go name of an icon to its file
+	names := map[string]string{}  // the Go name of an icon to its file
 	byFile := map[string]string{} // the name of an SVG file to its Go name
 	skipped := 0
 	for _, f := range files {
@@ -107,6 +108,15 @@ func goName(file string) string {
 	return name
 }
 
+// writeGo writes the Go source, formatted as gofmt would.
+func writeGo(path string, b *bytes.Buffer) error {
+	src, err := format.Source(b.Bytes())
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, src, 0o644)
+}
+
 // writeIcons writes the function of every icon.
 func writeIcons(path string, names map[string]string) error {
 	var b bytes.Buffer
@@ -130,7 +140,7 @@ func writeIcons(path string, names map[string]string) error {
 		fmt.Fprintf(&b, "\treturn parse(%q, svg%s)\n", doc, name)
 		b.WriteString("}\n\n")
 	}
-	return os.WriteFile(path, b.Bytes(), 0o644)
+	return writeGo(path, &b)
 }
 
 // writeAliases writes the function of every alias, pointing at the icon
@@ -163,5 +173,5 @@ func writeAliases(path string, names map[string]string, byFile map[string]string
 		fmt.Fprintf(&b, "\treturn %s()\n", fn)
 		b.WriteString("}\n\n")
 	}
-	return os.WriteFile(path, b.Bytes(), 0o644)
+	return writeGo(path, &b)
 }

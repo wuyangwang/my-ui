@@ -18551,4 +18551,3 @@ var svgZoomOut []byte
 func ZoomOut() *ui.SVG {
 	return parse("zoom-out", svgZoomOut)
 }
-

@@ -1,0 +1,220 @@
+package myui
+
+import (
+	"github.com/egoist/mygo/ui"
+	"github.com/wuyangwang/my-ui/icons"
+)
+
+// SelectOption is one option of a Select: the label the trigger and the
+// popup show, and the value the app holds. An option without a label
+// shows its value.
+//
+//	{Label: "简体中文", Value: "zh-Hans"}
+//	{Value: "zh-Hant"}
+type SelectOption struct {
+	Label    string
+	Value    string
+	Disabled bool
+}
+
+// label is the text the option shows.
+func (o SelectOption) label() string {
+	if o.Label != "" {
+		return o.Label
+	}
+	return o.Value
+}
+
+// Select is a drop-down choosing one of its options:
+//
+//	myui.NewSelect(c, &size, []myui.SelectOption{{Value: "小"}, {Value: "大"}}).Outline()
+//	myui.NewSelect(c, &lang, []myui.SelectOption{
+//		{Label: "简体中文", Value: "zh-Hans"},
+//		{Label: "English", Value: "en"},
+//	}).Placeholder("选择语言").OnChanged(func(v string) { app.lang = v })
+//
+// The trigger looks like an input: the same frame, the same border, the
+// same sizes, with an arrow at its end that opens the popup. The popup
+// below holds the options; the one under the pointer is highlighted and
+// the chosen one is marked with a check.
+//
+// The app holds the **value** of the choice; the trigger shows its
+// label.
+//
+// The chain applies the presets from the current theme every frame, so
+// it follows palette and appearance changes. Call it every frame, ahead
+// of anything else the app styles on it, as the view runs.
+type Select struct {
+	ui.Element      // the trigger
+	parts           ui.SelectParts[string]
+	c               *ui.Context
+	value           *string
+	options         []SelectOption
+	valueSlot       ui.Element // the slot of the choice
+	placeholderSlot ui.Element // the slot of the placeholder
+	variant         Variant
+	size            Size
+	disabled        bool
+}
+
+// NewSelect creates a drop-down choosing one of options into *selected,
+// with the native preset. The value of the choice is what *selected
+// holds; the label of the option is what the trigger shows.
+func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select {
+	s := &Select{c: c, value: selected, options: options}
+	s.parts = ui.SelectBase(c, selected)
+
+	// The trigger holds the choice, the placeholder and the arrow that
+	// opens the popup.
+	s.parts.Trigger.Children(func() {
+		s.valueSlot = ui.Row(c).Grow(1).AlignItems(ui.Center)
+		s.placeholderSlot = ui.Row(c).AlignItems(ui.Center)
+		ui.Icon(c, icons.ChevronDown()).Margin(0, 0, 0, c.Theme().Space(1.5))
+	})
+
+	// The choice the trigger shows; an empty choice leaves room for the
+	// placeholder.
+	s.valueSlot.Children(func() {
+		if o, ok := s.chosen(); ok {
+			ui.Text(c, o.label())
+		}
+	})
+
+	// The popup holds the options.
+	s.parts.Popup(func(panel ui.Element) {
+		t := c.Theme()
+		panel.Background(t.Background).Border(1, t.Border).Radius(t.Radius).
+			Padding(t.Space(1))
+		for _, o := range options {
+			o := o
+			item := s.parts.Item(o.Value).Padding(t.Space(1), t.Space(2)).Radius(t.Radius / 2)
+			if item.Highlighted() {
+				item.Background(t.Accent.Alpha(0.10))
+			}
+			item.Children(func() {
+				ui.Text(c, o.label()).Grow(1)
+				if o.Value == *selected {
+					ui.Icon(c, icons.Check()).TextColor(t.Accent)
+				}
+			})
+			if o.Disabled {
+				item.Disabled(true).TextColor(t.TextMuted)
+			}
+		}
+	})
+
+	s.Element = s.parts.Trigger
+	return s
+}
+
+// Variant applies the look of v and returns the select, for chaining.
+// The zero variant is Native, which keeps the built-in look.
+func (s *Select) Variant(v Variant) *Select {
+	s.variant = v
+	s.apply()
+	return s
+}
+
+// Primary is Variant(myui.Primary).
+func (s *Select) Primary() *Select { return s.Variant(Primary) }
+
+// Secondary is Variant(myui.Secondary), alias of Native.
+func (s *Select) Secondary() *Select { return s.Variant(Secondary) }
+
+// Native is Variant(myui.Native).
+func (s *Select) Native() *Select { return s.Variant(Native) }
+
+// Outline is Variant(myui.Outline).
+func (s *Select) Outline() *Select { return s.Variant(Outline) }
+
+// Ghost is Variant(myui.Ghost).
+func (s *Select) Ghost() *Select { return s.Variant(Ghost) }
+
+// Destructive is Variant(myui.Destructive).
+func (s *Select) Destructive() *Select { return s.Variant(Destructive) }
+
+// Link is Variant(myui.Link).
+func (s *Select) Link() *Select { return s.Variant(Link) }
+
+// Size applies the sizing of s and returns the select, for chaining.
+func (s *Select) Size(size Size) *Select {
+	s.size = size
+	s.apply()
+	return s
+}
+
+// Sm sizes the select down.
+func (s *Select) Sm() *Select { return s.Size(SizeSm) }
+
+// Md gives the built-in sizing.
+func (s *Select) Md() *Select { return s.Size(SizeMd) }
+
+// Lg sizes the select up.
+func (s *Select) Lg() *Select { return s.Size(SizeLg) }
+
+// Placeholder shows s while nothing is chosen and returns the select,
+// for chaining.
+func (s *Select) Placeholder(text string) *Select {
+	c := s.c
+	if _, ok := s.chosen(); !ok {
+		s.placeholderSlot.Children(func() {
+			ui.Text(c, text).TextColor(c.Theme().TextMuted)
+		})
+	}
+	return s
+}
+
+// Label names the select for assistive technology and returns it, for
+// chaining.
+func (s *Select) Label(text string) *Select {
+	s.Element = s.Element.Label(text)
+	return s
+}
+
+// Disabled takes the select out of use and returns it, for chaining.
+func (s *Select) Disabled(on bool) *Select {
+	s.disabled = on
+	s.Element = s.Element.Disabled(on)
+	return s
+}
+
+// OnChanged calls fn with the new value when it changed in this frame,
+// and returns the select, for chaining.
+func (s *Select) OnChanged(fn func(value string)) *Select {
+	if fn != nil && s.Changed() {
+		fn(*s.value)
+	}
+	return s
+}
+
+// Value returns the value of the choice.
+func (s *Select) Value() string { return *s.value }
+
+// Open reports whether the popup shows.
+func (s *Select) Open() bool { return s.parts.Open() }
+
+// Changed reports whether the choice changed in this frame.
+func (s *Select) Changed() bool { return s.Element.Changed() }
+
+// chosen is the option the select holds.
+func (s *Select) chosen() (SelectOption, bool) {
+	for _, o := range s.options {
+		if o.Value == *s.value {
+			return o, true
+		}
+	}
+	return SelectOption{}, false
+}
+
+// apply paints the look of the variant and the size on the trigger.
+func (s *Select) apply() {
+	t := s.c.Theme()
+	l := fieldLookOf(s.variant, t)
+	if l.native {
+		s.Element = s.Element.Background(ui.Transparent).Border(0, ui.Transparent).Padding(0)
+	} else {
+		s.Element = s.Element.Background(l.bg).Border(l.width, l.border).Radius(t.Radius)
+	}
+	v, h := fieldPadding(t, s.size)
+	s.Element = s.Element.Padding(v, h).FontSize(fieldFontSize(t, s.size))
+}

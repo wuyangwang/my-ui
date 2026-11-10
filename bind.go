@@ -51,6 +51,11 @@ func (u UI) Input(value *string) *Input { return NewInput(u.c, value) }
 // TextArea creates a multi-line text field editing *value.
 func (u UI) TextArea(value *string) *TextArea { return NewTextArea(u.c, value) }
 
+// Select creates a drop-down choosing one of options into *value.
+func (u UI) Select(value *string, options []SelectOption) *Select {
+	return NewSelect(u.c, value, options)
+}
+
 // Badge creates a badge.
 func (u UI) Badge(text string) *Badge { return NewBadge(u.c, text) }
 
