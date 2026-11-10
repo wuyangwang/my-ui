@@ -22,27 +22,29 @@
 | 需要 | 公开 API | 结论 |
 |---|---|---|
 | 状态色渐变 | `Element.Transition(ui.ElementTransition{…})`，`Colors: true` 只动颜色 | ✅ 按钮 hover/pressed、输入聚焦描边、徽标变体 |
-| 出现即渐显 | `Element.AnimatePose(ui.Pose{Fade: 1}, ui.Snappy)`；新元素的初始姿态 `Fade=0`（不可见），动画把它推向目标 | ✅ 清除按钮、错误文案 |
+| 出现即渐显 | `Element.AnimatePose(ui.Pose{Fade: 1}, ui.Snappy)` | ❌ **不可用**：实测该姿态的 Fade 通道会让元素停在不可见状态（元素在无障碍树里、也在版面上，但一个像素也没画）。故本库不用姿态动画 |
 | 退场渐隐 | 元素离开父节点时框架会走 `Transition` 的 Exit；但 Exit 只覆盖位置/尺寸/颜色/阴影，**不含透明度** | ⚠️ 退场渐隐需自行保留元素并把 `Fade` 动画到 0（占位问题），本轮不做 |
 | 数值动画 | `Animate`/`AnimateTo`（含弹簧、延迟） | ✅ 后续组件（如分段控件的指示条） |
 | 逐帧状态 | `ui.Local[T](e, key, init)` | ✅ 需要「出现/消失」记号时 |
+
+> 证据：`AnimatePose` 的问题在 `ui.Tester` 与真实窗口里都复现（`ui/pose.go:92-116` 的 `samplePose`：姿态的通道在元素不是「上一帧摆过」时直接取目标值，而摆过之后由通道推进——推进未发生时元素停在 Fade=0，即不可见）。本库因此只用**颜色过渡**，不用姿态动画。
 
 ## 3. 实现到何种程度
 
 **共用约定（`motion.go`）**
 - `stateTransition()`：状态色渐变的过渡（`MotionFast`，只动颜色）。
-- `fadeIn(e)`：刚出现的元素渐显（`ui.Snappy` 弹簧，透明度 0→1）。
+- 姿态动画（`AnimatePose`）**不用**：实测会让元素停在不可见状态（见 §2）。
 
 **各组件**
 | 组件 | 动效 |
 |---|---|
 | Button | hover/pressed 的底色与文字色渐变（`stateTransition`） |
-| Input | 外框描边渐变（聚焦时转强调色、错误态转 danger 色）、清除按钮出现即渐显、错误文案出现即渐显 |
+| Input | 外框描边渐变（聚焦时转强调色、错误态转 danger 色）；清除按钮与错误文案**直接出现**（姿态动画不可用） |
 | Badge | 变体换色渐变 |
 | Icon | 只有转圈（`Spin`），其余不动 |
 | Scaffold | 不动（滚动内容淡入反而碍眼） |
 
-**后置**：退场渐隐（保留元素 + `Fade` 动画到 0）、弹层类组件的进出曲线（Popover/Dialog/Drawer 等）、列表重排动画、骨架屏的脉冲/微光。
+**后置**：退场渐隐（保留元素 + 颜色过渡）、弹层类组件的进出曲线（Popover/Dialog/Drawer 等）、列表重排动画、骨架屏的脉冲/微光（可用数值动画，不依赖姿态）。
 
 ## 4. 项目结构是否合理
 
@@ -55,17 +57,15 @@
 // stateTransition is the transition the presets use: the colors of a
 // state change fade, and the rest happens at once.
 func stateTransition() ui.ElementTransition
-
-// fadeIn makes an element that has just appeared fade in.
-func fadeIn(e ui.Element) ui.Element
 ```
 
-（两者是包内约定，不导出；对外的动效入口是各组件自己的方法与 `myui.Icon.Spin`。）
+（包内约定，不导出；对外的动效入口是各组件自己的方法与 `myui.Icon.Spin`。）
 
 ## 6. 状态
 
 - [x] 调研与可行性结论（本文）
 - [x] 共用约定（`motion.go`）
 - [x] Button / Input / Badge 的状态色渐变
-- [x] Input 的聚焦描边、清除按钮与错误文案的渐显
+- [x] Input 的聚焦描边渐变
 - [ ] 退场渐隐、弹层曲线、列表重排、骨架屏脉冲（后置）
+- [ ] 姿态动画（`AnimatePose`）——实测不可用，待上游确认后再评估

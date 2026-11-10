@@ -38,7 +38,7 @@
 - 事件：`OnChanged(func(string))`、`OnBlurred(func())`、`OnCleared(func())`、`OnSubmit(func())`；查询式 `Changed()`/`Focused()`/`FocusLeft()`/`Value()`。
 - 错误态：`Invalid(bool)`（边框转 danger + 无障碍状态）、`ErrorText(string)`（框下错误文案，接入 `ErrorMessage`）、`ErrorMessage(func())`（自定义错误内容）。
 - 状态：`Disabled(bool)`、`ReadOnly(bool)`、`Password()`、`Placeholder(string)`、`Label(string)`。
-- 动效（见 [motion.md](motion.md)）：聚焦时外框描边渐变为强调色、清除按钮与错误文案出现时渐显。
+- 动效（见 [motion.md](motion.md)）：聚焦时外框描边渐变为强调色、错误态转 danger 色；清除按钮与错误文案直接出现（姿态动画在本框架不可用，见动效规格书）。
 
 **后置**
 - 密码显隐切换（需 app 持有「显示中」状态）。
@@ -101,7 +101,7 @@ h.Input(&app.query).Outline().PrefixIcon(icons.Search()).
 - [x] 清除按钮（图标、`KeepFocus`、`TabStop(false)`、无障碍名、无按钮外观）
 - [x] 事件（变化/失焦/清除/回车）与查询式接口
 - [x] 前后缀（构建器与图标）与错误态
-- [x] 动效（聚焦描边渐变、清除按钮与错误文案渐显）
+- [x] 动效（聚焦描边渐变；清除按钮与错误文案直接出现）
 - [x] 测试（`input_test.go`：尺寸、禁用/只读、暗色、清除、事件、错误文案、前后缀、前缀图标、清除按钮只有图标、聚焦描边取强调色）
 - [x] showcase「Input」页（含搜索框：前缀放大镜 + 可清除）
 - [ ] 密码显隐、字数统计、formatter/parser（后置）

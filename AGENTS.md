@@ -37,12 +37,13 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
   components carry no timers of their own, so reduced motion and
   background-unwanted frames come free.
 - **Every component moves a little, and says how.** A state change
-  fades its colors through `Element.Transition`, an element that
-  appears or goes fades through `AnimatePose`, and the durations come
+  fades its colors through `Element.Transition`, and the durations come
   from the motion tokens (`MotionFast`/`MotionNormal`/`MotionSlow`).
   Motion belongs to the component that has it: a button's hover, an
-  input's focus and clear button, a badge that changes. No timers, no
-  goroutines, no motion that ignores the desktop's Reduce Motion.
+  input's focus, a badge that changes. No timers, no goroutines, no
+  motion that ignores the desktop's Reduce Motion. The pose animation
+  (`AnimatePose`) is not used: it leaves the element it poses invisible
+  (see docs/components/motion.md).
 - **Keep embedded assets licensed.** Lucide SVGs (ISC), simple-icons
   (CC0), fonts (OFL) only; record additions and their licenses in the
   subpackage README.

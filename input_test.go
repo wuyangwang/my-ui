@@ -221,7 +221,7 @@ func TestInputPrefixIconShows(t *testing.T) {
 func TestInputClearButtonIsTheIconAlone(t *testing.T) {
 	var value string
 	view := func(c *ui.Context) {
-		Apply(c, Options{})
+		Apply(c, Options{Appearance: AppearanceLight})
 		NewInput(c, &value).Outline().Label("Name").Clearable()
 	}
 	tt := ui.NewTester(view, 320, 240)
@@ -238,6 +238,12 @@ func TestInputClearButtonIsTheIconAlone(t *testing.T) {
 	// The button is the icon alone: it takes no room of a button's.
 	if info.Bounds.W > 24 || info.Bounds.H > 24 {
 		t.Errorf("the clear button is %v by %v, want the icon alone", info.Bounds.W, info.Bounds.H)
+	}
+	// And the icon is really drawn: the tester shows its ink in the box
+	// of the button.
+	b := info.Bounds
+	if !hasInk(tt, b.X, b.Y, b.W, b.H) {
+		t.Error("the clear icon is not drawn")
 	}
 }
 
@@ -281,6 +287,20 @@ func hasColor(tt *ui.Tester, x, y, w, h float32, want ui.Color) bool {
 				continue
 			}
 			if r == want.R && g == want.G && b == want.B {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// hasInk reports whether the tester drew anything darker than the
+// background in a box of the window.
+func hasInk(tt *ui.Tester, x, y, w, h float32) bool {
+	for dy := 0; dy < int(h); dy++ {
+		for dx := 0; dx < int(w); dx++ {
+			r, g, b := pixel(tt, x+float32(dx), y+float32(dy))
+			if r < 0xd0 && g < 0xd0 && b < 0xd0 {
 				return true
 			}
 		}

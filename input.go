@@ -250,8 +250,6 @@ func (in *Input) Clearable() *Input {
 				ic = ic.TextColor(t.TextMuted)
 			}
 		})
-		// The button was not there before, so it fades in.
-		fadeIn(b)
 		if b.Clicked() {
 			*in.value = ""
 			in.cleared = true
@@ -267,8 +265,6 @@ func (in *Input) ErrorText(s string) *Input {
 	c := in.c
 	in.msg.Children(func() {
 		msg := ui.Text(c, s).TextColor(c.Theme().Danger)
-		// The message was not there before, so it fades in.
-		fadeIn(msg)
 		in.in = in.in.ErrorMessage(msg)
 	})
 	return in
