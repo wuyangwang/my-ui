@@ -23,6 +23,7 @@
 //	         holds the options, the chosen one marked
 //	ComboBox a drop-down whose trigger is a text field: what is typed
 //	         narrows the options down
+//	MultiSelect a field of tags: the chosen options show as chips
 //	Field    a form field: its label, the control in it, a description
 //	         and an error, laid out as one thing
 //	Badge    a small label: the variants, in three sizes

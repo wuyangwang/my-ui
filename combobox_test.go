@@ -58,6 +58,36 @@ func TestComboBoxChoosesAnOption(t *testing.T) {
 	}
 }
 
+func TestComboBoxChoosesAnOptionAfterSearching(t *testing.T) {
+	var text string
+	chosen := ""
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		NewComboBox(c, &text, []SelectOption{
+			{Label: "Alpha", Value: "a"},
+			{Label: "Beta", Value: "b"},
+			{Label: "Gamma", Value: "g"},
+		}).Outline().Label("选择").OnChanged(func(v string) { chosen = v })
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+
+	// Search first, then choose: the options that do not hold the text
+	// are left out of the popup.
+	if err := tt.Click("选择"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("B")
+	tt.Advance(time.Second)
+	if err := tt.Click("Beta"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if chosen != "b" {
+		t.Errorf("the choice reported %q, want %q", chosen, "b")
+	}
+}
+
 func TestComboBoxGroupsItsOptions(t *testing.T) {
 	var text string
 	view := func(c *ui.Context) {

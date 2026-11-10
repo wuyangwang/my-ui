@@ -50,17 +50,6 @@ func (s *showcase) selectPage(c *ui.Context, t *ui.Theme) {
 		})
 	})
 
-	s.sectionNote(c, t, "可搜索", "ComboBox：触发器就是输入框，输入即过滤选项", func() {
-		s.card(c, t, func() {
-			myui.NewComboBox(c.Key("cb-lang"), &s.query, []myui.SelectOption{
-				{Label: "简体中文", Value: "zh-Hans"},
-				{Label: "繁體中文", Value: "zh-Hant"},
-				{Label: "English", Value: "en"},
-				{Label: "日本語", Value: "ja"},
-			}).Outline().Label("语言").Placeholder("搜索语言…")
-		})
-	})
-
 	s.sectionNote(c, t, "事件", "选择变化时回调", func() {
 		s.card(c, t, func() {
 			ui.Text(c, "最近事件："+s.lastEvent).

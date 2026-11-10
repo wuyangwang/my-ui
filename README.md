@@ -25,7 +25,7 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方�
 
 ## 当前状态
 
-- **已完成**：tokens 刻度；`Apply`/`NewTheme`（明暗三态 + 8 套 Palette + 系统强调色/高对比/文本缩放）；共享 `Variant`/`Size` 词表（零值 `Default`，`Native` 为旧名）；`Button`（图标/忙碌态/hover+pressed/禁用）、`Input`（前缀图标如搜索框、后缀、清除按钮、事件、错误态）、`TextArea`（随内容增高）、`Select`（分组/清除/默认宽度）、`ComboBox`（可搜索下拉）、`Badge`、`Icon`（Lucide）、`Field`/`PasswordInput`（表单字段层与校验）、`Scaffold`；`icons/` 二级包；`myui.Bind(c)` 每帧句柄；动效约定（状态色渐变）。
+- **已完成**：tokens 刻度；`Apply`/`NewTheme`（明暗三态 + 8 套 Palette + 系统强调色/高对比/文本缩放）；共享 `Variant`/`Size` 词表（零值 `Default`，`Native` 为旧名）；`Button`（图标/忙碌态/hover+pressed/禁用）、`Input`（前缀图标如搜索框、后缀、清除按钮、事件、错误态）、`TextArea`（随内容增高）、`Select`（分组/清除/默认宽度）、`ComboBox`（可搜索下拉）、`MultiSelect`（芯片多选）、`Badge`、`Icon`（Lucide）、`Field`/`PasswordInput`（表单字段层与校验）、`Scaffold`；`icons/` 二级包；`myui.Bind(c)` 每帧句柄；动效约定（状态色渐变）。
 - **进行中**：一期后的表单与反馈组件（TextArea、Select、Checkbox、Radio、Switch、Slider、Alert、Tooltip），按 [docs/roadmap.md](docs/roadmap.md) 顺序推进，每个组件含规格书、实现、`ui.Tester` 测试与 showcase 示例。
 - **后置**：i18n 文案表、品牌标子包 `icons/brand`、`fonts/`。
 

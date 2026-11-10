@@ -62,6 +62,11 @@ func (u UI) ComboBox(text *string, options []SelectOption) *ComboBox {
 	return NewComboBox(u.c, text, options)
 }
 
+// MultiSelect creates a field of tags: the chosen options show as chips.
+func (u UI) MultiSelect(tokens *[]string, options []SelectOption) *MultiSelect {
+	return NewMultiSelect(u.c, tokens, options)
+}
+
 // Badge creates a badge.
 func (u UI) Badge(text string) *Badge { return NewBadge(u.c, text) }
 

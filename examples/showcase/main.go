@@ -26,6 +26,7 @@ type showcase struct {
 	query     string
 	draft     string
 	lang      string
+	langs     []string
 	size      string
 	password  string
 	disabled  string
