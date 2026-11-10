@@ -28,7 +28,7 @@ func hexRGB(t *testing.T, s string) (uint8, uint8, uint8) {
 // texts stay on the left strip, the page's cards open to its right,
 // and neither pane overruns the window.
 func TestSidebarSitsBesideThePages(t *testing.T) {
-	s := &showcase{}
+	s := &showcase{page: pages[0].key}
 	tt := ui.NewTester(s.view, 960, 620)
 
 	check := func(what string, x, w float32, strip bool) {
@@ -71,7 +71,7 @@ func TestSidebarSitsBesideThePages(t *testing.T) {
 // and takes a switch for a drive: the page builds, and the pressed
 // button has the rest painted.
 func TestThemePageSwitchesTheAppearanceAndThePalette(t *testing.T) {
-	s := &showcase{}
+	s := &showcase{page: pages[0].key}
 	tt := ui.NewTester(s.view, 960, 620)
 	if err := tt.Click("外观"); err != nil {
 		t.Fatal(err)
@@ -86,12 +86,31 @@ func TestThemePageSwitchesTheAppearanceAndThePalette(t *testing.T) {
 	}
 }
 
+// TestTheSidebarSwitchesPages takes the sidebar for a drive: a click on
+// a page opens that page, and the open page is the one the registry
+// names.
+func TestTheSidebarSwitchesPages(t *testing.T) {
+	s := &showcase{page: pages[0].key}
+	tt := ui.NewTester(s.view, 960, 620)
+	if err := tt.Click("Input"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(100 * 1000 * 1000)
+	if s.page != "input" {
+		t.Errorf("the open page is %q, want %q", s.page, "input")
+	}
+	// The Input page shows the search field, which no other page has.
+	if _, ok := tt.Find("搜索"); !ok {
+		t.Fatal("the Input page is not on screen")
+	}
+}
+
 // TestForcedLightRelightsTheFrame paints a frame the desktop runs dark
 // on, and the forced appearance has to take the window's sides: the
 // main page and the sidebar. The Tester resolves the desktop's theme
 // dark; a window always paints the sides in its own.
 func TestForcedLightRelightsTheFrame(t *testing.T) {
-	s := &showcase{appearance: myui.AppearanceLight}
+	s := &showcase{page: pages[0].key, appearance: myui.AppearanceLight}
 	tt := ui.NewTesterWith(s.view, 960, 620, ui.TesterOptions{Dark: true})
 
 	r, g, b := hexRGB(t, "ffffff")

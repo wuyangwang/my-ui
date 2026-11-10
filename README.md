@@ -33,7 +33,7 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方�
 
 ## 示例
 
-`examples/showcase`：侧栏分页（Button、Input、Badge、Icon、Scaffold、外观），可切换明暗/色板并用 `ui.Themed` 预览子树主题。
+`examples/showcase`：侧栏分页（Button、Input、TextArea、Badge、Icon、Scaffold、外观），可切换明暗/色板并用 `ui.Themed` 预览子树主题。示例本身也按库的规矩写：**每个页面一个文件**（`page_*.go`），在 `pages.go` 的页面表里登记，窗口与侧栏都不需要知道有哪些页面。
 
 ```sh
 go run ./examples/showcase
