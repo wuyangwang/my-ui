@@ -76,6 +76,9 @@ CI-safe on all three desktop OSes plus js/wasm.
   options fall through to the widget's own methods after the preset is applied.
   `Variant`/`Size` 是根包共享词表，`Variant` 零值为 `Native`（不涂预设），
   `Secondary` 为其 shadcn 别名。
+- `myui.Bind(c)` is the sugar over the constructors: a handle for one
+  window, so a view may bind it once and leave the context out of the
+  calls. Both forms are there; the constructors stay the primitive.
 - Package docs in code comments are written in English (Go ecosystem
   style); the files under `docs/` and `README.md` are written in Chinese.
 - New components first: the ordered plan in docs/roadmap.md decides what
