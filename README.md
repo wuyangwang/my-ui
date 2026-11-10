@@ -29,6 +29,24 @@ MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的组件库�
 
 已实现（一期进行中）：tokens 刻度、`theme.Apply`（明暗三态 + 8 套Palette 色板 + 系统强调色/高对比/文本缩放）、`NewButton` 流式变体（`Primary/Secondary/Outline/Ghost/Destructive/Link × Sm/Md/Lg`，含 hover/pressed 三态与禁用）。实现中的排期见 [docs/roadmap.md](docs/roadmap.md)，工程结论与证据见 [docs/research.md](docs/research.md)，分层与发布策略见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
 
+## 示例
+
+`examples/showcase` 是桌面示例：侧栏按组件分页（Button、外观），全中文界面，可现场切换明暗、色板，并用 `ui.Themed` 预览子树级独立主题。
+
+```sh
+go run ./examples/showcase        # 直接跑
+```
+
+或用 mygo 自带的 CLI（版本与上方锁定的 mygo 一致）：
+
+```sh
+go install github.com/egoist/mygo/cmd/mygo@v0.8.3
+mygo dev examples/showcase        # 热重载开发窗口；r 重建、q 退出
+mygo build -skip-installer examples/showcase   # 打包 exe，产出在 examples/showcase/dist
+```
+
+showcase 是纯原生 UI 应用（无 mygo.json、无前端），两套入口都不需要额外配置。
+
 ## 版本约定
 
 锁定所发布 mygo 版本（当前 **v0.8.3**，已写入 `go.mod`；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)）。`ui` 的 element API 上游有过破坏性迁移（官方提供 `mygo migrate-ui`），my-ui 发版与其一一对应；消费者应直接使用与该版 mygo 匹配的 my-ui 版本。
