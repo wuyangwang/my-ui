@@ -16,7 +16,8 @@ func (s *showcase) formPage(c *ui.Context, t *ui.Theme) {
 
 				myui.NewField(c.Key("field-email"), "邮箱", func() ui.Element {
 					return myui.NewInput(c.Key("in-email"), &s.email).Outline().Control()
-				}).Required(true).Error("邮箱格式不对")
+				}).Required(true).Validate(&s.email,
+					myui.Required("请填写邮箱"), myui.Email("邮箱格式不对"))
 
 				myui.NewField(c.Key("field-size"), "尺寸", func() ui.Element {
 					return myui.NewSelect(c.Key("sel-field"), &s.size, []myui.SelectOption{

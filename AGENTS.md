@@ -83,6 +83,11 @@ CI-safe on all three desktop OSes plus js/wasm.
   exported symbol, and the spec page's API table: one row per prop
   (method, option or field) with what it does. A prop without a row is
   a prop without a doc.
+- **A component ships ready to use.** Components are added one by one,
+  and each one is done when it can go live: the states, the events, the
+  accessibility and the composition a user expects are in it. What the
+  framework cannot do is written down as a limit, not left as a
+  "later"; what is later is a new component, not a hole in this one.
 - One-line constructors + fluent preset methods: `NewXxx(c, ...).Primary().Sm()`
   applies shared `Variant`/`Size` presets and returns the widget; fluent
   options fall through to the widget's own methods after the preset is applied.

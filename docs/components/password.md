@@ -23,15 +23,15 @@
 
 **已实现**
 - `NewPasswordInput(c, &value)`：一个隐藏所输入内容的字段，末端一个眼睛按钮切换明暗。
-- 切换的实现：两个 key（`password-hidden` / `password-shown`）——键换了，输入框是新的，隐藏标志也就没了 ✓；值由 app 持有，不丢 ✓。
+- 切换的实现：两个 key（`password-hidden` / `password-shown`）——键换了 → 状态（id）换了 → 编辑器是新的 → 不再隐藏 ✓；值由 app 持有，不丢 ✓。
 - 明暗状态存在字段自己的槽位里（`ui.Local`）✓，跨帧保持 ✓。
+- **切换后焦点回到输入框** ✓（下一帧落在新输入框上 ✓）。
+- **眼睛按钮的图标与颜色可配**：`EyeIcons(shown, hidden *ui.SVG)`（显示时/隐藏时各一个）与 `EyeColor(ui.Color)` ✓；两者在**绘制时**读取（`Element.Draw` + `Painter.Icon`）✓，所以链式调用在任何位置都生效 ✓。
 - 继承字段基座的能力：`Variant`/`Size`/`Shape`/`Width`/`Placeholder`/`Label`/`Clearable`/`OnChanged` 等 ✓。
 
 **已知代价**：切换时编辑状态（光标位置、撤销栈）重置 ✗（值不丢 ✓）。
 
-**后置**
-- 切换后把焦点还给输入框。
-- 眼睛按钮的图标与状态色可配。
+**后置**：无（组件已可上线 ✓）——后续若加需求，走新增而非后置 ✓。
 
 ## 4. 项目结构是否合理
 
@@ -43,6 +43,13 @@
 // NewPasswordInput creates a password field editing *value with the
 // native preset.
 func NewPasswordInput(c *ui.Context, value *string) *PasswordInput
+
+// EyeIcons sets the icons of the button: the one it shows while the
+// text shows, and the one it shows while the text is hidden.
+func (p *PasswordInput) EyeIcons(shown, hidden *ui.SVG) *PasswordInput
+
+// EyeColor sets the color of the button's icon.
+func (p *PasswordInput) EyeColor(c ui.Color) *PasswordInput
 ```
 
 继承自字段基座：`Variant`/`Size`/`Shape`/`Width`/`Placeholder`/`Label`/`Clearable`/`OnChanged`/`OnBlurred`/`OnCleared`/`Control` 等 ✓。

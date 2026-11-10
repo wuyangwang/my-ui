@@ -27,6 +27,9 @@ type Field struct {
 	labelText ui.Element
 	desc      ui.Element
 	err       ui.Element
+	touched   *bool
+	initial   *string
+	dirty     bool
 	required  bool
 	invalid   bool
 }
@@ -85,6 +88,9 @@ func (f *Field) Description(s string) *Field {
 // Error puts the message of the error under the control and returns the
 // field, for chaining. The message is announced as it appears, and the
 // control is marked as not holding a good value.
+//
+// A field with a validation shows the message of the rules; the two
+// write the same place, so the one written last is the one shown.
 func (f *Field) Error(s string) *Field {
 	c := f.c
 	var text ui.Element
@@ -97,6 +103,58 @@ func (f *Field) Error(s string) *Field {
 	}
 	return f
 }
+
+// Validate checks the value against the rules and shows the message of
+// the first rule that does not hold. The rules are checked once the
+// field has been left, and after that whenever the value changes; a
+// field that has not been left shows nothing, as a form does.
+//
+//	myui.NewField(c, "邮箱", func() ui.Element { ... }).
+//		Validate(&app.email, myui.Required("请填写邮箱"), myui.Email("邮箱格式不对"))
+//
+// The field keeps the states a form keeps: whether it has been left
+// (Touched) and whether the value differs from the one it started with
+// (Dirty).
+func (f *Field) Validate(value *string, rules ...Rule) *Field {
+	if !f.hasCtrl {
+		return f
+	}
+	// The states the field keeps, on its control, so that they survive
+	// from frame to frame.
+	touched := ui.Local(f.control, "field-touched", func() bool { return false })
+	initial := ui.Local(f.control, "field-initial", func() string { return *value })
+	if f.control.FocusLeft() {
+		*touched = true
+	}
+	f.touched = touched
+	f.initial = initial
+	f.dirty = *value != *initial
+
+	if !*touched {
+		return f
+	}
+	for _, r := range rules {
+		if msg := r(*value); msg != "" {
+			return f.Error(msg)
+		}
+	}
+	// The value holds: the error goes away.
+	f.err = f.err.Hidden(true)
+	f.invalid = false
+	return f
+}
+
+// Touched reports whether the field has been left, so that it has been
+// in use.
+func (f *Field) Touched() bool { return f.touched != nil && *f.touched }
+
+// Dirty reports whether the value differs from the one the field
+// started with.
+func (f *Field) Dirty() bool { return f.dirty }
+
+// Valid reports whether the field holds a good value: it has been left
+// and the rules hold.
+func (f *Field) Valid() bool { return f.Touched() && !f.invalid }
 
 // Required marks the field as one that must be filled, and returns it,
 // for chaining: the label takes a star.

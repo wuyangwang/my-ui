@@ -53,6 +53,110 @@ func TestFieldLabelFocusesTheControl(t *testing.T) {
 	}
 }
 
+func TestFieldValidatesAfterItIsLeft(t *testing.T) {
+	var value string
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewField(c, "邮箱", func() ui.Element {
+			return NewInput(c, &value).Outline().Control()
+		}).Validate(&value, Required("请填写邮箱"))
+		ui.Button(c, "别处").Label("别处")
+	}
+	tt := ui.NewTester(view, 320, 300)
+	tt.Advance(time.Second)
+
+	// The field has not been left: it shows nothing, as a form does.
+	if _, ok := tt.Access("请填写邮箱"); ok {
+		t.Error("the error shows before the field is left")
+	}
+
+	if err := tt.Click("邮箱"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if err := tt.Click("别处"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if _, ok := tt.Access("请填写邮箱"); !ok {
+		t.Error("the error does not show after the field is left")
+	}
+}
+
+func TestFieldValidatesTheValueItHolds(t *testing.T) {
+	var value string
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewField(c, "邮箱", func() ui.Element {
+			return NewInput(c, &value).Outline().Control()
+		}).Validate(&value, Required("请填写邮箱"), Email("邮箱格式不对"))
+		ui.Button(c, "别处").Label("别处")
+	}
+	tt := ui.NewTester(view, 320, 300)
+	tt.Advance(time.Second)
+	if err := tt.Click("邮箱"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if err := tt.Click("别处"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if _, ok := tt.Access("请填写邮箱"); !ok {
+		t.Error("the error of the empty value does not show")
+	}
+
+	// A value that holds leaves no error.
+	if err := tt.Click("邮箱"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("hi@example.com")
+	tt.Advance(time.Second)
+	if err := tt.Click("别处"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if _, ok := tt.Access("请填写邮箱"); ok {
+		t.Error("the error shows although the value holds")
+	}
+}
+
+func TestFieldKnowsItWasUsed(t *testing.T) {
+	var value string
+	var field *Field
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		field = NewField(c, "邮箱", func() ui.Element {
+			return NewInput(c, &value).Outline().Control()
+		}).Validate(&value, Required("请填写邮箱"))
+		ui.Button(c, "别处").Label("别处")
+	}
+	tt := ui.NewTester(view, 320, 300)
+	tt.Advance(time.Second)
+	if field.Touched() {
+		t.Error("the field says it was used before it was left")
+	}
+	if field.Dirty() {
+		t.Error("the field says it is dirty before anything was typed")
+	}
+
+	if err := tt.Click("邮箱"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("hi")
+	tt.Advance(time.Second)
+	if err := tt.Click("别处"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if !field.Touched() {
+		t.Error("the field does not say it was used")
+	}
+	if !field.Dirty() {
+		t.Error("the field does not say it is dirty")
+	}
+}
+
 func TestPasswordInputHidesAndShowsTheText(t *testing.T) {
 	var value string
 	view := func(c *ui.Context) {
@@ -87,5 +191,46 @@ func TestPasswordInputHidesAndShowsTheText(t *testing.T) {
 	}
 	if info2.Value != "secret" {
 		t.Errorf("the shown password holds %q, want %q", info2.Value, "secret")
+	}
+}
+
+func TestPasswordInputTakesTheFocusBack(t *testing.T) {
+	var value string
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewPasswordInput(c, &value).Outline().Label("密码")
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	// The button is pressed without the text having the focus: the text
+	// takes it back.
+	if err := tt.Click("显示密码"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if !tt.Focused("密码") {
+		t.Error("the text did not take the focus back")
+	}
+}
+
+func TestPasswordInputTakesItsOwnIconAndColor(t *testing.T) {
+	var value string
+	red := ui.Hex("#ff0000")
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		NewPasswordInput(c, &value).Outline().Label("密码").
+			EyeIcons(testIcon, testIcon).EyeColor(red)
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	info, ok := tt.Access("显示密码")
+	if !ok {
+		t.Fatal("the button that shows the password is not on screen")
+	}
+	// The icon of the button is drawn in the color the app chose.
+	b := info.Bounds
+	r, g, bl := pixel(tt, b.X+b.W/2, b.Y+b.H/2)
+	if r != red.R || g != red.G || bl != red.B {
+		t.Errorf("the icon drew (%d, %d, %d), want the color the app chose", r, g, bl)
 	}
 }

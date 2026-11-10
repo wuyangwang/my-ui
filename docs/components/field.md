@@ -32,13 +32,16 @@
 - `Required(on)`：标签后加一个星号 ✓。
 - `Invalid(on)`：控件标记为无效，标签转 danger 色 ✓。
 - `Control()`：字段描述的那个元素（控件本身，或控件的文本）✓。
+- **校验层**：`Validate(value, rules...)` ✓——规则在**字段被离开之后**、以及此后**每次值变化**时检查（element-plus 与 Lobe 的时机 ✓）；规则是一条 `func(value string) string`（不通过就返回消息 ✓）；内置 `Required`/`MinLength`/`MaxLength`/`Pattern`/`Email` ✓。
+- **表单状态**：`Touched()`（被离开过 ✓）、`Dirty()`（值与初始值不同 ✓）、`Valid()` ✓——状态存在控件上，跨帧保持 ✓。
 
 **分工**：控件保留 `Label(string)`（无障碍名，控件自己的责任 ✓）；错误文案与说明归字段 ✓（控件的 `ErrorText` 已在 Q9 决定中去掉 ✗ → 待办）。
 
+**已知限制**：mygo 没有「刚获得焦点」事件 → 只能**失焦校验** ✓，做不了「聚焦即校验」✓（记为限制，不是后置 ✓）。
+
 **后置**
-- 校验层（规则、时机、dirty/touched、异步校验与取消、依赖重校验）——按 Q1 留给 app 或后续。
-- 横向排列的字段组（shadcn 的 `orientation="horizontal"`）、字段集与图例（`FieldSet`/`FieldLegend`）、多条错误消息成列表。
-- 必填标记的位置可配（element-plus 的 `require-asterisk-position`）。
+- 校验规则的自定义触发时机（每帧 / 变更 / 失焦可配）、异步校验与取消、依赖字段重校验（element-plus / Lobe 的能力 ✗）。
+- 横向排列的字段组（shadcn 的 `orientation="horizontal"`）、字段集与图例（`FieldSet`/`FieldLegend`）、多条错误消息成列表（shadcn 的 `FieldError` errors 数组 ✓）。
 
 ## 4. 项目结构是否合理
 
@@ -54,7 +57,20 @@
 | `Error(s string) *Field` | 控件下的错误（`role="alert"`），并把控件标记为无效 |
 | `Required(on bool) *Field` | 标签上的必填星号 |
 | `Invalid(on bool) *Field` | 控件无效，标签转 danger 色 |
+| `Validate(value *string, rules ...Rule) *Field` | 用规则校验值；被离开后、以及此后每次值变化时检查，不通过就显示消息 |
+| `Touched() bool` | 字段被离开过（用过） |
+| `Dirty() bool` | 值与初始值不同 |
+| `Valid() bool` | 被离开过且规则通过 |
 | `Control() ui.Element` | 字段描述的那个元素 |
+
+规则（`Rule` = `func(value string) string`，不通过返回消息）：
+
+| 规则 | 作用 |
+|---|---|
+| `Required(msg)` | 值不可为空 |
+| `MinLength(n, msg)` / `MaxLength(n, msg)` | 值的 rune 长度上下限 |
+| `Pattern(re, msg)` | 值须匹配正则 |
+| `Email(msg)` | 值须是邮箱地址 |
 
 用法：
 
@@ -62,7 +78,8 @@
 h := myui.Bind(c)
 h.Field("邮箱", func() ui.Element {
 	return h.Input(&app.email).Outline().Control()
-}).Description("我们只用它发通知").Required(true).Error(app.emailError)
+}).Description("我们只用它发通知").Required(true).
+	Validate(&app.email, myui.Required("请填写邮箱"), myui.Email("邮箱格式不对"))
 ```
 
 ## 6. 状态
