@@ -7,10 +7,10 @@ import (
 
 // sectionNote is a titled block of a page: heading, note, then cards.
 func (s *showcase) sectionNote(c *ui.Context, t *ui.Theme, block, note string, build func()) {
-	ui.Column(c).Gap(t.Space(2)).Children(func() {
-		ui.Row(c).AlignItems(ui.Baseline).Gap(t.Space(2)).Children(func() {
-			ui.Text(c, block).FontSize(myui.TextSize(t, myui.TextSm)).Bold()
-			ui.Text(c, note).FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+	ui.Column(c).Gap(t.Space(3)).Children(func() {
+		ui.Row(c).AlignItems(ui.Baseline).Gap(t.Space(2.5)).Children(func() {
+			ui.Text(c, block).FontSize(myui.TextSize(t, myui.TextMd)).Bold()
+			ui.Text(c, note).FontSize(myui.TextSize(t, myui.TextSm)).TextColor(t.TextMuted)
 		})
 		build()
 	})
@@ -21,7 +21,8 @@ func (s *showcase) sectionNote(c *ui.Context, t *ui.Theme, block, note string, b
 func (s *showcase) card(c *ui.Context, t *ui.Theme, build func()) {
 	ui.Row(c).Children(func() {
 		ui.Column(c).Grow(1).Background(t.Surface).Border(1, t.Border).
-			Radius(t.Radius).Padding(t.Space(3), t.Space(4)).Gap(t.Space(2)).Children(build)
+			Radius(t.Radius).Padding(t.Space(4), t.Space(5)).Gap(t.Space(3)).
+			Shadow(0, 1, 3, 0, t.TextMuted.Alpha(0.08)).Children(build)
 	})
 }
 

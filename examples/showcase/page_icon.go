@@ -40,13 +40,13 @@ func (s *showcase) iconPage(c *ui.Context, t *ui.Theme) {
 					TextColor(t.TextMuted)
 			})
 			ui.Text(c, "Lucide").FontSize(myui.TextSize(t, myui.TextSm)).Bold()
-			ui.Grid(c).Columns(16).Gap(t.Space(1)).Children(func() {
+			ui.Grid(c).Columns(12).Gap(t.Space(1)).Children(func() {
 				for _, name := range shown {
 					s.icon(c, name, all.ByName(name))
 				}
 			})
 			ui.Text(c, "品牌标").FontSize(myui.TextSize(t, myui.TextSm)).Bold()
-			ui.Grid(c).Columns(16).Gap(t.Space(1)).Children(func() {
+			ui.Grid(c).Columns(12).Gap(t.Space(1)).Children(func() {
 				for _, name := range brands {
 					s.icon(c, name, brandall.ByName(name))
 				}
@@ -61,8 +61,15 @@ func (s *showcase) icon(c *ui.Context, name string, svg *ui.SVG) {
 	if svg == nil {
 		return
 	}
-	b := myui.NewButton(c.Key("icon "+name), "").Ghost().Xs()
-	b.Icon(svg).Label(name)
+	t := c.Theme()
+	b := myui.NewButton(c.Key("icon "+name), "").Ghost()
+	b.Padding(t.Space(2)).AlignSelf(ui.Center).Radius(t.Radius)
+	// The name of the icon is the name of the button, for the screen
+	// reader.
+	b.Label(name)
+	b.Children(func() {
+		myui.NewIcon(c, svg).Lg()
+	})
 	myui.NewTooltip(c, b.Element, name)
 	if b.Clicked() {
 		s.copy(c, name)

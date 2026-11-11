@@ -71,18 +71,27 @@ func (s *showcase) view(c *ui.Context) {
 }
 
 // sidebar carries the navigation: the brand, a search and the pages, one
-// fold per kind, on the surface tone so the structure reads.
+// fold per kind.
 //
 // The folds are closed one at a time: the fold of the page that is open
 // shows, and clicking a fold's title opens that fold and closes the
 // other. A search opens them all and leaves only what it finds, so the
 // sidebar holds a hundred pages as well as a dozen.
 func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
-	ui.Column(c).Width(190).Background(t.Surface).Padding(t.Space(4)).
-		Gap(t.Space(3)).Children(func() {
-		ui.Text(c, "my-ui").FontSize(myui.TextSize(t, myui.TextLg)).Bold()
-		ui.Text(c, "MyGo 原生组件库").
-			FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+	ui.Column(c).Width(224).Background(t.Surface).Padding(t.Space(4), t.Space(3)).
+		Gap(t.Space(4)).Children(func() {
+		// The brand: a mark and the name.
+		ui.Row(c).Gap(t.Space(2.5)).AlignItems(ui.Center).Children(func() {
+			mark := ui.Box(c).Size(t.Space(7), t.Space(7)).Radius(t.Space(2)).
+				Background(t.Accent)
+			mark.Children(func() {
+				ui.Icon(c, icons.Braces()).Size(t.Space(4.5), t.Space(4.5)).
+					TextColor(t.AccentText)
+			})
+			ui.Text(c, "my-ui").FontSize(myui.TextSize(t, myui.TextLg)).Bold()
+			ui.Text(c, "组件库").FontSize(myui.TextSize(t, myui.TextXs)).
+				TextColor(t.TextMuted)
+		})
 
 		myui.NewInput(c.Key("nav search"), &s.navQuery).Outline().Sm().
 			PrefixIcon(icons.Search()).
@@ -106,8 +115,15 @@ func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 			}
 			if found == 0 {
 				ui.Text(c, "没有匹配的组件").
-					FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+					FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted).
+					Padding(t.Space(2))
 			}
+		})
+
+		// The version, at the foot of the sidebar.
+		ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center).Children(func() {
+			ui.Text(c, "mygo v0.8.3").FontSize(myui.TextSize(t, myui.TextXs)).
+				TextColor(t.TextMuted)
 		})
 	})
 }
@@ -117,12 +133,14 @@ func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 func (s *showcase) fold(c *ui.Context, t *ui.Theme, name string, n int) {
 	label := name + " (" + strconv.Itoa(n) + ")"
 	b := myui.NewButton(c.Key("fold "+name), label).Ghost().Block()
+	b.FontSize(myui.TextSize(t, myui.TextXs))
+	b.Justify(ui.Start)
+	b.TextColor(t.TextMuted)
 	if s.foldOpen(name) {
 		b.Icon(icons.ChevronDown())
-		b.Background(t.Accent.Alpha(0.10)).TextColor(t.Accent)
+		b.TextColor(t.Text)
 	} else {
 		b.Icon(icons.ChevronRight())
-		b.TextColor(t.TextMuted)
 	}
 	if b.Clicked() {
 		if s.openFold == name {
@@ -145,12 +163,21 @@ func (s *showcase) foldOpen(g string) bool {
 	return pageOf(s.page).group == g
 }
 
-// nav is one sidebar entry; the open page paints the accent ink.
+// nav is one sidebar entry: the icon of the page and its name. The open
+// page sits on a surface of its own, in the accent ink.
 func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
-	b := myui.NewButton(c.Key("nav "+p.key), p.label).Ghost()
+	b := myui.NewButton(c.Key("nav "+p.key), p.label).Ghost().Block()
+	b.FontSize(myui.TextSize(t, myui.TextSm))
+	b.Justify(ui.Start)
+	b.Padding(t.Space(2), t.Space(2.5)).Radius(t.Space(2))
+	if p.icon != nil {
+		b.Icon(p.icon)
+	}
 	if s.page == p.key {
-		a := t.Accent
-		b.Background(a.Alpha(0.10)).TextColor(a)
+		b.Background(t.Background).TextColor(t.Accent).
+			Shadow(0, 1, 2, 0, t.TextMuted.Alpha(0.12))
+	} else {
+		b.TextColor(t.TextMuted)
 	}
 	if b.Clicked() {
 		s.page = p.key
@@ -160,11 +187,16 @@ func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
 // main is the page column beside the sidebar: the page title, then the
 // page on a scroll.
 func (s *showcase) main(c *ui.Context, t *ui.Theme) {
-	ui.Column(c).Grow(1).Padding(t.Space(4)).Gap(t.Space(4)).Children(func() {
-		ui.Text(c, pageLabel(s.page)).
-			FontSize(myui.TextSize(t, myui.TextXl)).Bold()
+	ui.Column(c).Grow(1).Padding(t.Space(6)).Gap(t.Space(5)).Children(func() {
+		// The name of the page, and the group it is in.
+		ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Baseline).Children(func() {
+			ui.Text(c, pageLabel(s.page)).
+				FontSize(myui.TextSize(t, myui.Text2Xl)).Bold()
+			ui.Text(c, pageOf(s.page).group).
+				FontSize(myui.TextSize(t, myui.TextSm)).TextColor(t.TextMuted)
+		})
 
-		ui.Scroll(c).Grow(1).Gap(t.Space(4)).Children(func() {
+		ui.Scroll(c).Grow(1).Gap(t.Space(5)).Children(func() {
 			s.openPage(c, t)()
 		})
 	})
