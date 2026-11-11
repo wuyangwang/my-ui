@@ -53,10 +53,10 @@
 |---|---|---|---|
 | 10 | TextArea | 规格书 [components/textarea.md](components/textarea.md)；`textarea.go`：与 Input 同构（共用 `field[T]` 基座），多行文本域，随内容增高（`Lines(min,max)`）、清除/前后缀/错误态/事件、`MaxLength`/`Count`；`textarea_test.go` 覆盖尺寸、增高、事件、禁用只读、错误文案、清除；showcase「TextArea」页 | ✅ 已完成 |
 | 11 | Select | 规格书 [components/select.md](components/select.md)；`select.go`：下拉选择，选项为 `{Label,Value,Disabled}` 结构（标签与值可不同），触发器与 Input 同外观，弹层面板与选项高亮、选中打勾、占位文字、禁用；`select_test.go` 覆盖标签/值、开合选择、占位、禁用、尺寸；showcase「Select」页 | ✅ 已完成 |
-| 12 | Checkbox | 勾选/半选态、标签与组布局、禁用与键盘可达 | ⏳ 未开始 |
-| 13 | Radio | 单选组、方向与禁用态 | ⏳ 未开始 |
-| 14 | Switch | 开关预设与动效跟随主题/Reduced Motion | ⏳ 未开始 |
-| 15 | Slider | 单值滑杆（必要时扩展区间），步进/禁用/状态样式 | ⏳ 未开始 |
+| 12 | Checkbox | 规格书 [components/checkbox.md](components/checkbox.md)；`checkbox.go`：勾选框（方框 + 圆角 + 对勾），四档尺寸、事件、禁用 | ✅ 已完成 |
+| 13 | Radio | 规格书 [components/radio.md](components/radio.md)；`radio.go`：单选（圆环 + 圆点），泛型值，四档尺寸、事件、禁用 | ✅ 已完成 |
+| 14 | Switch | 规格书 [components/switch.md](components/switch.md)；`switch.go`：开关（胶囊 + 旋钮），旋钮走位（`Animate`）、事件、无障碍名、禁用 | ✅ 已完成 |
+| 15 | Slider | 规格书 [components/slider.md](components/slider.md)；`slider.go`：滑杆（轨道 + 旋钮），步进、事件、无障碍名、禁用 | ✅ 已完成 |
 | 16 | Alert | 规格书 [components/alert.md](components/alert.md)；`alert.go`：页面里的一段消息（卡片 + 图标 + 标题 + 描述），变体给墨色（破坏性/成功/信息/警告），`role=alert` 让读屏念出来；`alert_test.go` 覆盖标题描述/live region/图标 | ✅ 已完成 |
 | 17 | Toast | 规格书 [components/toast.md](components/toast.md)；`toast.go`：窗口右下角的通知（视口 + 卡片），类型给图标与颜色，动作与关闭按钮，停留时间与淡出；`toast_test.go` 覆盖显示/关闭/动作/超时；showcase「Toast」页 | ✅ 已完成 |
 | 18 | Drawer | 规格书 [components/drawer.md](components/drawer.md)；`drawer.go`：从窗口边缘来的一块面板（用 `ui.Overlay` 搭），触发器打开、点外面或 Escape 收起，模态（焦点在里面）；`drawer_test.go` 覆盖开合与位置；showcase「Drawer」页 | ✅ 已完成 |

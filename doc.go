@@ -26,6 +26,10 @@
 //	MultiSelect a field of tags: the chosen options show as chips
 //	Field    a form field: its label, the control in it, a description
 //	         and an error, laid out as one thing
+//	Checkbox a box that is checked or not, with a label
+//	Radio    a circle that is selected or not: one of a group's choices
+//	Switch   a knob that is on or off
+//	Slider   a knob on a track, that picks a number between two
 //	Tooltip  a tip over an anchor, when the pointer rests on it
 //	Popover  a panel over an anchor, opened by a click on it
 //	Modal    a dialog over the window, opened by a trigger

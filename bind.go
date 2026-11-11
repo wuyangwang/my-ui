@@ -67,6 +67,19 @@ func (u UI) MultiSelect(tokens *[]string, options []SelectOption) *MultiSelect {
 	return NewMultiSelect(u.c, tokens, options)
 }
 
+// Checkbox creates a check box editing *checked, with a label.
+func (u UI) Checkbox(checked *bool, label string) *Checkbox {
+	return NewCheckbox(u.c, checked, label)
+}
+
+// Switch creates a switch editing *on.
+func (u UI) Switch(on *bool) *Switch { return NewSwitch(u.c, on) }
+
+// Slider creates a slider setting *value between lo and hi.
+func (u UI) Slider(value *float64, lo, hi float64) *Slider {
+	return NewSlider(u.c, value, lo, hi)
+}
+
 // Tooltip shows a tip with a text over the anchor.
 func (u UI) Tooltip(anchor ui.Element, text string) *Tooltip {
 	return NewTooltip(u.c, anchor, text)

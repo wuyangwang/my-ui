@@ -27,19 +27,26 @@ type showcase struct {
 	iconQuery  string // what the icon page's search holds
 	drawerOpen bool
 
-	name        string
-	email       string
-	query       string
-	draft       string
-	lang        string
-	langs       []string
-	size        string
-	password    string
-	popoverOpen bool
-	modalOpen   bool
-	disabled    string
-	readonly    string
-	lastEvent   string
+	name          string
+	email         string
+	query         string
+	draft         string
+	lang          string
+	langs         []string
+	size          string
+	password      string
+	mail          bool
+	calendar      bool
+	notifications bool
+	sync          bool
+	switchOff     bool
+	volume        float64
+	step          float64
+	popoverOpen   bool
+	modalOpen     bool
+	disabled      string
+	readonly      string
+	lastEvent     string
 }
 
 // view builds one frame. Apply runs first, every frame, so the theme
