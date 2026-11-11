@@ -17,7 +17,7 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-//go:generate go run ./gen -svg svg -out icons_gen.go -aliases-out aliases_gen.go
+//go:generate go run ./gen -svg svg -out icons_gen.go -aliases-out aliases_gen.go -all-out all/all_gen.go -import github.com/wuyangwang/my-ui/icons
 
 // cache holds the icons parsed so far, by name.
 var cache = map[string]*ui.SVG{}
