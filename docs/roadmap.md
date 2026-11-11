@@ -69,8 +69,9 @@
 
 | 类别 | 组件 | 状态 |
 |---|---|---|
-| 导航/覆盖层 | Tabs、Breadcrumb、Pagination、Drawer(Sheet)、DropdownMenu、ContextMenu、Accordion/Collapsible、Command Palette、应用内 Menubar | ⏳ 未开始 |
-| 展示/布局 | Card/Block、Divider、Avatar、Tag、Kbd/Hotkey、**Skeleton（骨架屏：加载占位；与 Scaffold 的页面布局骨架不是一回事）**、EmptyState、Result、Progress、Spin、HoverCard、Carousel、AspectRatio | ⏳ 未开始 |
+| 展示/布局 | 展示件：Card（`card.go`）、Tabs（`tabs.go`）、Progress（`progress.go`）、Kbd（`kbd.go`）、Divider/Avatar（框架自带外观 ✓） | ✅ 已完成（Card/Tabs/Progress/Kbd） |
+| 导航/覆盖层 | Tabs ✅、Breadcrumb、Pagination、DropdownMenu、ContextMenu、Accordion/Collapsible、Command Palette、应用内 Menubar | ⏳ 未开始（Tabs 已做） |
+| 展示/布局 | Divider ✓、Avatar ✓、Tag、Kbd ✅、**Skeleton（骨架屏：加载占位；与 Scaffold 的页面布局骨架不是一回事）**、EmptyState、Result、Progress ✅、Spin、HoverCard、Carousel、AspectRatio | ⏳ 未开始 |
 | 数据/复杂 | Table（样式与排序/过滤预设）、SortableList 等 | ⏳ 未开始 |
 
 ## 三期：AI 二级包（`ai/`）

@@ -41,6 +41,8 @@ var pages = []page{
 	{key: "overlays", label: "弹层", group: "浮层", build: (*showcase).overlaysPage},
 	{key: "drawer", label: "Drawer", group: "浮层", build: (*showcase).drawerPage},
 	{key: "scaffold", label: "Scaffold", group: "布局", build: (*showcase).scaffoldPage},
+	{key: "card", label: "Card", group: "布局", build: (*showcase).cardPage},
+	{key: "tabs", label: "Tabs", group: "布局", build: (*showcase).tabsPage},
 	{key: "theme", label: "外观", group: "主题", build: (*showcase).themePage},
 }
 

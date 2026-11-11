@@ -42,6 +42,7 @@ type showcase struct {
 	switchOff     bool
 	volume        float64
 	step          float64
+	tab           int
 	popoverOpen   bool
 	modalOpen     bool
 	disabled      string

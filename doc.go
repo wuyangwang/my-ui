@@ -38,6 +38,10 @@
 //	Alert    a message in the page: a card with a title and a description
 //	Badge    a small label: the variants, in three sizes
 //	Icon     an SVG icon in the sizes 14, 20 and 24 DIPs
+//	Card     a panel of the page: a title, a description and a content
+//	Tabs     the tabs of a page: one of them is selected
+//	Progress a bar that shows how far along something is
+//	Kbd      the key caps of a shortcut
 //	Scaffold a page: the title bar's safe area, a header, the scrollable
 //	         content and a bottom bar
 //
