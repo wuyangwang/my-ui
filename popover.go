@@ -44,7 +44,8 @@ func NewPopover(c *ui.Context, open *bool, anchor func() ui.Element, build func(
 		th := c.Theme()
 		panel.Background(th.Surface).Border(1, th.Border).Radius(th.Radius).
 			Padding(th.Space(4)).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.15)).
-			MaxWidth(th.Space(60))
+			MaxWidth(th.Space(60)).
+			Transition(stateTransition())
 		if build != nil {
 			// The content belongs to the panel: the panel is built in
 			// the overlay, where content made now would land at the

@@ -41,7 +41,8 @@ func NewTooltip(c *ui.Context, anchor ui.Element, text string) *Tooltip {
 			FontSize(TextSize(th, TextXs)).
 			Shadow(0, 2, 8, 0, ui.RGBA(0, 0, 0, 0.2)).
 			MaxWidth(th.Space(60)).
-			Margin(0, 0, th.Space(1.5), 0)
+			Margin(0, 0, th.Space(1.5), 0).
+			Transition(stateTransition())
 		// The text belongs to the tip: the tip is built in the overlay,
 		// where a text made now would land at the window's corner.
 		tip.Children(func() {

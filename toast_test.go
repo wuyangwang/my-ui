@@ -59,7 +59,7 @@ func TestToastClosesWithItsButton(t *testing.T) {
 		t.Fatal("the toast is not on screen")
 	}
 	// The close button closes the toast.
-	close, ok := tt.Access("关闭")
+	close, ok := tt.Access("Close")
 	if !ok {
 		t.Fatal("the close button is not on screen")
 	}

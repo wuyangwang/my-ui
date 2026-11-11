@@ -48,7 +48,8 @@ func toastCard(c *ui.Context, t ui.Toast) {
 		Background(th.Surface).Border(1, th.Border).Radius(th.Radius).
 		Padding(th.Space(3), th.Space(4)).
 		Shadow(0, 8, 24, 0, ui.RGBA(0, 0, 0, 0.18)).
-		MaxWidth(th.Space(80))
+		MaxWidth(th.Space(80)).
+		Transition(stateTransition())
 	// The toast fades as the time of it runs out.
 	if left := parts.Left(); left > 0 && left < toastFade {
 		card.Opacity(float32(left) / float32(toastFade))
@@ -70,7 +71,7 @@ func toastCard(c *ui.Context, t ui.Toast) {
 		}
 		close := parts.CloseButton().TextColor(th.TextMuted)
 		close.Children(func() { NewIcon(c, icons.X()).Size(SizeSm) })
-		close.Label("关闭")
+		close.Label(Message(c, "close"))
 	})
 }
 

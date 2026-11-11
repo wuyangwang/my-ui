@@ -187,7 +187,7 @@ func TestModalClosesWithItsButton(t *testing.T) {
 	tt.Advance(time.Second)
 
 	// The close button sits in the corner of the panel.
-	close, ok := tt.Access("关闭")
+	close, ok := tt.Access("Close")
 	if !ok {
 		t.Fatal("the close button is not on screen")
 	}

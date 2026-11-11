@@ -49,11 +49,12 @@ func NewModal(c *ui.Context, open *bool, trigger func() ui.Element, build func(p
 		backdrop.Background(ui.RGBA(0, 0, 0, 0.5))
 		panel.Background(th.Background).Border(1, th.Border).Radius(th.Radius).
 			Padding(th.Space(6)).Shadow(0, 8, 24, 0, ui.RGBA(0, 0, 0, 0.2)).
-			MaxWidth(th.Space(128))
+			MaxWidth(th.Space(128)).
+			Transition(stateTransition())
 		panel.Children(func() {
 			// The close button, in the corner of the panel, as shadcn's.
 			close := NewButton(c, "").Ghost().Xs()
-			close.Icon(icons.X()).Label("关闭")
+			close.Icon(icons.X()).Label(Message(c, "close"))
 			close.Element = close.Element.Absolute().Top(th.Space(4)).Right(th.Space(4))
 			if close.Clicked() && m.open != nil {
 				*m.open = false
