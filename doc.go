@@ -29,6 +29,9 @@
 //	Tooltip  a tip over an anchor, when the pointer rests on it
 //	Popover  a panel over an anchor, opened by a click on it
 //	Modal    a dialog over the window, opened by a trigger
+//	Drawer   a panel over the edge of the window, opened by a trigger
+//	Toast    a message at the corner of the window, for a few seconds
+//	Alert    a message in the page: a card with a title and a description
 //	Badge    a small label: the variants, in three sizes
 //	Icon     an SVG icon in the sizes 14, 20 and 24 DIPs
 //	Scaffold a page: the title bar's safe area, a header, the scrollable

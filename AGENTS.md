@@ -116,11 +116,16 @@ CI-safe on all three desktop OSes plus js/wasm.
 
 ## The icons package
 
-- `icons` holds the Lucide set: one function per icon, each with its own
-  SVG embedded in a package-level variable. The linker drops the
-  functions and the SVGs of the icons a program never calls, so an app
-  carries only the icons it uses.
+- `icons` holds the Lucide set and `icons/brand` the Simple Icons set:
+  one function per icon, each with its own SVG embedded in a
+  package-level variable. The linker drops the functions and the SVGs of
+  the icons a program never calls, so an app carries only the icons it
+  uses.
 - The files in `icons_gen.go` and `aliases_gen.go` are generated: change
-  the SVGs or `icons/gen/aliases.go` and run `go generate ./icons`.
+  the SVGs or `icons/gen/aliases.go` and run `go generate ./icons`
+  (and `go generate ./icons/brand`).
+- `icons/all` holds the names of the whole set and the icon of every
+  name, for an app that shows a picker of icons. It keeps every icon of
+  the set in the binary, so it stands apart from the set itself.
 - `icons` depends on `github.com/egoist/mygo/ui` only; it does not depend
   on the root package, and the root package does not depend on it.

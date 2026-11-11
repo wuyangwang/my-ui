@@ -41,8 +41,9 @@
 | Select 分组 | 选项带 `Group`，弹层按组给标题 ✓（element-plus 的 `el-option-group` ✓） | ✅ 已完成 |
 | ComboBox（可搜索下拉） | 规格书 [components/combobox.md](components/combobox.md)；`combobox.go`：触发器就是输入框（mygo 的 `ui.ComboboxBase` ✓），输入即过滤（按 label ✓），选中即取替文字；变体/尺寸/分组/打勾/宽度同 Select ✓ | ✅ 已完成 |
 | MultiSelect（多选） | 规格书 [components/multiselect.md](components/multiselect.md)；`multiselect.go`：包 mygo 的 `ui.TokenField`（芯片 + 建议列表 ✓），选中项以芯片呈现、各带移除按钮；值即标签（框架限制 ✗） | ✅ 已完成 |
-| 弹层与反馈 | 规格书 [components/tooltip.md](components/tooltip.md) · [components/popover.md](components/popover.md) · [components/modal.md](components/modal.md)；`tooltip.go`（提示挂在锚点上、外观照 shadcn、锚点的 description 供读屏）、`popover.go`（点击锚点打开、外面点击/Escape 关闭）、`modal.go`（模态对话框 + 背景罩 + 右上角关闭按钮）；`overlays_test.go` 7 组测试 + showcase「弹层」页与端到端测试 | ✅ 已完成（Tooltip/Popover/Modal）；Toast/Alert/Drawer 待做 |
-| 已知限制 | 清除按钮嵌在触发器内 → mygo 的无障碍树不展开 leaf-role 子节点（`ui/access.go:772`），读屏摸不到；密码显隐受限于 mygo；聚焦即校验做不了（无 focus-gained 事件）；弹层内容由框架接管（装不下自定义头尾）；ComboBox 无清除按钮；Tooltip 无小箭头（框架没有）；Popover 只在点击时打开、Modal 不可拖拽/全屏（框架没有） | 📌 已记录 |
+| 弹层与反馈 | 规格书 [components/tooltip.md](components/tooltip.md) · [components/popover.md](components/popover.md) · [components/modal.md](components/modal.md) · [components/toast.md](components/toast.md) · [components/alert.md](components/alert.md) · [components/drawer.md](components/drawer.md)；`tooltip.go`（提示挂在锚点上、外观照 shadcn、锚点的 description 供读屏）、`popover.go`（点击锚点打开、外面点击/Escape 关闭）、`modal.go`（模态对话框 + 背景罩 + 右上角关闭按钮）、`toast.go`（右下角的通知视口 + 卡片）、`alert.go`（页面里的消息，`role=alert`）、`drawer.go`（从窗口边缘来的面板）；测试 21 组 + showcase「弹层」「Alert」「Toast」「Drawer」页 | ✅ 已完成 |
+| 已知限制 | 清除按钮嵌在触发器内 → mygo 的无障碍树不展开 leaf-role 子节点（`ui/access.go:772`），读屏摸不到；密码显隐受限于 mygo；聚焦即校验做不了（无 focus-gained 事件）；弹层内容由框架接管（装不下自定义头尾）；ComboBox 无清除按钮；Tooltip 无小箭头（框架没有）；Popover 只在点击时打开、Modal 不可拖拽/全屏（框架没有）；Toast 无淡入、Drawer 无滑入（框架的姿态动画不可用 ✗） | 📌 已记录 |
+| 示例的导航 | 侧栏按分组折叠（一次开一组）+ 顶部搜索框（shadcn 文档侧栏的做法）：加到一百个组件也不挤；窗口太小时侧栏可滚动 | ✅ 已完成 |
 
 ## 一期后：表单与反馈补齐（按序）
 
@@ -56,8 +57,9 @@
 | 13 | Radio | 单选组、方向与禁用态 | ⏳ 未开始 |
 | 14 | Switch | 开关预设与动效跟随主题/Reduced Motion | ⏳ 未开始 |
 | 15 | Slider | 单值滑杆（必要时扩展区间），步进/禁用/状态样式 | ⏳ 未开始 |
-| 16 | Alert | 语义类型（info/success/warn/error 等映射主题槽）、标题/描述/可关闭 | ⏳ 未开始 |
-| 17 | Toast | 角上堆叠的通知、停留时间、可关闭 | ⏳ 未开始 |
+| 16 | Alert | 规格书 [components/alert.md](components/alert.md)；`alert.go`：页面里的一段消息（卡片 + 图标 + 标题 + 描述），变体给墨色（破坏性/成功/信息/警告），`role=alert` 让读屏念出来；`alert_test.go` 覆盖标题描述/live region/图标 | ✅ 已完成 |
+| 17 | Toast | 规格书 [components/toast.md](components/toast.md)；`toast.go`：窗口右下角的通知（视口 + 卡片），类型给图标与颜色，动作与关闭按钮，停留时间与淡出；`toast_test.go` 覆盖显示/关闭/动作/超时；showcase「Toast」页 | ✅ 已完成 |
+| 18 | Drawer | 规格书 [components/drawer.md](components/drawer.md)；`drawer.go`：从窗口边缘来的一块面板（用 `ui.Overlay` 搭），触发器打开、点外面或 Escape 收起，模态（焦点在里面）；`drawer_test.go` 覆盖开合与位置；showcase「Drawer」页 | ✅ 已完成 |
 
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 
@@ -79,9 +81,10 @@
 
 | 项目 | 说明 | 状态 |
 |---|---|---|
-| i18n 文案表 | 根包内置 `en`/`zh-Hans`/`zh-Hant` 小消息表 + `c.Locale()` 回退链 + app 覆盖（控件内固定文案） | ⏳ 后置 |
-| 品牌标 | simple-icons（CC0）→ `icons/brand` 子包，与 Lucide 分开 | ⏳ 后置 |
-| fonts 二级包 | OFL 字体内嵌与 `ui.RegisterFont` 注册（`fonts/`） | ⏳ 后置，规划中无代码 |
+| i18n 文案表 | 根包内置 `en`/`zh-Hans`/`zh-Hant` 小消息表 + `c.Locale()` 回退链 + app 覆盖（控件内固定文案）：`i18n.go` 的 `Message(c, key)` 与 `SetMessages(locale, msgs)`；控件里的固定文案（清除、关闭、显示/隐藏密码）走它 | ✅ 已完成 |
+| 品牌标 | simple-icons（CC0）→ `icons/brand` 子包，与 Lucide 分开：3,462 个品牌标，函数式 API，名字取品牌自己的拼写 | ✅ 已完成 |
+| 整套图标的名字清单 | `icons/all` 子包：`Names` 与 `ByName(name)`，给图标选择器用（带上整套图标，只有要整套时才 import） | ✅ 已完成 |
+| fonts 二级包 | OFL 字体内嵌与 `ui.RegisterFont` 注册（`fonts/`） | ⏸ 暂不做：用系统自带的字体（`fonts/README.md` 保留规划） |
 
 ## 依赖上游
 

@@ -49,8 +49,9 @@
 根包 `myui` 只引用清除按钮的 `icons.X()` 一个图标，实测对示例程序的二进制影响约等于零（15,981,056 vs 15,981,568 字节，链接器裁掉其余 2,317 个图标函数）。
 
 **后置**
-- 品牌标（simple-icons, CC0）→ 独立子包 `icons/brand`，不与 Lucide 混放。
-- 填充版（lucide-solid）、更多别名。
+- 品牌标（simple-icons, CC0）→ 独立子包 `icons/brand`，不与 Lucide 混放 ✅ 已实现（3,462 个品牌标）。
+- 整套图标的名字清单 → `icons/all`（`Names` 与 `ByName`），给图标选择器用 ✅ 已实现。
+- 填充版（lucide-solid）、更多别名（后置）。
 
 ## 4. 项目结构是否合理
 
@@ -114,4 +115,4 @@ myui.NewIcon(c, icons.Save()).Md().Label("保存")
 - [x] 根包 `myui.Icon`
 - [x] 测试（icons 包 + 根包 icon_test.go）
 - [x] showcase「Icon」页
-- [ ] 品牌标子包 `icons/brand`（后置）
+- [x] 品牌标子包 `icons/brand`（已实现，3,462 个）

@@ -9,10 +9,12 @@ package main
 
 import (
 	"log"
+	"strconv"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	"github.com/wuyangwang/my-ui/icons"
 )
 
 // showcase is the state the window shows.
@@ -20,6 +22,10 @@ type showcase struct {
 	page       string // the key of the open page
 	appearance myui.Appearance
 	palette    myui.PaletteID
+	navQuery   string // what the sidebar's search holds
+	openFold   string // the fold the sidebar keeps open
+	iconQuery  string // what the icon page's search holds
+	drawerOpen bool
 
 	name        string
 	email       string
@@ -51,28 +57,84 @@ func (s *showcase) view(c *ui.Context) {
 		s.sidebar(c, t)
 		s.main(c, t)
 	})
+	// The toasts of the window: one place for them, whatever page is
+	// open.
+	myui.NewToastViewport(c)
 }
 
-// sidebar carries the navigation: the brand and the pages, one group
-// per kind, on the surface tone so the structure reads.
+// sidebar carries the navigation: the brand, a search and the pages, one
+// fold per kind, on the surface tone so the structure reads.
+//
+// The folds are closed one at a time: the fold of the page that is open
+// shows, and clicking a fold's title opens that fold and closes the
+// other. A search opens them all and leaves only what it finds, so the
+// sidebar holds a hundred pages as well as a dozen.
 func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 	ui.Column(c).Width(190).Background(t.Surface).Padding(t.Space(4)).
-		Gap(t.Space(4)).Children(func() {
+		Gap(t.Space(3)).Children(func() {
 		ui.Text(c, "my-ui").FontSize(myui.TextSize(t, myui.TextLg)).Bold()
 		ui.Text(c, "MyGo 原生组件库").
 			FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
 
-		for _, g := range groups() {
-			ui.Column(c).Gap(t.Space(2)).Children(func() {
-				ui.Text(c, g).FontSize(myui.TextSize(t, myui.TextXs)).Bold().TextColor(t.TextMuted)
-				for _, p := range pages {
-					if p.group == g {
+		myui.NewInput(c.Key("nav search"), &s.navQuery).Outline().Sm().
+			PrefixIcon(icons.Search()).
+			Placeholder("搜索组件…").
+			Label("搜索组件")
+
+		ui.Scroll(c).Grow(1).Children(func() {
+			found := 0
+			for _, g := range groups() {
+				shown := filterPages(pagesOf(g), s.navQuery)
+				if len(shown) == 0 {
+					continue
+				}
+				found += len(shown)
+				s.fold(c, t, g, len(shown))
+				if s.foldOpen(g) {
+					for _, p := range shown {
 						s.nav(c, t, p)
 					}
 				}
-			})
-		}
+			}
+			if found == 0 {
+				ui.Text(c, "没有匹配的组件").
+					FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+			}
+		})
 	})
+}
+
+// fold is the title of a fold of pages: a button that opens the fold and
+// closes the others.
+func (s *showcase) fold(c *ui.Context, t *ui.Theme, name string, n int) {
+	label := name + " (" + strconv.Itoa(n) + ")"
+	b := myui.NewButton(c.Key("fold "+name), label).Ghost().Block()
+	if s.foldOpen(name) {
+		b.Icon(icons.ChevronDown())
+		b.Background(t.Accent.Alpha(0.10)).TextColor(t.Accent)
+	} else {
+		b.Icon(icons.ChevronRight())
+		b.TextColor(t.TextMuted)
+	}
+	if b.Clicked() {
+		if s.openFold == name {
+			s.openFold = ""
+		} else {
+			s.openFold = name
+		}
+	}
+}
+
+// foldOpen tells whether the pages of the fold g show: a search opens
+// them all, and else the fold of the page that is open shows.
+func (s *showcase) foldOpen(g string) bool {
+	if s.navQuery != "" {
+		return true
+	}
+	if s.openFold != "" {
+		return s.openFold == g
+	}
+	return pageOf(s.page).group == g
 }
 
 // nav is one sidebar entry; the open page paints the accent ink.
@@ -107,6 +169,9 @@ func (s *showcase) openPage(c *ui.Context, t *ui.Theme) func() {
 }
 func main() {
 	s := &showcase{page: pages[0].key}
+	// The showcase speaks Chinese: the strings the controls hold fixed
+	// follow the language of the app.
+	mygo.App.SetLocale("zh-Hans")
 	mygo.App.WhenReady(func() {
 		mygo.NewWindow(mygo.WindowOptions{
 			Title:   "my-ui 组件示例",

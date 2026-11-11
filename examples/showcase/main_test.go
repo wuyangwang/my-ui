@@ -48,7 +48,18 @@ func TestSidebarSitsBesideThePages(t *testing.T) {
 	}
 	check("brand", brand.X, brand.W, true)
 
-	nav, ok := tt.Find("外观")
+	// The fold of the open page, and a page of it.
+	label, ok := foldLabel(tt, "控件")
+	if !ok {
+		t.Fatal("the fold of the controls is missing")
+	}
+	fold, ok := tt.Find(label)
+	if !ok {
+		t.Fatal("the fold title is missing")
+	}
+	check("fold title", fold.X, fold.W, true)
+
+	nav, ok := tt.Find("Button")
 	if !ok {
 		t.Fatal("the nav entry is missing")
 	}
@@ -73,10 +84,21 @@ func TestSidebarSitsBesideThePages(t *testing.T) {
 func TestThemePageSwitchesTheAppearanceAndThePalette(t *testing.T) {
 	s := &showcase{page: pages[0].key}
 	tt := ui.NewTester(s.view, 960, 620)
+	// The theme page is in the fold of the theme: open it first.
+	label, ok := foldLabel(tt, "主题")
+	if !ok {
+		t.Fatal("the fold of the theme is missing")
+	}
+	if err := tt.Click(label); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(100 * 1000 * 1000)
+	tt.Advance(100 * 1000 * 1000)
 	if err := tt.Click("外观"); err != nil {
 		t.Fatal(err)
 	}
 	// 点击分发的输入只停在队列，下一帧才进视图。
+	tt.Advance(100 * 1000 * 1000)
 	tt.Advance(100 * 1000 * 1000)
 	if _, ok := tt.Find("跟随系统"); !ok {
 		t.Fatal("the appearance switch is missing")
@@ -86,12 +108,21 @@ func TestThemePageSwitchesTheAppearanceAndThePalette(t *testing.T) {
 	}
 }
 
-// TestTheSidebarSwitchesPages takes the sidebar for a drive: a click on
-// a page opens that page, and the open page is the one the registry
-// names.
+// TestTheSidebarSwitchesPages takes the sidebar for a drive: a fold
+// opens, and a click on a page of it opens that page.
 func TestTheSidebarSwitchesPages(t *testing.T) {
 	s := &showcase{page: pages[0].key}
 	tt := ui.NewTester(s.view, 960, 620)
+	// The Input page is in the fold of the form: open it first.
+	label, ok := foldLabel(tt, "表单")
+	if !ok {
+		t.Fatal("the fold of the form is missing")
+	}
+	if err := tt.Click(label); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(100 * 1000 * 1000)
+	tt.Advance(100 * 1000 * 1000)
 	if err := tt.Click("Input"); err != nil {
 		t.Fatal(err)
 	}
