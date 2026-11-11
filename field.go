@@ -276,7 +276,7 @@ func (f *field[T]) Clearable() T {
 		t := c.Theme()
 		// The button keeps the focus in the field while it is pressed, and
 		// it is a stop of the Tab key, as a clear button is in Ant Design.
-		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label("清除")
+		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label(Message(c, "clear"))
 		b.Children(func() {
 			ic := ui.Icon(c, icons.X()).Size(d-4, d-4)
 			if b.Hovered() {

@@ -136,10 +136,10 @@ func TestInputClearableEmptiesTheValue(t *testing.T) {
 	if value != "hello" {
 		t.Fatalf("the input holds %q, want %q", value, "hello")
 	}
-	if _, ok := tt.Access("清除"); !ok {
+	if _, ok := tt.Access("Clear"); !ok {
 		t.Fatal("the clear button is not on screen")
 	}
-	if err := tt.Click("清除"); err != nil {
+	if err := tt.Click("Clear"); err != nil {
 		t.Fatal(err)
 	}
 	tt.Advance(time.Second)
@@ -270,7 +270,7 @@ func TestInputClearButtonIsTheIconAlone(t *testing.T) {
 	}
 	tt.Type("hello")
 	tt.Advance(time.Second)
-	info, ok := tt.Access("清除")
+	info, ok := tt.Access("Clear")
 	if !ok {
 		t.Fatal("the clear button is not on screen")
 	}

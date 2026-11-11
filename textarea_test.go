@@ -155,10 +155,10 @@ func TestTextAreaClearableEmptiesTheValue(t *testing.T) {
 	}
 	tt.Type("hello")
 	tt.Advance(time.Second)
-	if _, ok := tt.Access("清除"); !ok {
+	if _, ok := tt.Access("Clear"); !ok {
 		t.Fatal("the clear button is not on screen")
 	}
-	if err := tt.Click("清除"); err != nil {
+	if err := tt.Click("Clear"); err != nil {
 		t.Fatal(err)
 	}
 	tt.Advance(time.Second)

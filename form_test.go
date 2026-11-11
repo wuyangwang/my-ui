@@ -178,10 +178,10 @@ func TestPasswordInputHidesAndShowsTheText(t *testing.T) {
 	if info.Value != "" {
 		t.Errorf("the hidden password shows %q", info.Value)
 	}
-	if _, ok := tt.Access("显示密码"); !ok {
+	if _, ok := tt.Access("Show password"); !ok {
 		t.Fatal("the button that shows the password is not on screen")
 	}
-	if err := tt.Click("显示密码"); err != nil {
+	if err := tt.Click("Show password"); err != nil {
 		t.Fatal(err)
 	}
 	tt.Advance(time.Second)
@@ -204,7 +204,7 @@ func TestPasswordInputTakesTheFocusBack(t *testing.T) {
 	tt.Advance(time.Second)
 	// The button is pressed without the text having the focus: the text
 	// takes it back.
-	if err := tt.Click("显示密码"); err != nil {
+	if err := tt.Click("Show password"); err != nil {
 		t.Fatal(err)
 	}
 	tt.Advance(time.Second)
@@ -223,7 +223,7 @@ func TestPasswordInputTakesItsOwnIconAndColor(t *testing.T) {
 	}
 	tt := ui.NewTester(view, 320, 240)
 	tt.Advance(time.Second)
-	info, ok := tt.Access("显示密码")
+	info, ok := tt.Access("Show password")
 	if !ok {
 		t.Fatal("the button that shows the password is not on screen")
 	}

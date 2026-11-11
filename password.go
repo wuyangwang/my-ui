@@ -56,7 +56,7 @@ func NewPasswordInput(c *ui.Context, value *string) *PasswordInput {
 	// The button that shows and hides, at the end of the field.
 	p.Suffix(func() {
 		t := c.Theme()
-		b := ui.ButtonBase(c).Size(18, 18).KeepFocus().Label("显示密码")
+		b := ui.ButtonBase(c).Size(18, 18).KeepFocus().Label(p.passwordLabel())
 		// The icon is drawn when the frame is painted, so that the app's
 		// own icon and color are read then.
 		b.Draw(func(painter *ui.Painter, r ui.Rect) {
@@ -84,6 +84,15 @@ func (p *PasswordInput) EyeIcons(shown, hidden *ui.SVG) *PasswordInput {
 	p.eyeOn = shown
 	p.eyeOff = hidden
 	return p
+}
+
+// passwordLabel is the name of the button: what it does now, in the
+// language of the frame.
+func (p *PasswordInput) passwordLabel() string {
+	if p.shown != nil && *p.shown {
+		return Message(p.c, "hidePassword")
+	}
+	return Message(p.c, "showPassword")
 }
 
 // EyeColor sets the color of the button's icon, which is the muted
