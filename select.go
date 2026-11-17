@@ -56,6 +56,7 @@ type Select struct {
 	valueSlot       ui.Element // the slot of the choice
 	placeholderSlot ui.Element // the slot of the placeholder
 	clearSlot       ui.Element // the slot of the clear button
+	clearable       bool
 	variant         Variant
 	size            Size
 	disabled        bool
@@ -66,10 +67,17 @@ type Select struct {
 }
 
 // NewSelect creates a drop-down choosing one of options into *selected,
-// with the native preset. The value of the choice is what *selected
-// holds; the label of the option is what the trigger shows.
+// with the native preset and a clear button.
 func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select {
-	s := &Select{c: c, value: selected, options: options}
+	return NewSelectClear(c, selected, options, true)
+}
+
+// NewSelectClear creates a drop-down like NewSelect, with clearable
+// deciding whether the button that empties the choice is built. It must be
+// settled here: the trigger's children are built while the select is
+// created, so changing it afterwards has no effect.
+func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, clearable bool) *Select {
+	s := &Select{c: c, value: selected, options: options, clearable: clearable}
 	s.parts = ui.SelectBase(c, selected)
 	s.emptyTextRef = ui.Local(s.parts.Trigger, "select-empty", func() string { return "" })
 
@@ -90,9 +98,10 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 		}
 	})
 
-	// The button that empties the choice, while there is one.
+	// The button that empties the choice, while there is one and the
+	// select is clearable.
 	s.clearSlot.Children(func() {
-		if _, ok := s.chosen(); !ok {
+		if _, ok := s.chosen(); !ok || !s.clearable {
 			return
 		}
 		t := c.Theme()
@@ -123,6 +132,10 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 		panel.Background(t.Background).Border(1, t.Border).Radius(t.Radius).
 			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
 
+		// A long list scrolls inside the popup instead of running off the
+		// window, so the last option stays reachable.
+		ui.Scroll(c).FillWidth().MaxHeight(t.Space(80)).Children(func() {
+
 		group := ""
 		for _, o := range options {
 			o := o
@@ -150,6 +163,7 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 			ui.Text(c, *s.emptyTextRef).TextColor(t.TextMuted).
 				FontSize(TextSize(t, TextSm)).Padding(t.Space(1), t.Space(2))
 		}
+		})
 	})
 
 	s.Element = s.parts.Trigger

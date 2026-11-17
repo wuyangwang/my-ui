@@ -177,11 +177,31 @@ func TestSelectClearEmptiesTheChoice(t *testing.T) {
 	}
 }
 
+// TestSelectNotClearable checks that NewSelectClear leaves out the clear
+// button when asked to.
+func TestSelectNotClearable(t *testing.T) {
+	value := "小"
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		NewSelectClear(c, &value, []SelectOption{{Value: "小"}, {Value: "大"}}, false).
+			Outline().Label("尺寸")
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	trigger, ok := tt.Access("尺寸")
+	if !ok {
+		t.Fatal("the trigger is not on screen")
+	}
+	if at := clearIconAt(t, tt, trigger.Bounds, ui.Hex("#71717a")); at >= 0 {
+		t.Fatalf("the clear icon is drawn though the select is not clearable (at x=%v)", at)
+	}
+}
+
 // clearIconAt is where the muted icon is drawn in a row of the window,
 // or -1 when it is nowhere.
 func clearIconAt(t *testing.T, tt *ui.Tester, bounds ui.Rect, want ui.Color) int {
 	t.Helper()
-	for x := int(bounds.X+bounds.W) - 60; x < int(bounds.X+bounds.W); x++ {
+	for x := int(bounds.X+bounds.W) - 60; x < int(bounds.X+bounds.W)-30; x++ {
 		for y := int(bounds.Y); y < int(bounds.Y+bounds.H); y++ {
 			r, g, b := pixel(tt, float32(x), float32(y))
 			if abs(int(r)-int(want.R)) < 12 && abs(int(g)-int(want.G)) < 12 && abs(int(b)-int(want.B)) < 12 {
