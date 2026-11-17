@@ -97,11 +97,12 @@ func (s *showcase) appBar(c *ui.Context, t *ui.Theme) {
 
 			ui.Box(c).Grow(1)
 
-			// A version pill, then the appearance switch.
+			// A version pill: the library release and the pinned framework.
 			version := ui.Box(c).Padding(t.Space(1), t.Space(2.5)).
 				Radius(t.Space(2)).Background(t.Surface)
 			version.Children(func() {
-				ui.Text(c, "mygo v0.8.3").FontSize(myui.TextSize(t, myui.TextXs)).
+				ui.Text(c, "my-ui v"+myui.Version+" · mygo v0.8.3").
+					FontSize(myui.TextSize(t, myui.TextXs)).
 					TextColor(t.TextMuted)
 			})
 			icon := icons.Moon()

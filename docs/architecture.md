@@ -76,7 +76,7 @@ mygo 面向 app 的 i18n 由 `mygo dev/build` 处理 `locales/*.json`；mygo 自
 ## 7. 发布与版本
 
 - 锁定 mygo **v0.8.3**（`go.mod`）；升级走专门提交，同步 `go.mod` / `README.md` / `AGENTS.md`。
-- 发版与 mygo 版本一一对应；当前未打 tag，待一期范式定稿。element API 有破坏性迁移先例（`mygo migrate-ui`），升级只走独立 PR 并跑全矩阵验证。
+- 当前版本 my-ui **v0.2.0**（`myui.Version`，tag `v0.2.0`），与 mygo 独立编号；发布用 git tag 标记。element API 有破坏性迁移先例（`mygo migrate-ui`），mygo 升级只走独立 PR 并跑全矩阵验证。
 - 纯 Go module，`go get` 发布。
 
 ## 8. 测试与平台
@@ -89,7 +89,7 @@ mygo 面向 app 的 i18n 由 `mygo dev/build` 处理 `locales/*.json`；mygo 自
 
 `examples/showcase` 的定位是**组件库示例应用**，外壳按组件文档站组织，而不是后台产品：
 
-- **顶栏**（`appBar`）：品牌 + 组件搜索 + `mygo v0.8.3` + 明暗切换。搜索绑 `s.navQuery`，直接驱动侧栏过滤；不放通知、头像等与示例无关的产品元素。
+- **顶栏**（`appBar`）：品牌 + 组件搜索 + `my-ui v0.2.0 · mygo v0.8.3` + 明暗切换。搜索绑 `s.navQuery`，直接驱动侧栏过滤；不放通知、头像等与示例无关的产品元素。
 - **侧栏**（`sidebar`）：`组件 · N` 标题 + 分组折叠树；每页一个图标，选中项是白底药丸加左侧强调色条。品牌与版本只在顶栏出现一次。
 - **页面**：标题、分组徽标与 `pages.go` 里逐页写的 `desc`（组件的真实用途），下面一条分隔线，再进入滚动区。
 - **演示卡**（`card` / `sectionNote`）：白底 + 细边框 + 双层柔和阴影，圆角取 `RadiusLg`；变体页用三列等高小卡，左侧名称/说明、右侧就是该变体的可交互组件，读起来是一张变体表而非一堆空盒。

@@ -111,8 +111,9 @@ CI-safe on all three desktop OSes plus js/wasm.
 - New components first: the ordered plan in docs/roadmap.md decides what
   exists. A component that only renames a `ui` widget with no added
   styling or behavior does not belong here.
-- Version releases of my-ui correspond one-to-one with the mygo version
-  they are built against.
+- my-ui releases are tagged `vX.Y.Z` independently of mygo. The mygo
+  version a release is built against is pinned in `go.mod` and recorded
+  in `README.md`.
 
 ## The icons package
 
