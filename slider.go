@@ -38,9 +38,15 @@ func NewSlider(c *ui.Context, value *float64, lo, hi float64) *Slider {
 // slider follows the theme and the chosen orientation.
 func (s *Slider) build() {
 	t := s.c.Theme()
-	sl := ui.SliderBase(s.c, s.value, s.lo, s.hi).Height(t.Space(6)).PaddingX(t.Space(3))
+	knob := t.Space(4)
+	// A min width leaves room for the track to draw: without one the
+	// base collapses to the padding and only the knob shows. This is
+	// what MyGo's own slider does with MinWidth + PaddingX(kw/2).
+	sl := ui.SliderBase(s.c, s.value, s.lo, s.hi).
+		Height(t.Space(6)).MinWidth(t.Space(40)).PaddingX(knob / 2)
 	if s.vertical {
-		sl = sl.Vertical().Width(t.Space(6)).PaddingX(0).PaddingY(t.Space(3))
+		sl = sl.Vertical().Width(t.Space(6)).MinWidth(0).
+			Height(t.Space(40)).PaddingX(0).PaddingY(knob / 2)
 	}
 	sl.Draw(func(p *ui.Painter, r ui.Rect) {
 		s.draw(p, r)

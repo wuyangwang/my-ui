@@ -56,6 +56,9 @@ func TestComboBoxChoosesAnOption(t *testing.T) {
 	if chosen != "b" {
 		t.Errorf("the choice reported %q, want %q", chosen, "b")
 	}
+	if text != "Beta" {
+		t.Errorf("the input holds %q after choosing, want the label Beta", text)
+	}
 }
 
 func TestComboBoxChoosesAnOptionAfterSearching(t *testing.T) {

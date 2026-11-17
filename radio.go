@@ -29,7 +29,9 @@ func NewRadio[T comparable](c *ui.Context, selected *T, value T, label string) *
 	t := c.Theme()
 	row := ui.RadioBase(c, selected, value).Gap(t.Space(2))
 	row.Children(func() {
-		r.dot = ui.Box(c)
+		// A row that centers the inner dot: ui.Box is a column, which
+		// would stack the dot at the top-left of the ring.
+		r.dot = ui.Row(c).AlignItems(ui.Center).Justify(ui.Center).Shrink(0)
 		ui.Text(c, label)
 	})
 	r.Element = row

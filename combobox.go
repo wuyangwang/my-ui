@@ -86,9 +86,18 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 		})
 	})
 	// MyGo reports the choice for the frame that follows Popup: take it
-	// now, while it is available, and keep it.
+	// now, while it is available, and keep it. A choice takes the place
+	// of what was typed — the label is written back into the text the
+	// app holds, so the input echoes what was chosen, as MyGo's own
+	// Combobox does.
 	if v, ok := p.Chosen(); ok {
 		*b.chosen = v
+		for _, o := range options {
+			if o.Value == v {
+				*text = o.label()
+				break
+			}
+		}
 	}
 	return b
 }
