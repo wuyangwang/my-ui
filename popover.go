@@ -45,6 +45,7 @@ func NewPopover(c *ui.Context, open *bool, anchor func() ui.Element, build func(
 			Padding(th.Space(4)).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.15)).
 			MaxWidth(th.Space(60)).
 			Transition(stateTransition())
+		overlayEnter(c, panel, "popover-enter")
 		p.dialogParts = buildDialogSlots(c, build, panel, open)
 	})
 	p.Element = panel

@@ -51,7 +51,7 @@ func NewTabs(c *ui.Context, selected *int, tabs ...Tab) *Tabs {
 	tb.list.Children(func() {
 		tb.triggers = make([]ui.Element, len(tabs))
 		for i := range tabs {
-			tb.triggers[i] = parts.Tab(i)
+			tb.triggers[i] = parts.Tab(i).Transition(stateTransition())
 			tab := tabs[i]
 			tb.triggers[i].Children(func() {
 				if tab.Icon != nil {

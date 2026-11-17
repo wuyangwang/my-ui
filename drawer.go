@@ -92,6 +92,7 @@ func (d *Drawer) panel(c *ui.Context, panel ui.Element, th *ui.Theme, build func
 		Shadow(0, 0, 24, 0, ui.RGBA(0, 0, 0, 0.18)).
 		Padding(th.Space(5)).
 		Transition(stateTransition())
+	overlayEnter(c, panel, "drawer-enter")
 	if panel.OverlayShortcut(0, ui.KeyEscape) && d.open != nil {
 		*d.open = false
 		d.dismissed = true

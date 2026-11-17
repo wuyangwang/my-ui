@@ -45,6 +45,7 @@ func NewModal(c *ui.Context, open *bool, trigger func() ui.Element, build func(p
 			Padding(th.Space(6)).Shadow(0, 8, 24, 0, ui.RGBA(0, 0, 0, 0.2)).
 			MaxWidth(th.Space(128)).
 			Transition(stateTransition())
+		overlayEnter(c, panel, "modal-enter")
 		m.dialogParts = buildDialogSlots(c, build, panel, open)
 	})
 	m.Element = modal

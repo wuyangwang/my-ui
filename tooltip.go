@@ -76,6 +76,7 @@ func newTooltip(c *ui.Context, anchor ui.Element, build func(tip ui.Element), de
 			MaxWidth(th.Space(60)).
 			AttachTo(anchor, at, self).
 			Transition(stateTransition())
+		overlayEnter(c, tip, "tooltip-enter")
 		if t.build != nil {
 			tip.Children(func() { t.build(tip) })
 		}
