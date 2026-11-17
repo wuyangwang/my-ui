@@ -14,16 +14,18 @@
 | 能力 | 公开 API | 结论 |
 |---|---|---|
 | 画一条自定义的条 | `Element.Draw` + `Painter.Fill` ✓ | ✅ |
-| 无障碍 | `role=progressbar` 由框架的基座给 ✓（我们用普通 Box ✗） | ⚠️ 部分 |
+| 无障碍 | `Element.Role(ui.RoleProgress)` ✓（自绘元素上设角色 ✓） | ✅ |
 
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewProgress(c, 0.4)`：2 DIP 高的圆角线 ✓，底色弱 ✓，强调色画到比例处 ✓；`Label(string)` ✓。
+- `myui.NewProgress(c, 0.4)`：圆角线 ✓，底色弱 ✓，强调色画到比例处 ✓；`Label(string)` ✓。
+- `role=progressbar` 设在自绘元素上 ✓（用 `Element.Role`）✓。
+- `Indeterminate()` / 负的 value：一段不确定时长的活动条 ✓（自绘 + `Painter.AnimationFrame`）✓。
+- `Value(current, max)`、`Height(h)`、`Variant(v)`（状态色）✓。
 
 **已知限制**
-- 没有用框架的 `role=progressbar` ✗（我们自绘，普通元素 ✗；读屏读到的是名字与角色 ✗）——可改用 `ui.Progress` 的基座 ✗（框架没有公开的基座 ✗）。
-- 没有不确定时长的动画（`indeterminate`）✗。
+- 无障碍的数值上下限由自绘元素报不出（框架的 `hasRange/accRange` 非导出），角色可读 ✓、具体数值依赖 `Label` 说明。
 
 ## 4. 项目结构是否合理
 

@@ -21,11 +21,10 @@
 
 **已实现**
 - `myui.NewTabs(c, &selected, myui.Tab{Label: "概览", Content: func(){…}}, …)`：标签行（弱底色 + 圆角 + 内衬 ✓），选中的那个在自己的面上（带一点阴影 ✓）；只有开着的那块内容被建 ✓。
-- `OnChanged(func(int))` ✓。
+- `OnChanged(func(int))` ✓；`Tab.Icon` 放图标 ✓、`Tab.Disabled` 禁用 ✓（框架键盘导航自动跳过禁用项 ✓）；`Line()` 切到 shadcn 的下划线样式 ✓。
 
 **已知限制**
-- 标签不能放图标 ✗（标签里只有文字 ✓）。
-- 没有「标签在侧边」的竖排 ✗（框架没有 ✗）。
+- 标签在侧边的竖排 ✗（`TabsBase.List` 是框架写死的行，无公开方向切换 ✗）。
 
 ## 4. 项目结构是否合理
 

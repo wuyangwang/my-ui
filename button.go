@@ -179,8 +179,8 @@ func (b *Button) Variant(v Variant) *Button {
 // Primary is Variant(myui.Primary).
 func (b *Button) Primary() *Button { return b.Variant(Primary) }
 
-// Secondary is Variant(myui.Secondary), the shadcn secondary look: an
-// alias of Native, so the button keeps the theme's built-in face.
+// Secondary is Variant(myui.Secondary), the shadcn secondary look: a
+// muted fill of the theme's surface, without a border.
 func (b *Button) Secondary() *Button { return b.Variant(Secondary) }
 
 // Default is Variant(myui.Default), the built-in look.

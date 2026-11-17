@@ -156,8 +156,12 @@ func (t *Toast) Description(s string) *Toast {
 	return t
 }
 
-// Type tells what kind of toast it is, which picks its icon and its
-// color: Success, Info, Warning or Destructive, which is an error.
+// Variant tells what kind of toast it is, which picks its icon and its
+// color: Success, Info, Warning or Destructive, which is an error. It is
+// the shared word for the toast's kind, as Type is on other components.
+func (t *Toast) Variant(v Variant) *Toast { return t.Type(v) }
+
+// Type tells what kind of toast it is: the same as Variant.
 func (t *Toast) Type(v Variant) *Toast {
 	if kind := toastType(v); kind != "" {
 		t.t.Type = kind

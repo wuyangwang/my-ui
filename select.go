@@ -62,6 +62,7 @@ type Select struct {
 	cleared         bool
 	invalid         bool
 	emptyTextRef    *string
+	shape           Shape
 }
 
 // NewSelect creates a drop-down choosing one of options into *selected,
@@ -224,6 +225,14 @@ func (s *Select) Lg() *Select { return s.Size(SizeLg) }
 // the one that takes the focus.
 func (s *Select) Control() ui.Element { return s.Element }
 
+// Shape sets the shape of the trigger and returns the select, for
+// chaining: a pill or a circle, or the theme's own corners.
+func (s *Select) Shape(shape Shape) *Select {
+	s.shape = shape
+	s.apply()
+	return s
+}
+
 // Width sets the width of the trigger in DIPs and returns the select,
 // for chaining. Without it the trigger takes the room of its content,
 // with a width of its own as the floor.
@@ -343,7 +352,11 @@ func (s *Select) apply() {
 	if s.invalid {
 		border = t.Danger
 	}
-	s.Element = s.Element.Background(l.bg).Border(l.width, border).Radius(t.Radius)
+	radius := t.Radius
+	if s.shape == ShapeRound || s.shape == ShapeCircle {
+		radius = 1000
+	}
+	s.Element = s.Element.Background(l.bg).Border(l.width, border).Radius(radius)
 	v, h := fieldPadding(t, s.size)
 	s.Element = s.Element.Padding(v, h).FontSize(fieldFontSize(t, s.size))
 }

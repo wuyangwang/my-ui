@@ -56,9 +56,11 @@
 // The variants and the sizes are one vocabulary for all the components,
 // so a button and an input take the same words:
 //
-//	Variant   Native (the zero value, the built-in look), Secondary (an
-//	          alias of Native), Primary, Outline, Ghost, Destructive, Link
-//	Size      SizeMd (the zero value), SizeSm, SizeLg
+//	Variant   Default (the zero value, the built-in look; Native is its
+//	          old name), Secondary (a muted fill), Primary, Outline,
+//	          Ghost, Destructive, Link, Success, Info, Warning
+//	Size      SizeMd (the zero value), SizeSm, SizeLg, SizeXs
+//	Shape     ShapeRect (the zero value), ShapeRound, ShapeCircle
 //
 // # The theme
 //
@@ -86,6 +88,7 @@
 //
 //	ui.Icon(c, icons.Save())
 //
-// The fonts and the AI application components are planned; see the
-// roadmap in the repository for what is next.
+// The fonts package ships OFL fonts for ui.RegisterFont; the AI
+// application components are planned. See the roadmap in the repository
+// for what is next.
 package myui
