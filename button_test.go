@@ -63,9 +63,9 @@ func TestButtonPrimaryPaintsAndPressesTheAccent(t *testing.T) {
 }
 
 func TestButtonGhostIsBareAndHovers(t *testing.T) {
-	hoverGhost := ui.Hex("#e9e9ec")
+	var th *ui.Theme
 	view := func(c *ui.Context) {
-		Apply(c, Options{Appearance: AppearanceLight})
+		th = Apply(c, Options{Appearance: AppearanceLight})
 		NewButton(c, "Cancel").Ghost()
 	}
 	tt := ui.NewTester(view, 320, 240)
@@ -76,11 +76,11 @@ func TestButtonGhostIsBareAndHovers(t *testing.T) {
 	x, y := label.X-6, label.Y+label.H/2
 	tt.Advance(time.Second)
 	r, g, b := pixel(tt, x, y)
-	samePixel(t, r, g, b, ui.Hex("#ffffff"), "the ghost at rest, the background")
+	samePixel(t, r, g, b, th.Background, "the ghost at rest, the background")
 	tt.Move(x, y)
 	tt.Advance(time.Second)
 	r, g, b = pixel(tt, x, y)
-	samePixel(t, r, g, b, hoverGhost, "the ghost hovered")
+	samePixel(t, r, g, b, th.SurfaceHover, "the ghost hovered")
 }
 
 func TestButtonDestructivePaintsTheDanger(t *testing.T) {

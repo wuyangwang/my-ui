@@ -38,27 +38,25 @@ type Options struct {
 	Palette PaletteID
 }
 
-// Apply returns nil, or the theme the frame uses from here on. Call it
-// again each frame, as often as the view runs, so the theme keeps
-// following the desktop's preferences; MyGo resets the frame's theme to
-// the system's each frame, and this sets it back after that.
+// Apply returns the theme the frame uses from here on. Call it again
+// each frame, as often as the view runs, so the theme keeps following
+// the desktop's preferences; MyGo resets the frame's theme to the
+// system's each frame, and this sets my-ui's own back after that.
 //
 // The view calls it before what the theme colors:
 //
 //	myui.Apply(c, myui.Options{Appearance: myui.AppearanceDark, Palette: myui.PaletteBlue})
 //
-// A nil return leaves the frame on MyGo's default theme, which follows
-// the system; any other value replaces it for this frame. Where an app
-// toggles a switch to change the appearance, the app turns the Options,
-// and the next frame takes it.
+// The theme always paints the frame: an Options that asks for nothing
+// still gives shadcn's default zinc theme in the system's appearance,
+// so my-ui looks the same with no configuration as it does with one.
+// Where an app toggles a switch to change the appearance, the app turns
+// the Options, and the next frame takes it.
 //
 // Apply is a one-call theme switcher, not an app-wide state keeper: it
 // reads the desktop's appearance and preferences and derives the theme
 // from them. It holds no state across frames.
 func Apply(c *ui.Context, o Options) *ui.Theme {
-	if o.Appearance == AppearanceSystem && o.Palette == PaletteNone {
-		return nil
-	}
 	t := NewTheme(c, o)
 	c.SetTheme(t)
 	return t
@@ -73,13 +71,10 @@ func Apply(c *ui.Context, o Options) *ui.Theme {
 //
 // Texts outside that Themed inherit the window's ink, which only the
 // frame's own Apply sets; a subtree theme must never reach them.
-// An Options that asks for nothing (the system's appearance, no
-// palette) hands back the theme the frame already has. NewTheme reads
-// the desktop's preferences and derives from them; it holds no state.
+// An Options that asks for nothing builds shadcn's default theme in the
+// appearance the frame is in. NewTheme reads the desktop's preferences
+// and derives from them; it holds no state.
 func NewTheme(c *ui.Context, o Options) *ui.Theme {
-	if o.Appearance == AppearanceSystem && o.Palette == PaletteNone {
-		return c.Theme()
-	}
 	prefs := c.Preferences()
 	dark := false
 	switch o.Appearance {
@@ -90,11 +85,7 @@ func NewTheme(c *ui.Context, o Options) *ui.Theme {
 	case AppearanceDark:
 		dark = true
 	}
-	base := ui.LightTheme()
-	if dark {
-		base = ui.DarkTheme()
-	}
-	t := *base
+	t := *shadcnBase(dark)
 	if scale := prefs.TextScale; scale > 0 && scale != 1 {
 		t.FontSize = t.FontSize * scale
 	}

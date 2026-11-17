@@ -43,7 +43,7 @@
 | MultiSelect（多选） | 规格书 [components/multiselect.md](components/multiselect.md)；`multiselect.go`：包 mygo 的 `ui.TokenField`（芯片 + 建议列表 ✓），选中项以芯片呈现、各带移除按钮；值即标签（框架限制 ✗） | ✅ 已完成 |
 | 弹层与反馈 | 规格书 [components/tooltip.md](components/tooltip.md) · [components/popover.md](components/popover.md) · [components/modal.md](components/modal.md) · [components/toast.md](components/toast.md) · [components/alert.md](components/alert.md) · [components/drawer.md](components/drawer.md)；`tooltip.go`（提示挂在锚点上、外观照 shadcn、锚点的 description 供读屏）、`popover.go`（点击锚点打开、外面点击/Escape 关闭）、`modal.go`（模态对话框 + 背景罩 + 右上角关闭按钮）、`toast.go`（右下角的通知视口 + 卡片）、`alert.go`（页面里的消息，`role=alert`）、`drawer.go`（从窗口边缘来的面板）；测试 21 组 + showcase「弹层」「Alert」「Toast」「Drawer」页 | ✅ 已完成 |
 | 已知限制 | 清除按钮嵌在触发器内 → mygo 的无障碍树不展开 leaf-role 子节点（`ui/access.go:772`），读屏摸不到；密码显隐受限于 mygo；聚焦即校验做不了（无 focus-gained 事件）；弹层内容由框架接管（装不下自定义头尾）；ComboBox 无清除按钮；Tooltip 无小箭头（框架没有）；Popover 只在点击时打开、Modal 不可拖拽/全屏（框架没有）；Toast 无淡入、Drawer 无滑入（框架的姿态动画不可用 ✗） | 📌 已记录 |
-| 示例的导航 | 侧栏按分组折叠（一次开一组）+ 顶部搜索框（shadcn 文档侧栏的做法）：加到一百个组件也不挤；每页一个图标，选中的那页是白底强调色的小药丸 | ✅ 已完成 |
+| 示例应用外壳 | 组件文档站式布局：顶栏放品牌、组件搜索（过滤侧栏）与版本/明暗切换；侧栏按分组折叠（一次开一组），每页一个图标，选中项为白底药丸 + 左侧强调色条；标题下是该组件的真实说明，变体/状态排成紧凑的演示卡（左侧名称、右侧可交互的组件本身） | ✅ 已完成 |
 
 ## 一期后：表单与反馈补齐（按序）
 

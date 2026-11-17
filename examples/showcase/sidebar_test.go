@@ -9,14 +9,18 @@ import (
 )
 
 // sidebarWidth is the width of the sidebar: what is left of it is the
-// page.
-const sidebarWidth = 190
+// page. appBarHeight is the strip above both panes; a breadcrumb there
+// shares the sidebar's x range but is not a navigation entry.
+const (
+	sidebarWidth = 190
+	appBarHeight = 60
+)
 
 // inSidebar tells whether the text s shows in the sidebar, and not in
-// the page beside it.
+// the page beside it or the app bar above it.
 func inSidebar(tt *ui.Tester, s string) bool {
 	r, ok := tt.Find(s)
-	return ok && r.X < sidebarWidth
+	return ok && r.X < sidebarWidth && r.Y > appBarHeight
 }
 
 // foldLabel is the title of the fold of that name: the name and the

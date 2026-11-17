@@ -22,10 +22,10 @@ func (s *showcase) buttonPage(c *ui.Context, t *ui.Theme) {
 			{"Destructive", "危险", "删除类动作", "删除项目", (*myui.Button).Destructive},
 			{"Link", "链接", "文字态，悬停浮起", "阅读文档", (*myui.Button).Link},
 		}
-		for i := 0; i < len(variants); i += 2 {
-			pair := variants[i:min(i+2, len(variants))]
-			ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Start).Children(func() {
-				for _, v := range pair {
+		for i := 0; i < len(variants); i += 3 {
+			row := variants[i:min(i+3, len(variants))]
+			ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Stretch).Children(func() {
+				for _, v := range row {
 					v := v
 					ui.Column(c).Grow(1).Children(func() {
 						s.presetCard(c, t, v.name, v.cn, v.tip, v.label, v.preset)
@@ -103,12 +103,23 @@ func (s *showcase) buttonPage(c *ui.Context, t *ui.Theme) {
 	})
 }
 
-// presetCard is one variant's cell: the preset names, a tip, and the
-// widget itself under them.
+// presetCard is one variant's cell: the names on the left, the widget
+// itself on the right, so a gallery of them reads as a table of examples
+// instead of a grid of near-empty boxes.
 func (s *showcase) presetCard(c *ui.Context, t *ui.Theme, name, cn, tip, label string, preset func(*myui.Button) *myui.Button) {
 	s.card(c, t, func() {
-		s.cardHead(c, t, cn, name+" · "+tip)
-		b := myui.NewButton(c.Key("button "+name), label)
-		preset(b)
+		ui.Row(c).FillWidth().Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
+			ui.Column(c).Grow(1).Gap(t.Space(1)).Children(func() {
+				ui.Row(c).AlignItems(ui.Baseline).Gap(t.Space(1.5)).Children(func() {
+					ui.Text(c, cn).FontSize(myui.TextSize(t, myui.TextSm)).Bold()
+					ui.Text(c, name).FontSize(myui.TextSize(t, myui.TextXs)).
+						TextColor(t.TextMuted)
+				})
+				ui.Text(c, tip).FontSize(myui.TextSize(t, myui.TextXs)).
+					TextColor(t.TextMuted)
+			})
+			b := myui.NewButton(c.Key("button "+name), label)
+			preset(b)
+		})
 	})
 }

@@ -22,16 +22,18 @@ L0  —               仅依赖 github.com/egoist/mygo/ui 公开 API
 
 框架默认跟随系统外观（浅/深、强调色、高对比、文本缩放）。my-ui 策略：
 
-- **跟随系统**（默认）：不调 `SetTheme`，交给框架。
-- **强制浅/深**：视图根部每帧调 `Apply(c, Options{Appearance: ...})` → `c.SetTheme(t)`，下一帧生效（立即模式）。
+- **视图根部**：每帧调 `Apply(c, Options{Appearance: ..., Palette: ...})` → `c.SetTheme(t)`，下一帧生效（立即模式）。`Options{}` 也调——默认不是"交给框架"，而是给 shadcn 的默认主题（见 2.2）。
+- **跟随系统**（默认）：`AppearanceSystem` 下主题从系统当前明暗派生，并跟随桌面偏好变化。
+- **强制浅/深**：`AppearanceLight/Dark` 固定明暗。
 - **子树级**：`NewTheme(c, opts)` 产出 `*ui.Theme`，用 `ui.Themed(c, t)` 包裹子树；`NewTheme` 不设置窗口主题，避免子树主题外泄。
 
-所有主题从 `ui.LightTheme()/DarkTheme()` 的**拷贝**派生（遵守 "Change a copy"），库不复写内置主题。
+所有主题从 `shadcn.go` 的 `shadcnLight()/shadcnDark()` 的**拷贝**派生（遵守 "Change a copy"），库不复写内置主题。该主题是 shadcn/ui "new-york" zinc 主题的 MyGo 表达：`Background` 是白/`zinc-950` 的卡片与页面底，`Surface` 是 `zinc-100`/`zinc-800` 的次级面与侧栏，`Accent`（primary）是近黑/`zinc-50`，圆角基准 8。
 
 ### 2.2 主题色（强调色）
 
-- **默认**：使用系统强调色（`c.Preferences().Accent`），经 `shades.go` 派生 hover/pressed/ink。
-- **应用覆盖**：选择 `PaletteID` 使用 `palettes.go` 中手写的 8 套 light/dark 三态三元组（base/hover/pressed；源自内置主题强调色及色相邻居），仅覆盖强调色相关语义槽，其余槽位保持当前外观来源。
+- **默认**：shadcn 的 zinc 中性色 + 近黑 primary（`shadcn.go`）；无彩色强调色时保持这套，不是 mygo 自带的蓝。
+- **系统强调色**：桌面给了 `c.Preferences().Accent` 且未选色板时，用它覆盖 primary，经 `shades.go` 派生 hover/pressed/ink。
+- **应用覆盖**：选择 `PaletteID` 使用 `palettes.go` 中手写的 8 套 light/dark 三态三元组（base/hover/pressed），仅覆盖强调色相关语义槽，其余槽位保持 shadcn 基础主题。
 - 切色与明暗、高对比正交：`NewTheme/Apply` 每帧从桌面偏好与 `Options` 派生 `*ui.Theme`，**无包级缓存、无持久状态**（遵守"never cache colors in package level state"）。
 
 ### 2.3 出生与传播
@@ -81,3 +83,14 @@ mygo 面向 app 的 i18n 由 `mygo dev/build` 处理 `locales/*.json`；mygo 自
 - 组件经 `ui.Tester`（假后端、无真窗/GPU）驱动；目标状态矩阵：默认/hover/pressed/disabled/read-only/明暗主题/RTL（按控件适用性逐步覆盖）。
 - `AGENTS.md` 的 "Tests never pass or fail on wall-clock time" 规则继承。
 - 平台矩阵：`go build/vet`（macOS、Linux、Windows）+ `GOOS=js GOARCH=wasm go vet`。
+
+## 9. 示例应用外壳（showcase）
+
+`examples/showcase` 的定位是**组件库示例应用**，外壳按组件文档站组织，而不是后台产品：
+
+- **顶栏**（`appBar`）：品牌 + 组件搜索 + `mygo v0.8.3` + 明暗切换。搜索绑 `s.navQuery`，直接驱动侧栏过滤；不放通知、头像等与示例无关的产品元素。
+- **侧栏**（`sidebar`）：`组件 · N` 标题 + 分组折叠树；每页一个图标，选中项是白底药丸加左侧强调色条。品牌与版本只在顶栏出现一次。
+- **页面**：标题、分组徽标与 `pages.go` 里逐页写的 `desc`（组件的真实用途），下面一条分隔线，再进入滚动区。
+- **演示卡**（`card` / `sectionNote`）：白底 + 细边框 + 双层柔和阴影，圆角取 `RadiusLg`；变体页用三列等高小卡，左侧名称/说明、右侧就是该变体的可交互组件，读起来是一张变体表而非一堆空盒。
+
+外壳只调库公开 API 与 `c.Theme()` 的派生色，不缓存颜色、不带自己的主题状态；换主题、换色板都走每帧的 `Apply`。

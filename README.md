@@ -2,7 +2,7 @@
 
 MyGo 原生 UI（[`package ui`](https://github.com/egoist/mygo)）的第三方组件库（独立 module，`go get` 导入即用）。面向 MyGo 自绘的原生 UI（macOS / Linux / Windows，亦支持 wasm），不依赖 webview。
 
-定位：**主题包 + 语义常量 + 变体化控件预设 + 框架没有的组合组件**。`mygo/ui` 已是完整的立即模式控件层；my-ui 在其公开 API 之上补设计系统与桌面组件（shadcn 式 `Variant/Size` 词汇）。
+定位：**主题包 + 语义常量 + 变体化控件预设 + 框架没有的组合组件**。`mygo/ui` 已是完整的立即模式控件层；my-ui 在其公开 API 之上补设计系统与桌面组件（shadcn 式 `Variant/Size` 词汇）。默认主题即 shadcn/ui 的 zinc 主题（白底卡片、近黑 primary，`Apply(c, Options{})` 也会应用），仍逐帧跟随系统明暗与桌面偏好。
 
 ```go
 myui.NewButton(c, "Save").Primary().Sm()
@@ -23,7 +23,7 @@ h.Button("Save").Primary()
 
 ## 示例
 
-`examples/showcase`：每个组件一页，侧栏按分组折叠并带搜索框；可切换明暗/色板并用 `ui.Themed` 预览子树主题。
+`examples/showcase`：按组件文档站的样式排布——顶栏放品牌、组件搜索（直接过滤侧栏）与版本/明暗切换；侧栏按分组折叠，每个组件一页，标题下写明该组件的用途；变体与状态以紧凑的演示卡排列，可点的组件本身就在卡里。可切换明暗/色板并用 `ui.Themed` 预览子树主题。
 
 ```sh
 go run ./examples/showcase

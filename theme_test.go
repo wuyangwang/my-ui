@@ -8,15 +8,18 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-func TestApplyDoesNothingForTheSystemAndNoPalette(t *testing.T) {
+func TestApplyUsesShadcnThemeForTheSystemAndNoPalette(t *testing.T) {
 	var th *ui.Theme
 	view := func(c *ui.Context) {
 		th = Apply(c, Options{})
 		ui.Text(c, "Plain")
 	}
 	tt := ui.NewTesterWith(view, 200, 100, ui.TesterOptions{Dark: true})
-	if th != nil {
-		t.Error("Apply in the system appearance with no palette replaced the theme, want nil")
+	if th == nil {
+		t.Fatal("Apply in the system appearance with no palette left the theme alone")
+	}
+	if !th.Dark || th.Background != shadcnDark().Background {
+		t.Errorf("the default theme is not shadcn's dark one: dark %v, background %v", th.Dark, th.Background)
 	}
 	tt.SetDark(false)
 }
@@ -35,8 +38,8 @@ func TestApplyForcesTheAppearanceAndThePalette(t *testing.T) {
 		t.Errorf("accent %v, hover %v, pressed %v; want the dark blue ones %v, %v, %v",
 			got.Accent, got.AccentHover, got.AccentPressed, accent, hover, pressed)
 	}
-	if got.Background != ui.DarkTheme().Background {
-		t.Errorf("background %v, want the dark theme's %v", got.Background, ui.DarkTheme().Background)
+	if got.Background != shadcnDark().Background {
+		t.Errorf("background %v, want shadcn's dark one's %v", got.Background, shadcnDark().Background)
 	}
 }
 
@@ -84,7 +87,7 @@ func TestApplyScalesText(t *testing.T) {
 	ui.NewTesterWith(view, 300, 200, ui.TesterOptions{
 		Preferences: ui.Preferences{TextScale: 2},
 	})
-	if want := ui.DarkTheme().FontSize * 2; got.FontSize != want {
+	if want := shadcnDark().FontSize * 2; got.FontSize != want {
 		t.Errorf("FontSize %v, want twice the dark theme's %v", got.FontSize, want)
 	}
 }
@@ -100,10 +103,10 @@ func TestApplyHighContrast(t *testing.T) {
 	if got.Focus.A != 255 {
 		t.Errorf("focus ring alpha %d, want an opaque one", got.Focus.A)
 	}
-	if got.Border == ui.DarkTheme().Border {
+	if got.Border == shadcnDark().Border {
 		t.Error("the border stayed as the dark theme's, want it strengthened")
 	}
-	if got.TextMuted == ui.DarkTheme().TextMuted {
+	if got.TextMuted == shadcnDark().TextMuted {
 		t.Error("the muted text stayed as the dark theme's, want it strengthened")
 	}
 }

@@ -7,22 +7,27 @@ import (
 
 // sectionNote is a titled block of a page: heading, note, then cards.
 func (s *showcase) sectionNote(c *ui.Context, t *ui.Theme, block, note string, build func()) {
-	ui.Column(c).Gap(t.Space(3)).Children(func() {
-		ui.Row(c).AlignItems(ui.Baseline).Gap(t.Space(2.5)).Children(func() {
-			ui.Text(c, block).FontSize(myui.TextSize(t, myui.TextMd)).Bold()
+	ui.Column(c).Gap(t.Space(4)).Children(func() {
+		ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2.5)).Children(func() {
+			ui.Box(c).Width(3).Height(t.Space(5)).Radius(2).Background(t.Accent)
+			ui.Text(c, block).FontSize(myui.TextSize(t, myui.TextLg)).Bold()
 			ui.Text(c, note).FontSize(myui.TextSize(t, myui.TextSm)).TextColor(t.TextMuted)
 		})
 		build()
 	})
 }
 
-// card is a plain surface panel a page lays content into; a Row above
-// grows it across the page width.
+// card is a plain surface panel a page lays content into. On shadcn's
+// theme a card sits on the same white as the page, so a hairline border
+// and two soft shadows do the separating. A Row above grows it across
+// the page width.
 func (s *showcase) card(c *ui.Context, t *ui.Theme, build func()) {
 	ui.Row(c).Children(func() {
-		ui.Column(c).Grow(1).Background(t.Surface).Border(1, t.Border).
-			Radius(t.Radius).Padding(t.Space(4), t.Space(5)).Gap(t.Space(3)).
-			Shadow(0, 1, 3, 0, t.TextMuted.Alpha(0.08)).Children(build)
+		ui.Column(c).Grow(1).Background(t.Background).Border(1, t.Border).
+			Radius(myui.Radius(t, myui.RadiusLg)).
+			Padding(t.Space(4), t.Space(5)).Gap(t.Space(3)).
+			Shadow(0, 1, 2, 0, t.Text.Alpha(0.06)).
+			Shadow(0, 8, 24, -8, t.Text.Alpha(0.10)).Children(build)
 	})
 }
 
@@ -52,10 +57,11 @@ func pickVariant(b *myui.Button, active bool) *myui.Button {
 func pane(c *ui.Context, t *ui.Theme, palette myui.PaletteID, a myui.Appearance, label string) {
 	sub := myui.NewTheme(c, myui.Options{Appearance: a, Palette: palette})
 	ui.Themed(c, sub).
-		Grow(1).Background(sub.Background).Padding(t.Space(3)).Gap(t.Space(2)).Children(func() {
+		Grow(1).Background(sub.Background).Padding(t.Space(4)).Gap(t.Space(2)).
+		Radius(myui.Radius(t, myui.RadiusLg)).Children(func() {
 		st := c.Theme()
 		ui.Column(c).Grow(1).Background(st.Surface).Border(1, st.Border).
-			Radius(st.Radius).Padding(t.Space(3)).Gap(t.Space(2)).Children(func() {
+			Radius(st.Radius).Padding(t.Space(4)).Gap(t.Space(3)).Children(func() {
 			st2 := c.Theme()
 			ui.Text(c, label).FontSize(myui.TextSize(st2, myui.TextMd)).Bold()
 			myui.NewButton(c.Key("preview "+label), "在卡片里按下").Primary()
