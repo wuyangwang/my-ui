@@ -28,8 +28,8 @@ type ComboBox struct {
 	shape      Shape
 	invalid    bool
 	chosen     *string // the last choice, kept across frames
-	filter     func(SelectOption, string) bool
-	emptyText  string
+	filterRef  *func(SelectOption, string) bool
+	emptyRef   *string
 }
 
 // NewComboBox creates a drop-down whose trigger is a text field, with
@@ -47,6 +47,8 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 	// The choice MyGo reports lives for one frame. Keep it on the input
 	// so that Chosen() stays readable in the frames after the choice.
 	b.chosen = ui.Local(b.Element, "combo-chosen", func() string { return "" })
+	b.emptyRef = ui.Local(b.Element, "combo-empty", func() string { return "" })
+	b.filterRef = ui.Local(b.Element, "combo-filter", func() func(SelectOption, string) bool { return nil })
 
 	// The popup holds the options the text matches.
 	p.Popup(func(panel ui.Element) {
@@ -77,8 +79,8 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 					}
 				})
 			}
-			if matched == 0 && b.emptyText != "" {
-				ui.Text(c, b.emptyText).TextColor(t.TextMuted).
+			if matched == 0 && b.emptyRef != nil && *b.emptyRef != "" {
+				ui.Text(c, *b.emptyRef).TextColor(t.TextMuted).
 					FontSize(TextSize(t, TextSm)).Padding(t.Space(2))
 			}
 		})
@@ -94,8 +96,8 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 // matches tells whether an option matches what was typed. A filter set
 // with Filter replaces the default case-insensitive label match.
 func (b *ComboBox) matches(o SelectOption, query string) bool {
-	if b.filter != nil {
-		return b.filter(o, query)
+	if b.filterRef != nil && *b.filterRef != nil {
+		return (*b.filterRef)(o, query)
 	}
 	return strings.Contains(strings.ToLower(o.label()), strings.ToLower(query))
 }
@@ -245,7 +247,9 @@ func (b *ComboBox) Invalid(on bool) *ComboBox {
 // EmptyText sets the message the popup shows when nothing matches, and
 // returns the combo box for chaining.
 func (b *ComboBox) EmptyText(s string) *ComboBox {
-	b.emptyText = s
+	if b.emptyRef != nil {
+		*b.emptyRef = s
+	}
 	return b
 }
 
@@ -253,7 +257,9 @@ func (b *ComboBox) EmptyText(s string) *ComboBox {
 // and returns the combo box for chaining. The default matches the label
 // case-insensitively.
 func (b *ComboBox) Filter(fn func(o SelectOption, query string) bool) *ComboBox {
-	b.filter = fn
+	if b.filterRef != nil {
+		*b.filterRef = fn
+	}
 	return b
 }
 

@@ -23,18 +23,39 @@ type MultiSelect struct {
 	variant    Variant
 	shape      Shape
 	invalid    bool
+	max        int
 }
 
 // NewMultiSelect creates a multi-select field. The tokens are the
 // choices the app holds.
 func NewMultiSelect(c *ui.Context, tokens *[]string, options []SelectOption) *MultiSelect {
 	m := &MultiSelect{c: c, tokens: tokens, options: options}
-	labels := make([]string, len(options))
-	for i, o := range options {
-		labels[i] = o.label()
-	}
-	m.Element = ui.TokenField(c, tokens, labels)
+	m.build()
 	return m
+}
+
+// build makes the token field. It is called again when Max changes, so
+// the suggestions leave out what the limit no longer allows.
+func (m *MultiSelect) build() {
+	labels := make([]string, 0, len(m.options))
+	for _, o := range m.options {
+		if m.max > 0 && len(*m.tokens) >= m.max {
+			break
+		}
+		// A chosen label is not offered again as a suggestion.
+		chosen := false
+		for _, t := range *m.tokens {
+			if t == o.label() {
+				chosen = true
+				break
+			}
+		}
+		if !chosen {
+			labels = append(labels, o.label())
+		}
+	}
+	m.Element = ui.TokenField(m.c, m.tokens, labels)
+	m.apply()
 }
 
 // Variant applies the look of v and returns the field, for chaining.
@@ -154,6 +175,14 @@ func (m *MultiSelect) Invalid(on bool) *MultiSelect {
 	m.invalid = on
 	m.Element = m.Element.Invalid(on)
 	m.apply()
+	return m
+}
+
+// Max limits how many choices the field holds, and returns it, for
+// chaining. Once the limit is reached, no further suggestions show.
+func (m *MultiSelect) Max(n int) *MultiSelect {
+	m.max = n
+	m.build()
 	return m
 }
 

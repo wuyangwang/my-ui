@@ -32,7 +32,21 @@ type Field struct {
 	dirty     bool
 	required  bool
 	invalid   bool
+	when      ValidateOn
+	validate  func() *Field
 }
+
+// ValidateOn is when a field runs its rules: on losing focus, on every
+// change, on gaining focus, or always. OnBlur is the default, as a form
+// does.
+type ValidateOn uint8
+
+const (
+	OnBlur ValidateOn = iota
+	OnChange
+	OnFocus
+	Always
+)
 
 // NewField creates a field of a label and a control. The builder makes
 // the control, and returns the element the field describes.
@@ -123,14 +137,41 @@ func (f *Field) Validate(value *string, rules ...Rule) *Field {
 	// from frame to frame.
 	touched := ui.Local(f.control, "field-touched", func() bool { return false })
 	initial := ui.Local(f.control, "field-initial", func() string { return *value })
+	wasFocused := ui.Local(f.control, "field-focused", func() bool { return false })
 	if f.control.FocusLeft() {
 		*touched = true
 	}
+	gained := f.control.Focused() && !*wasFocused
+	*wasFocused = f.control.Focused()
 	f.touched = touched
 	f.initial = initial
 	f.dirty = *value != *initial
 
-	if !*touched {
+	// Keep the rules so the chosen timing can re-run them.
+	f.validate = func() *Field { return f.check(value, rules) }
+
+	switch f.when {
+	case OnChange:
+		return f.check(value, rules)
+	case OnFocus:
+		if gained {
+			return f.check(value, rules)
+		}
+		return f
+	case Always:
+		return f.check(value, rules)
+	default: // OnBlur
+		if !*touched {
+			return f
+		}
+		return f.check(value, rules)
+	}
+}
+
+// check runs the rules against value and shows the first message that
+// does not hold. It is the shared body of every ValidateOn timing.
+func (f *Field) check(value *string, rules []Rule) *Field {
+	if !f.hasCtrl {
 		return f
 	}
 	for _, r := range rules {
@@ -151,6 +192,49 @@ func (f *Field) Touched() bool { return f.touched != nil && *f.touched }
 // Dirty reports whether the value differs from the one the field
 // started with.
 func (f *Field) Dirty() bool { return f.dirty }
+
+// ValidateOn checks value against rules at the chosen timing and returns
+// the field, for chaining. OnBlur is the default; use OnChange, OnFocus
+// or Always for the other common form behaviors.
+func (f *Field) ValidateOn(when ValidateOn, value *string, rules ...Rule) *Field {
+	f.when = when
+	return f.Validate(value, rules...)
+}
+
+// OnFocused calls fn when the control gains the focus in this frame, and
+// returns the field for chaining. MyGo has no focus-gained event; the
+// field computes the edge from Focused() across frames.
+func (f *Field) OnFocused(fn func()) *Field {
+	if fn != nil {
+		if was := ui.Local(f.control, "field-focused", func() bool { return false }); f.control.Focused() && !*was {
+			fn()
+		}
+	}
+	return f
+}
+
+// Errors shows several messages under the field as a list, as shadcn's
+// FieldError does, and marks the control invalid. Each message is a live
+// region so a screen reader reads them.
+func (f *Field) Errors(msgs ...string) *Field {
+	c := f.c
+	if len(msgs) == 0 {
+		return f
+	}
+	f.err.Children(func() {
+		list := ui.Column(c).Gap(c.Theme().Space(0.5))
+		list.Children(func() {
+			for _, m := range msgs {
+				ui.Text(c, m).TextColor(c.Theme().Danger).Role(ui.RoleAlert)
+			}
+		})
+	})
+	if f.hasCtrl {
+		f.control = f.control.ErrorMessage(f.err).Invalid(true)
+	}
+	f.invalid = true
+	return f
+}
 
 // Valid reports whether the field holds a good value: it has been left
 // and the rules hold.

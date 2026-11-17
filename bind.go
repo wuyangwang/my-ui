@@ -98,6 +98,18 @@ func (u UI) Modal(open *bool, trigger func() ui.Element, build func(panel ui.Ele
 // Badge creates a badge.
 func (u UI) Badge(text string) *Badge { return NewBadge(u.c, text) }
 
+// Card creates a card with a title.
+func (u UI) Card(title string) *Card { return NewCard(u.c, title) }
+
+// Tabs creates tabs, one of them selected.
+func (u UI) Tabs(selected *int, tabs ...Tab) *Tabs { return NewTabs(u.c, selected, tabs...) }
+
+// Progress creates a progress bar at value.
+func (u UI) Progress(value float64) *Progress { return NewProgress(u.c, value) }
+
+// Kbd shows the keys of a shortcut.
+func (u UI) Kbd(keys ...string) *Kbd { return NewKbd(u.c, keys...) }
+
 // Icon creates an icon drawing svg.
 func (u UI) Icon(svg *ui.SVG) *Icon { return NewIcon(u.c, svg) }
 

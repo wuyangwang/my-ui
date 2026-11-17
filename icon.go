@@ -37,6 +37,8 @@ func (i *Icon) Variant(v Variant) *Icon {
 	switch v {
 	case Primary, Link:
 		i.TextColor(t.Accent)
+	case Secondary:
+		i.TextColor(t.TextMuted)
 	case Destructive:
 		i.TextColor(t.Danger)
 	case Success, Info, Warning:
@@ -49,7 +51,7 @@ func (i *Icon) Variant(v Variant) *Icon {
 // Primary is Variant(myui.Primary).
 func (i *Icon) Primary() *Icon { return i.Variant(Primary) }
 
-// Secondary is Variant(myui.Secondary), a muted fill.
+// Secondary is Variant(myui.Secondary), the muted ink.
 func (i *Icon) Secondary() *Icon { return i.Variant(Secondary) }
 
 // Default is Variant(myui.Default), the built-in look.
@@ -87,6 +89,9 @@ func (i *Icon) Size(s Size) *Icon {
 	return i
 }
 
+// Xs sizes the icon to the smallest size.
+func (i *Icon) Xs() *Icon { return i.Size(SizeXs) }
+
 // Sm sizes the icon down.
 func (i *Icon) Sm() *Icon { return i.Size(SizeSm) }
 
@@ -114,6 +119,8 @@ func (i *Icon) Spin() *Icon {
 func (i *Icon) applySizing() {
 	var d float32
 	switch i.size {
+	case SizeXs:
+		d = 12
 	case SizeSm:
 		d = 14
 	case SizeLg:

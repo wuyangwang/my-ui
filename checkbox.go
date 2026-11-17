@@ -116,3 +116,77 @@ func (cb *Checkbox) Invalid(on bool) *Checkbox {
 
 // Control returns the element a field describes: the check box itself.
 func (cb *Checkbox) Control() ui.Element { return cb.Element }
+
+// CheckboxState is a check box with three states — off, on and mixed — as
+// shadcn's indeterminate checkbox and Element Plus's half-checked one.
+type CheckboxState struct {
+	ui.Element
+	c     *ui.Context
+	state *ui.CheckState
+	box   ui.Element
+	label string
+	size  Size
+}
+
+// NewCheckboxState creates a three-state box editing *state, with a label.
+func NewCheckboxState(c *ui.Context, state *ui.CheckState, label string) *CheckboxState {
+	cs := &CheckboxState{c: c, state: state, label: label}
+	t := c.Theme()
+	row := ui.CheckboxStateBase(c, state).Gap(t.Space(2))
+	row.Children(func() {
+		cs.box = ui.Box(c)
+		ui.Text(c, label)
+	})
+	cs.Element = row
+	cs.applyLook()
+	return cs
+}
+
+// applyLook paints the box for the state: a check when on, a dash when
+// mixed, empty when off.
+func (cs *CheckboxState) applyLook() {
+	t := cs.c.Theme()
+	d := 18
+	if cs.size == SizeSm {
+		d = 16
+	} else if cs.size == SizeLg {
+		d = 22
+	}
+	cs.box.Size(float32(d), float32(d)).Radius(t.Radius/2).Border(1, t.Border)
+	if cs.state == nil {
+		return
+	}
+	switch *cs.state {
+	case ui.CheckOn:
+		cs.box.Background(t.Accent).Border(1, t.Accent)
+		cs.box.Children(func() {
+			ui.Icon(cs.c, icons.Check()).Size(float32(d-4), float32(d-4)).TextColor(t.AccentText)
+		})
+	case ui.CheckMixed:
+		cs.box.Background(t.Accent).Border(1, t.Accent)
+		cs.box.Children(func() {
+			ui.Box(cs.c).Size(float32(d-8), 2).Radius(1).Background(t.AccentText)
+		})
+	}
+}
+
+// Size applies the sizing of s and returns the box, for chaining.
+func (cs *CheckboxState) Size(s Size) *CheckboxState {
+	cs.size = s
+	cs.applyLook()
+	return cs
+}
+
+// OnChanged runs fn with the new state when it changes in this frame.
+func (cs *CheckboxState) OnChanged(fn func(ui.CheckState)) *CheckboxState {
+	if fn != nil && cs.Changed() && cs.state != nil {
+		fn(*cs.state)
+	}
+	return cs
+}
+
+// NewCheckboxGroup wraps check boxes in a group, as shadcn's checkbox
+// group: assistive technology announces the group and its label.
+func NewCheckboxGroup(c *ui.Context, label string, build func()) ui.Element {
+	return ui.CheckboxGroup(c, label, build)
+}

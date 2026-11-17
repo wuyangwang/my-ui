@@ -61,6 +61,7 @@ type Select struct {
 	disabled        bool
 	cleared         bool
 	invalid         bool
+	emptyTextRef    *string
 }
 
 // NewSelect creates a drop-down choosing one of options into *selected,
@@ -69,6 +70,7 @@ type Select struct {
 func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select {
 	s := &Select{c: c, value: selected, options: options}
 	s.parts = ui.SelectBase(c, selected)
+	s.emptyTextRef = ui.Local(s.parts.Trigger, "select-empty", func() string { return "" })
 
 	// The trigger holds the choice, the placeholder, the button that
 	// empties the choice and the arrow that opens the popup.
@@ -96,7 +98,7 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 		d := float32(16)
 		// The button keeps the focus in the field while it is pressed, and
 		// it is a stop of the Tab key, as a clear button is in Ant Design.
-		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label("娓呴櫎")
+		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label(Message(c, "clear"))
 		b.Children(func() {
 			ic := ui.Icon(c, icons.X()).Size(d-5, d-5).TextColor(t.TextMuted)
 			if b.Hovered() {
@@ -142,6 +144,10 @@ func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select 
 			if o.Disabled {
 				item.Disabled(true).TextColor(t.TextMuted)
 			}
+		}
+		if len(options) == 0 && s.emptyTextRef != nil && *s.emptyTextRef != "" {
+			ui.Text(c, *s.emptyTextRef).TextColor(t.TextMuted).
+				FontSize(TextSize(t, TextSm)).Padding(t.Space(1), t.Space(2))
 		}
 	})
 
@@ -285,6 +291,31 @@ func (s *Select) Value() string { return *s.value }
 
 // Open reports whether the popup shows.
 func (s *Select) Open() bool { return s.parts.Open() }
+
+// SetOpen opens or closes the popup, and returns the select for chaining:
+// an app can open it from its own button or close it on submit.
+func (s *Select) SetOpen(on bool) *Select {
+	s.parts.SetOpen(on)
+	return s
+}
+
+// Highlight moves the highlight to the option with value, as a search
+// field jumps to a match, and returns the select for chaining.
+func (s *Select) Highlight(value string) *Select {
+	s.parts.Highlight(value)
+	return s
+}
+
+// EmptyText sets the message the popup shows when there are no options,
+// and returns the select for chaining.
+func (s *Select) EmptyText(text string) *Select {
+	// The popup is rebuilt each frame from the options; the text lives
+	// on the trigger so the next frame's build reads it.
+	if s.emptyTextRef != nil {
+		*s.emptyTextRef = text
+	}
+	return s
+}
 
 // Changed reports whether the choice changed in this frame.
 func (s *Select) Changed() bool { return s.Element.Changed() }

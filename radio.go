@@ -114,3 +114,10 @@ func (r *Radio[T]) Invalid(on bool) *Radio[T] {
 
 // Control returns the element a field describes: the radio itself.
 func (r *Radio[T]) Control() ui.Element { return r.Element }
+
+// NewRadioGroup wraps radio buttons in a group, as shadcn's RadioGroup:
+// assistive technology sees one control with the group's name, and the
+// arrow keys move between the radios build puts in it.
+func NewRadioGroup(c *ui.Context, build func()) ui.Element {
+	return ui.RadioGroup(c, build)
+}

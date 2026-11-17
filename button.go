@@ -7,6 +7,29 @@ import (
 	"github.com/wuyangwang/my-ui/icons"
 )
 
+// NewButtonGroup gathers buttons into one row, as shadcn's ButtonGroup:
+// the buttons sit together, sharing edges.
+func NewButtonGroup(c *ui.Context, build func()) ui.Element {
+	row := ui.Row(c).Gap(0)
+	if build != nil {
+		row.Children(build)
+	}
+	return row
+}
+
+// NewToggleGroup gathers toggle buttons into a mutually exclusive group,
+// as shadcn's ToggleGroup. The group's semantics come from MyGo's
+// ToggleGroup; build puts the buttons in it.
+func NewToggleGroup(c *ui.Context, build func()) ui.Element {
+	return ui.ToggleGroup(c, build)
+}
+
+// Segmented picks one of labels into *selected, as shadcn's TabsList or
+// a segmented control, and returns the control.
+func Segmented(c *ui.Context, selected *int, labels ...string) ui.Element {
+	return ui.Segmented(c, selected, labels...)
+}
+
 // Button is a ui button with a variant's preset look:
 //
 //	myui.NewButton(c, "Save").Primary()
@@ -26,12 +49,15 @@ import (
 //	myui.NewButton(c, "").Icon(icons.Save()).Label("Save")
 type Button struct {
 	ui.Element
-	c     *ui.Context
-	icon  ui.Element // the slot of the icon before the text
-	text  ui.Element // the text of the button
-	end   ui.Element // the slot of the icon after the text
-	size  Size
-	shape Shape
+	c       *ui.Context
+	icon    ui.Element // the slot of the icon before the text
+	text    ui.Element // the text of the button
+	end     ui.Element // the slot of the icon after the text
+	size    Size
+	shape   Shape
+	busy    bool
+	pressed *bool   // non-nil for a toggle button
+	iconSVG *ui.SVG // the icon to restore when the busy state clears
 }
 
 // NewButton creates a button with the native preset: myui.NewButton(c,
@@ -209,6 +235,7 @@ func (b *Button) Lg() *Button { return b.Size(SizeLg) }
 // of it.
 func (b *Button) Icon(svg *ui.SVG) *Button {
 	c := b.c
+	b.iconSVG = svg
 	b.icon.Children(func() {
 		icon := ui.Icon(c, svg)
 		// The room between the icon and the text rides on the icon, and
@@ -234,17 +261,46 @@ func (b *Button) EndIcon(svg *ui.SVG) *Button {
 	return b
 }
 
-// Loading turns the button into a busy one: a spinner takes the place
-// of the icon before the text, and the button takes no clicks while it
-// is busy. It returns the button, for chaining.
-func (b *Button) Loading() *Button {
+// Busy sets or clears the busy state and returns the button, for
+// chaining. While busy a spinner takes the place of the icon before the
+// text, and the button takes no clicks. The icon is restored when the
+// state clears.
+func (b *Button) Busy(on bool) *Button {
 	c := b.c
+	b.busy = on
 	b.icon.Children(func() {
-		spinner := ui.Icon(c, icons.LoaderCircle())
-		spinner = spinner.Rotate(spinner.Loop("spin", time.Second, ui.Linear) * 360)
-		spinner.Margin(0, c.Theme().Space(1.5), 0, 0)
+		if on {
+			spinner := ui.Icon(c, icons.LoaderCircle())
+			spinner = spinner.Rotate(spinner.Loop("spin", time.Second, ui.Linear) * 360)
+			if b.text.Valid() {
+				spinner.Margin(0, c.Theme().Space(1.5), 0, 0)
+			}
+			return
+		}
+		if b.iconSVG != nil {
+			ui.Icon(c, b.iconSVG)
+		}
 	})
-	b.Element = b.Element.Disabled(true)
+	b.Element = b.Element.Disabled(on)
+	return b
+}
+
+// Loading turns the button into a busy one and returns it, for chaining:
+// the same as Busy(true).
+func (b *Button) Loading() *Button { return b.Busy(true) }
+
+// Toggle makes the button a two-state control reflecting *pressed, as
+// shadcn's Toggle: a click flips the flag, and assistive technology sees
+// the pressed state. It returns the button for chaining.
+func (b *Button) Toggle(pressed *bool) *Button {
+	b.pressed = pressed
+	b.Element = b.Element.Role(ui.RoleToggleButton)
+	if pressed != nil {
+		b.Element = b.Element.AccessSelected(*pressed).Checked(*pressed)
+		if clicked := b.Clicked(); clicked {
+			*pressed = !*pressed
+		}
+	}
 	return b
 }
 

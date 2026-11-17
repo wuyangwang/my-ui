@@ -23,17 +23,68 @@ type ToastViewport struct {
 	ui.Element
 }
 
+// ToastPosition is a corner or edge of the window the toasts stack at.
+type ToastPosition uint8
+
+const (
+	ToastBottomRight ToastPosition = iota
+	ToastBottomLeft
+	ToastTopRight
+	ToastTopLeft
+	ToastBottomCenter
+	ToastTopCenter
+)
+
+// ViewportOption configures a ToastViewport.
+type ViewportOption func(*viewportConfig)
+
+type viewportConfig struct {
+	position ToastPosition
+	fadeIn   bool
+}
+
+// ViewportPosition sets the corner the toasts stack at.
+func ViewportPosition(p ToastPosition) ViewportOption {
+	return func(cfg *viewportConfig) { cfg.position = p }
+}
+
+// ViewportFadeIn fades a toast in when it appears. On by default.
+func ViewportFadeIn(on bool) ViewportOption {
+	return func(cfg *viewportConfig) { cfg.fadeIn = on }
+}
+
 // NewToastViewport builds the window's toasts with the library's look.
-// Call it once in the view, wherever.
-func NewToastViewport(c *ui.Context) *ToastViewport {
+// Call it once in the view, wherever. Without options the toasts stack in
+// the bottom right corner, as in shadcn's.
+func NewToastViewport(c *ui.Context, opts ...ViewportOption) *ToastViewport {
+	cfg := &viewportConfig{fadeIn: true}
+	for _, o := range opts {
+		if o != nil {
+			o(cfg)
+		}
+	}
 	v := &ToastViewport{}
 	v.Element = ui.ToastViewportBase(c, func(viewport ui.Element, toasts []ui.Toast) {
 		th := c.Theme()
-		// The toasts stack in the bottom right corner, as they do in
-		// shadcn's.
-		viewport.Padding(th.Space(4)).AlignItems(ui.End).Gap(th.Space(2))
+		// The viewport column runs top-to-bottom; justify picks the
+		// vertical edge and AlignItems the horizontal one.
+		switch cfg.position {
+		case ToastTopRight, ToastTopLeft, ToastTopCenter:
+			viewport.Justify(ui.Start)
+		default:
+			viewport.Justify(ui.End)
+		}
+		switch cfg.position {
+		case ToastBottomLeft, ToastTopLeft:
+			viewport.AlignItems(ui.Start)
+		case ToastBottomCenter, ToastTopCenter:
+			viewport.AlignItems(ui.Center)
+		default:
+			viewport.AlignItems(ui.End)
+		}
+		viewport.Padding(th.Space(4)).Gap(th.Space(2))
 		for _, t := range toasts {
-			toastCard(c, t)
+			toastCard(c, t, cfg.fadeIn)
 		}
 	})
 	return v
@@ -41,7 +92,7 @@ func NewToastViewport(c *ui.Context) *ToastViewport {
 
 // toastCard builds one toast as a card: the icon of its kind, the title
 // and the description, the action and the close button.
-func toastCard(c *ui.Context, t ui.Toast) {
+func toastCard(c *ui.Context, t ui.Toast, fadeIn bool) {
 	th := c.Theme()
 	parts := ui.ToastBase(c, t)
 	card := parts.Root.Row().AlignItems(ui.Center).Gap(th.Space(3)).
@@ -50,10 +101,17 @@ func toastCard(c *ui.Context, t ui.Toast) {
 		Shadow(0, 8, 24, 0, ui.RGBA(0, 0, 0, 0.18)).
 		MaxWidth(th.Space(80)).
 		Transition(stateTransition())
-	// The toast fades as the time of it runs out.
+	// The toast fades in as it appears, then fades as its time runs out.
+	opacity := float32(1)
+	if fadeIn {
+		opacity = card.AnimateTo("toast-in", 1, ui.Animation{Duration: toastFade, NonMotion: true})
+	}
 	if left := parts.Left(); left > 0 && left < toastFade {
-		card.Opacity(float32(left) / float32(toastFade))
+		opacity *= float32(left) / float32(toastFade)
 		c.AnimationFrame()
+	}
+	if opacity < 1 {
+		card.Opacity(opacity)
 	}
 	card.Children(func() {
 		if svg := toastIcon(t.Type); svg != nil {
