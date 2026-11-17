@@ -2,6 +2,7 @@ package myui
 
 import (
 	"github.com/egoist/mygo/ui"
+	"github.com/wuyangwang/my-ui/icons"
 )
 
 // Alert is a message that stands in the page: a card with a title, a
@@ -24,6 +25,8 @@ type Alert struct {
 	texts     ui.Element // the title and the description
 	iconSlot  ui.Element // the slot of the icon at the left
 	descSlot  ui.Element // the slot of the description
+	action    ui.Element // the slot of the action at the right
+	closed    *bool      // the app's flag, set true when closed
 	inherited bool
 }
 
@@ -43,6 +46,7 @@ func NewAlert(c *ui.Context, title string) *Alert {
 			ui.Text(c, title).Bold()
 			a.descSlot = ui.Box(c)
 		})
+		a.action = ui.Row(c).AlignItems(ui.Center)
 	})
 	a.Element = alert
 	return a
@@ -118,6 +122,59 @@ func (a *Alert) Info() *Alert { return a.Variant(Info) }
 
 // Warning is Variant(myui.Warning).
 func (a *Alert) Warning() *Alert { return a.Variant(Warning) }
+
+// Action builds a control at the right of the alert — shadcn's
+// AlertAction — a link or a small button the reader can act on.
+func (a *Alert) Action(build func()) *Alert {
+	if a.action.Valid() && build != nil {
+		a.action.Children(build)
+	}
+	return a
+}
+
+// ShowIcon puts the icon of the variant at the left when none was given
+// with Icon, and returns the alert, for chaining. The icon follows the
+// variant's ink.
+func (a *Alert) ShowIcon(on bool) *Alert {
+	if !on || a.icon != nil {
+		return a
+	}
+	svg := icons.Info()
+	switch a.variant {
+	case Destructive:
+		svg = icons.CircleX()
+	case Success:
+		svg = icons.CircleCheck()
+	case Warning:
+		svg = icons.TriangleAlert()
+	}
+	return a.Icon(svg)
+}
+
+// Closable puts a close button at the right of the alert, and returns it,
+// for chaining. Clicking it sets *closed to true; the app hides the alert
+// when it does.
+func (a *Alert) Closable(closed *bool) *Alert {
+	a.closed = closed
+	if !a.action.Valid() {
+		return a
+	}
+	a.action.Children(func() {
+		b := NewButton(a.c, "").Ghost().Xs()
+		b.Icon(icons.X()).Label(Message(a.c, "close"))
+		if b.Clicked() && a.closed != nil {
+			*a.closed = true
+		}
+	})
+	return a
+}
+
+// Role sets the accessibility role of the alert — RoleAlert (the
+// default) or RoleStatus for a non-urgent message — and returns it.
+func (a *Alert) Role(r ui.Role) *Alert {
+	a.Element = a.Element.Role(r)
+	return a
+}
 
 // descriptionColor is the color of the description: the muted ink, or
 // the ink of the variant at nine tenths, as shadcn's destructive alert

@@ -1,6 +1,11 @@
 package myui
 
-import "github.com/egoist/mygo/ui"
+import (
+	"strconv"
+
+	"github.com/egoist/mygo/ui"
+	"github.com/wuyangwang/my-ui/icons"
+)
 
 // Badge is a short label in a pill with variant and size presets:
 //
@@ -112,6 +117,9 @@ func (b *Badge) Size(s Size) *Badge {
 	return b
 }
 
+// Xs sizes the badge to the smallest size.
+func (b *Badge) Xs() *Badge { return b.Size(SizeXs) }
+
 // Sm sizes the badge down.
 func (b *Badge) Sm() *Badge { return b.Size(SizeSm) }
 
@@ -124,6 +132,8 @@ func (b *Badge) Lg() *Badge { return b.Size(SizeLg) }
 func (b *Badge) applySizing() {
 	t := b.c.Theme()
 	switch b.size {
+	case SizeXs:
+		b.Padding(t.Space(0.25), t.Space(1)).FontSize(TextSize(t, TextXs))
 	case SizeSm:
 		b.Padding(t.Space(0.5), t.Space(1.5)).FontSize(TextSize(t, TextXs))
 	case SizeLg:
@@ -131,4 +141,84 @@ func (b *Badge) applySizing() {
 	default:
 		b.Padding(t.Space(0.75), t.Space(2)).FontSize(TextSize(t, TextXs))
 	}
+}
+
+// Count turns the badge into a count: it shows n, capped at max with a
+// "+" when max is above zero, and hides the badge when n is zero. It
+// returns the badge for chaining, and reads n from the value the app
+// holds each frame.
+func (b *Badge) Count(n, max int) *Badge {
+	c := b.c
+	if n == 0 {
+		b.Hidden(true)
+		return b
+	}
+	b.Hidden(false)
+	text := strconv.Itoa(n)
+	if max > 0 && n > max {
+		text = strconv.Itoa(max) + "+"
+	}
+	b.Element.Children(func() {
+		ui.Text(c, text)
+	})
+	return b
+}
+
+// Closable puts a small close button in the badge and returns it, for
+// chaining. Clicking it sets *closed to true.
+func (b *Badge) Closable(closed *bool) *Badge {
+	b.Children(func() {
+		btn := ui.ButtonBase(b.c).Size(12, 12).KeepFocus().Margin(0, 0, 0, b.c.Theme().Space(1)).
+			Label(Message(b.c, "close"))
+		btn.Children(func() {
+			ic := ui.Icon(b.c, icons.X()).Size(10, 10)
+			if btn.Hovered() {
+				ic = ic.TextColor(b.c.Theme().Text)
+			}
+		})
+		if btn.Clicked() && closed != nil {
+			*closed = true
+		}
+	})
+	return b
+}
+
+// BadgeOn pins a badge to the corner of an anchor, as Element Plus's
+// el-badge does. o holds the content, whether to show only a dot, the cap
+// for a count, whether it is hidden and the badge's variant.
+type BadgeOptions struct {
+	Content string
+	Dot     bool
+	Count   int
+	Max     int
+	Hidden  bool
+	Variant Variant
+}
+
+// NewBadgeOn builds an anchor and pins a badge to its top-right corner.
+// The badge shows Content, or a count capped at Max, or just a dot.
+func NewBadgeOn(c *ui.Context, anchor func() ui.Element, o BadgeOptions) *Badge {
+	wrap := ui.Box(c)
+	wrap.Children(func() {
+		if anchor != nil {
+			anchor()
+		}
+		if o.Hidden {
+			return
+		}
+		bd := NewBadge(c, o.Content)
+		if o.Count != 0 {
+			bd.Count(o.Count, o.Max)
+		} else if o.Dot {
+			bd.Element = bd.Element.Size(c.Theme().Space(2), c.Theme().Space(2))
+			bd.Element.Children(func() {})
+		}
+		if o.Variant != Native {
+			bd.Variant(o.Variant)
+		} else {
+			bd.Destructive()
+		}
+		bd.Element = bd.Element.Absolute().Top(-c.Theme().Space(1)).Right(-c.Theme().Space(1))
+	})
+	return &Badge{Element: wrap, c: c}
 }
