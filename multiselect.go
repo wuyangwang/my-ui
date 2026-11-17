@@ -22,6 +22,7 @@ type MultiSelect struct {
 	size       Size
 	variant    Variant
 	shape      Shape
+	invalid    bool
 }
 
 // NewMultiSelect creates a multi-select field. The tokens are the
@@ -136,6 +137,26 @@ func (m *MultiSelect) OnChanged(fn func(values []string)) *MultiSelect {
 // Values returns the choices the field holds.
 func (m *MultiSelect) Values() []string { return *m.tokens }
 
+// Control returns the element a field describes: the field of chips,
+// which is the one that takes the focus.
+func (m *MultiSelect) Control() ui.Element { return m.Element }
+
+// Disabled takes the multi-select out of use and returns it, for
+// chaining.
+func (m *MultiSelect) Disabled(on bool) *MultiSelect {
+	m.Element = m.Element.Disabled(on)
+	return m
+}
+
+// Invalid marks the multi-select as not holding a good value and returns
+// it, for chaining. The field takes the danger border.
+func (m *MultiSelect) Invalid(on bool) *MultiSelect {
+	m.invalid = on
+	m.Element = m.Element.Invalid(on)
+	m.apply()
+	return m
+}
+
 // Changed reports whether the choices changed in this frame.
 func (m *MultiSelect) Changed() bool { return m.Element.Changed() }
 
@@ -145,7 +166,11 @@ func (m *MultiSelect) apply() {
 	l := fieldLookOf(m.variant, t)
 	if !l.native {
 		v, h := fieldPadding(t, m.size)
-		m.Element = m.Element.Background(l.bg).Border(l.width, l.border).Radius(t.Radius).Padding(v, h)
+		border := l.border
+		if m.invalid {
+			border = t.Danger
+		}
+		m.Element = m.Element.Background(l.bg).Border(l.width, border).Radius(t.Radius).Padding(v, h)
 	}
 	switch m.shape {
 	case ShapeRound, ShapeCircle:

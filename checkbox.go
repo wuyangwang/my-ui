@@ -18,6 +18,7 @@ type Checkbox struct {
 	box     ui.Element
 	checked *bool
 	size    Size
+	invalid bool
 }
 
 // NewCheckbox creates a check box editing *checked, with a label.
@@ -38,9 +39,17 @@ func NewCheckbox(c *ui.Context, checked *bool, label string) *Checkbox {
 func (cb *Checkbox) applyLook() {
 	t := cb.c.Theme()
 	d := cb.boxSize()
-	cb.box.Size(d, d).Radius(t.Radius/2).Border(1, t.Border)
+	border := t.Border
+	if cb.invalid {
+		border = t.Danger
+	}
+	cb.box.Size(d, d).Radius(t.Radius/2).Border(1, border)
 	if cb.checked != nil && *cb.checked {
-		cb.box.Background(t.Accent).Border(1, t.Accent)
+		fill := t.Accent
+		if cb.invalid {
+			fill = t.Danger
+		}
+		cb.box.Background(fill).Border(1, fill)
 		cb.box.Children(func() {
 			ui.Icon(cb.c, icons.Check()).Size(d-4, d-4).TextColor(t.AccentText)
 		})
@@ -95,3 +104,15 @@ func (cb *Checkbox) Disabled(disabled bool) *Checkbox {
 	cb.Element = cb.Element.Disabled(disabled)
 	return cb
 }
+
+// Invalid marks the box as not holding a good value and returns it, for
+// chaining. The square takes the danger color of the theme.
+func (cb *Checkbox) Invalid(on bool) *Checkbox {
+	cb.invalid = on
+	cb.Element = cb.Element.Invalid(on)
+	cb.applyLook()
+	return cb
+}
+
+// Control returns the element a field describes: the check box itself.
+func (cb *Checkbox) Control() ui.Element { return cb.Element }

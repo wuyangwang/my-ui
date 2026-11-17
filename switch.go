@@ -18,8 +18,9 @@ const switchKnobTime = 140 * time.Millisecond
 // changes, as the desktop's does.
 type Switch struct {
 	ui.Element
-	c  *ui.Context
-	on *bool
+	c       *ui.Context
+	on      *bool
+	invalid bool
 }
 
 // NewSwitch creates a switch editing *on.
@@ -30,9 +31,14 @@ func NewSwitch(c *ui.Context, on *bool) *Switch {
 	// The knob travels from one end to the other, as the desktop's
 	// does.
 	pos := sw.Animate("knob", switchPos(*on), switchKnobTime)
-	off := t.Border.Mix(t.Text, 0.15)
-	sw.Background(off.Mix(t.Accent, pos))
 	sw.Draw(func(p *ui.Painter, r ui.Rect) {
+		th := c.Theme()
+		onColor := th.Accent
+		if s.invalid {
+			onColor = th.Danger
+		}
+		off := th.Border.Mix(th.Text, 0.15)
+		p.Fill(r, off.Mix(onColor, pos), r.H/2)
 		in := r.H / 8
 		d := r.H - 2*in
 		knob := ui.Rect{X: r.X + in + pos*(r.W-r.H), Y: r.Y + in, W: d, H: d}
@@ -73,3 +79,14 @@ func (s *Switch) Disabled(disabled bool) *Switch {
 	s.Element = s.Element.Disabled(disabled)
 	return s
 }
+
+// Invalid marks the switch as not holding a good value and returns it,
+// for chaining. The on-color becomes the danger color.
+func (s *Switch) Invalid(on bool) *Switch {
+	s.invalid = on
+	s.Element = s.Element.Invalid(on)
+	return s
+}
+
+// Control returns the element a field describes: the switch itself.
+func (s *Switch) Control() ui.Element { return s.Element }

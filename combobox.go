@@ -26,6 +26,10 @@ type ComboBox struct {
 	size       Size
 	variant    Variant
 	shape      Shape
+	invalid    bool
+	chosen     *string // the last choice, kept across frames
+	filter     func(SelectOption, string) bool
+	emptyText  string
 }
 
 // NewComboBox creates a drop-down whose trigger is a text field, with
@@ -40,6 +44,9 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 	// own so that it does not collapse to the width of a word, and it
 	// does not fill the row it is in.
 	b.Element = b.Element.AlignSelf(ui.Start).MinWidth(c.Theme().Space(30))
+	// The choice MyGo reports lives for one frame. Keep it on the input
+	// so that Chosen() stays readable in the frames after the choice.
+	b.chosen = ui.Local(b.Element, "combo-chosen", func() string { return "" })
 
 	// The popup holds the options the text matches.
 	p.Popup(func(panel ui.Element) {
@@ -48,12 +55,14 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
 		filter := strings.TrimSpace(*text)
 		group := ""
+		matched := 0
 		panel.Children(func() {
 			for _, o := range options {
 				o := o
-				if filter != "" && !strings.Contains(o.label(), filter) {
+				if filter != "" && !b.matches(o, filter) {
 					continue
 				}
+				matched++
 				// The name of a group shows above its options.
 				if o.Group != "" && o.Group != group {
 					group = o.Group
@@ -63,14 +72,32 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 				item := p.Item(o.Value)
 				item.Children(func() {
 					ui.Text(c, o.label())
-					if o.Value == b.Chosen() {
+					if o.Value == *b.chosen {
 						ui.Icon(c, icons.Check()).TextColor(t.Accent)
 					}
 				})
 			}
+			if matched == 0 && b.emptyText != "" {
+				ui.Text(c, b.emptyText).TextColor(t.TextMuted).
+					FontSize(TextSize(t, TextSm)).Padding(t.Space(2))
+			}
 		})
 	})
+	// MyGo reports the choice for the frame that follows Popup: take it
+	// now, while it is available, and keep it.
+	if v, ok := p.Chosen(); ok {
+		*b.chosen = v
+	}
 	return b
+}
+
+// matches tells whether an option matches what was typed. A filter set
+// with Filter replaces the default case-insensitive label match.
+func (b *ComboBox) matches(o SelectOption, query string) bool {
+	if b.filter != nil {
+		return b.filter(o, query)
+	}
+	return strings.Contains(strings.ToLower(o.label()), strings.ToLower(query))
 }
 
 // Variant applies the look of v and returns the combo box, for chaining.
@@ -176,10 +203,13 @@ func (b *ComboBox) OnChanged(fn func(value string)) *ComboBox {
 	return b
 }
 
-// Chosen returns the value of the choice the field holds.
+// Chosen returns the value of the last choice, readable in any frame —
+// not just the one the choice was made in. MyGo's own Chosen() is only
+// valid during the build and expires with the frame; the combo box copies
+// it into a persistent slot in the constructor and reads only that here.
 func (b *ComboBox) Chosen() string {
-	if v, ok := b.parts.Chosen(); ok {
-		return v
+	if b.chosen != nil {
+		return *b.chosen
 	}
 	return ""
 }
@@ -190,13 +220,58 @@ func (b *ComboBox) Changed() bool { return b.Element.Changed() }
 // Open reports whether the popup shows.
 func (b *ComboBox) Open() bool { return b.parts.Open() }
 
+// SetOpen opens or closes the popup, and returns the combo box for
+// chaining: an app can open it from its own button or close it on submit.
+func (b *ComboBox) SetOpen(on bool) *ComboBox {
+	b.parts.SetOpen(on)
+	return b
+}
+
+// Disabled takes the combo box out of use and returns it, for chaining.
+func (b *ComboBox) Disabled(on bool) *ComboBox {
+	b.Element = b.Element.Disabled(on)
+	return b
+}
+
+// Invalid marks the combo box as not holding a good value and returns it,
+// for chaining. The trigger takes the danger border.
+func (b *ComboBox) Invalid(on bool) *ComboBox {
+	b.invalid = on
+	b.Element = b.Element.Invalid(on)
+	b.apply()
+	return b
+}
+
+// EmptyText sets the message the popup shows when nothing matches, and
+// returns the combo box for chaining.
+func (b *ComboBox) EmptyText(s string) *ComboBox {
+	b.emptyText = s
+	return b
+}
+
+// Filter sets the matcher used to narrow the options by what was typed,
+// and returns the combo box for chaining. The default matches the label
+// case-insensitively.
+func (b *ComboBox) Filter(fn func(o SelectOption, query string) bool) *ComboBox {
+	b.filter = fn
+	return b
+}
+
+// Control returns the element a field describes: the text field that is
+// the trigger, so a Field can focus it and name its error.
+func (b *ComboBox) Control() ui.Element { return b.Element }
+
 // apply paints the look of the variant and the size on the field.
 func (b *ComboBox) apply() {
 	t := b.c.Theme()
 	l := fieldLookOf(b.variant, t)
 	if !l.native {
 		v, h := fieldPadding(t, b.size)
-		b.Element = b.Element.Background(l.bg).Border(l.width, l.border).Radius(t.Radius).Padding(v, h)
+		border := l.border
+		if b.invalid {
+			border = t.Danger
+		}
+		b.Element = b.Element.Background(l.bg).Border(l.width, border).Radius(t.Radius).Padding(v, h)
 	}
 	switch b.shape {
 	case ShapeRound, ShapeCircle:

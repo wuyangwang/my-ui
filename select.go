@@ -60,6 +60,7 @@ type Select struct {
 	size            Size
 	disabled        bool
 	cleared         bool
+	invalid         bool
 }
 
 // NewSelect creates a drop-down choosing one of options into *selected,
@@ -251,6 +252,16 @@ func (s *Select) Disabled(on bool) *Select {
 	return s
 }
 
+// Invalid marks the select as not holding a good value and returns it,
+// for chaining. The trigger takes the danger border of the theme, as a
+// field's control does when the field has an error.
+func (s *Select) Invalid(on bool) *Select {
+	s.invalid = on
+	s.Element = s.Element.Invalid(on)
+	s.apply()
+	return s
+}
+
 // OnChanged calls fn with the new value when it changed in this frame,
 // and returns the select, for chaining.
 func (s *Select) OnChanged(fn func(value string)) *Select {
@@ -297,7 +308,11 @@ func (s *Select) chosen() (SelectOption, bool) {
 func (s *Select) apply() {
 	t := s.c.Theme()
 	l := selectLookOf(s.variant, t)
-	s.Element = s.Element.Background(l.bg).Border(l.width, l.border).Radius(t.Radius)
+	border := l.border
+	if s.invalid {
+		border = t.Danger
+	}
+	s.Element = s.Element.Background(l.bg).Border(l.width, border).Radius(t.Radius)
 	v, h := fieldPadding(t, s.size)
 	s.Element = s.Element.Padding(v, h).FontSize(fieldFontSize(t, s.size))
 }

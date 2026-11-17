@@ -36,9 +36,12 @@ func NewPopover(c *ui.Context, open *bool, anchor func() ui.Element, build func(
 		a = anchor()
 		has = true
 	}
-	// A click on the anchor opens the panel.
+	// A click on the anchor toggles the panel, as a popover trigger does
+	// on the web: the first opens it, the next closes it. The framework
+	// treats the anchor as inside the panel, so it does not close it for
+	// us.
 	if has && a.Clicked() && p.open != nil {
-		*p.open = true
+		*p.open = !*p.open
 	}
 	panel := ui.PopoverBase(c, a, open, func(panel ui.Element) {
 		th := c.Theme()

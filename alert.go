@@ -63,28 +63,42 @@ func (a *Alert) Description(s string) *Alert {
 }
 
 // Icon puts an icon at the left of the alert and returns it, for
-// chaining. The icon takes the color of the alert's ink.
+// chaining. The icon takes the color of the alert's ink, as shadcn's
+// `[&>svg]:text-current` does, so a destructive alert's icon is red.
 func (a *Alert) Icon(svg *ui.SVG) *Alert {
 	a.icon = svg
 	a.iconSlot.Children(func() {
-		NewIcon(a.c, svg).Size(SizeSm)
+		ic := NewIcon(a.c, svg).Size(SizeSm)
+		if ink, ok := a.variantInk(); ok {
+			ic.TextColor(ink)
+		}
 	})
 	return a
 }
 
 // Variant applies the look of v and returns the alert, for chaining: the
-// ink of the alert says what kind of message it is.
+// ink of the alert says what kind of message it is. The title, the
+// description and the icon all take it.
 func (a *Alert) Variant(v Variant) *Alert {
 	a.variant = v
-	th := a.c.Theme()
-	switch v {
-	case Destructive:
-		a.texts.TextColor(th.Danger)
-	case Success, Info, Warning:
-		role, _ := semanticOf(v)
-		a.texts.TextColor(semanticColor(th, role))
+	if ink, ok := a.variantInk(); ok {
+		a.texts.TextColor(ink)
+		a.iconSlot.TextColor(ink)
 	}
 	return a
+}
+
+// variantInk is the ink the variant paints, if it paints one.
+func (a *Alert) variantInk() (ui.Color, bool) {
+	th := a.c.Theme()
+	switch a.variant {
+	case Destructive:
+		return th.Danger, true
+	case Success, Info, Warning:
+		role, _ := semanticOf(a.variant)
+		return semanticColor(th, role), true
+	}
+	return ui.Color{}, false
 }
 
 // Default is Variant(myui.Default), the built-in look.

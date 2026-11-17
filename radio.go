@@ -19,6 +19,7 @@ type Radio[T comparable] struct {
 	selected *T
 	value    T
 	size     Size
+	invalid  bool
 }
 
 // NewRadio creates a radio button that holds value while it is
@@ -40,11 +41,16 @@ func NewRadio[T comparable](c *ui.Context, selected *T, value T, label string) *
 func (r *Radio[T]) applyLook() {
 	t := r.c.Theme()
 	d := r.dotSize()
-	r.dot.Size(d, d).Radius(d/2).Border(1, t.Border)
+	border := t.Border
+	fill := t.Accent
+	if r.invalid {
+		border, fill = t.Danger, t.Danger
+	}
+	r.dot.Size(d, d).Radius(d/2).Border(1, border)
 	if r.selected != nil && *r.selected == r.value {
-		r.dot.Border(1, t.Accent)
+		r.dot.Border(1, fill)
 		r.dot.Children(func() {
-			ui.Box(r.c).Size(d-8, d-8).Radius((d - 8) / 2).Background(t.Accent)
+			ui.Box(r.c).Size(d-8, d-8).Radius((d - 8) / 2).Background(fill)
 		})
 	}
 }
@@ -96,3 +102,15 @@ func (r *Radio[T]) Disabled(disabled bool) *Radio[T] {
 	r.Element = r.Element.Disabled(disabled)
 	return r
 }
+
+// Invalid marks the radio as not holding a good value and returns it, for
+// chaining. The ring takes the danger color of the theme.
+func (r *Radio[T]) Invalid(on bool) *Radio[T] {
+	r.invalid = on
+	r.Element = r.Element.Invalid(on)
+	r.applyLook()
+	return r
+}
+
+// Control returns the element a field describes: the radio itself.
+func (r *Radio[T]) Control() ui.Element { return r.Element }

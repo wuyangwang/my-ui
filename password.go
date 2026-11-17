@@ -10,18 +10,13 @@ import (
 //
 //	myui.NewPasswordInput(c, &password).Outline().Placeholder("密码")
 //
-// MyGo's text input hides what it holds for good: there is no public way
-// to show it again. The button therefore shows the text in a field of
-// its own — the same value, another field — and the two take turns.
-// The value is the app's, so it survives the change; the state of the
-// editor, the caret and the undo, does not.
-//
-// The button takes the focus back to the field after it is pressed, so
-// that typing goes on where it left off.
+// MyGo's Password() hides a text input in the frames that call it: an
+// input that stops calling it shows its text again. The button therefore
+// only flips a flag; the same editor is kept, so the caret, the selection
+// and the undo history survive a show/hide.
 type PasswordInput struct {
 	field[*PasswordInput]
 	shown    *bool
-	focus    *bool
 	eyeOn    *ui.SVG // the icon of the button while the text shows
 	eyeOff   *ui.SVG // the icon of the button while the text is hidden
 	eyeColor *ui.Color
@@ -33,25 +28,17 @@ func NewPasswordInput(c *ui.Context, value *string) *PasswordInput {
 	p := &PasswordInput{}
 	p.field = *newField[*PasswordInput](c, value, func(c *ui.Context, value *string, host ui.Element) ui.Element {
 		// The state of the button: whether the text shows. The host
-		// keeps it from frame to frame.
+		// keeps it from frame to frame. The key is the same in both
+		// states, so the editor — and with it the caret and the undo —
+		// is not rebuilt when the button is pressed.
 		p.shown = ui.Local(host, "password-shown", func() bool { return false })
-		p.focus = ui.Local(host, "password-focus", func() bool { return false })
-		if *p.shown {
-			c.Key("password-shown")
-			return ui.TextInput(c, value)
+		ed := ui.TextInput(c, value)
+		if !*p.shown {
+			ed = ed.Password()
 		}
-		c.Key("password-hidden")
-		return ui.TextInput(c, value).Password()
+		return ed
 	})
 	p.self = p
-
-	// The focus goes back to the text after the button was pressed. It
-	// runs before the button is built, so that the press of the button
-	// is read in the frame after the one that focuses the text.
-	if *p.focus {
-		*p.focus = false
-		p.inner = p.inner.Focus()
-	}
 
 	// The button that shows and hides, at the end of the field.
 	p.Suffix(func() {
@@ -69,13 +56,13 @@ func NewPasswordInput(c *ui.Context, value *string) *PasswordInput {
 		})
 		if b.Clicked() {
 			*p.shown = !*p.shown
-			// The text is in another field now: the focus goes back to
-			// it in the frame that follows.
-			*p.focus = true
 		}
 	})
 	return p
 }
+
+// Visible reports whether the text currently shows.
+func (p *PasswordInput) Visible() bool { return p.shown != nil && *p.shown }
 
 // EyeIcons sets the icons of the button: the one it shows while the
 // text shows, and the one it shows while the text is hidden. It returns

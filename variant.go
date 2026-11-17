@@ -71,17 +71,32 @@ const (
 	semanticInfo
 )
 
-// semantics holds the color of every semantic role, light and dark, as
-// the themes of shadcn define them: a color of its own, which a custom
-// theme of the app may replace.
+// semantics is the fallback color of every semantic role, light and
+// dark. MyGo's Theme carries Success and Warning, which a custom theme
+// may set; the fallback is used when a theme leaves a slot empty. Info
+// has no slot in MyGo's Theme (see docs/architecture.md), so it always
+// comes from here.
 var semantics = map[semantic][2]ui.Color{
 	semanticSuccess: {ui.Hex("#16a34a"), ui.Hex("#4ade80")},
 	semanticWarning: {ui.Hex("#d97706"), ui.Hex("#fbbf24")},
 	semanticInfo:    {ui.Hex("#0284c7"), ui.Hex("#38bdf8")},
 }
 
-// semanticColor is the color of a semantic role on a theme.
+// semanticColor is the color of a semantic role on a theme. Success and
+// Warning come from the theme when it sets them, so the colors follow a
+// custom theme and the appearance as every other token does; Info falls
+// back to the fixed table because MyGo's Theme has no slot for it.
 func semanticColor(t *ui.Theme, s semantic) ui.Color {
+	var fromTheme ui.Color
+	switch s {
+	case semanticSuccess:
+		fromTheme = t.Success
+	case semanticWarning:
+		fromTheme = t.Warning
+	}
+	if fromTheme.A != 0 {
+		return fromTheme
+	}
 	c := semantics[s]
 	if t.Dark {
 		return c[1]

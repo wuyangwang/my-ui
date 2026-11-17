@@ -194,22 +194,47 @@ func TestPasswordInputHidesAndShowsTheText(t *testing.T) {
 	}
 }
 
-func TestPasswordInputTakesTheFocusBack(t *testing.T) {
+func TestPasswordInputKeepsTheEditorWhenShown(t *testing.T) {
 	var value string
+	var input *PasswordInput
 	view := func(c *ui.Context) {
 		Apply(c, Options{})
-		NewPasswordInput(c, &value).Outline().Label("密码")
+		input = NewPasswordInput(c, &value).Outline().Label("密码")
 	}
 	tt := ui.NewTester(view, 320, 240)
 	tt.Advance(time.Second)
-	// The button is pressed without the text having the focus: the text
-	// takes it back.
+	if err := tt.Click("密码"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("secret")
+	tt.Advance(time.Second)
+	if value != "secret" {
+		t.Fatalf("the value is %q, want secret", value)
+	}
+	// The eye button keeps the focus on the editor, so typing can go on
+	// after a show/hide: the editor is not rebuilt.
 	if err := tt.Click("Show password"); err != nil {
 		t.Fatal(err)
 	}
 	tt.Advance(time.Second)
+	if !input.Visible() {
+		t.Error("the text is still hidden after the eye was pressed")
+	}
 	if !tt.Focused("密码") {
-		t.Error("the text did not take the focus back")
+		t.Error("the editor lost the focus on show")
+	}
+	if value != "secret" {
+		t.Errorf("the value changed on show: %q", value)
+	}
+	if err := tt.Click("Hide password"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if input.Visible() {
+		t.Error("the text is still shown after the eye was pressed again")
+	}
+	if value != "secret" {
+		t.Errorf("the value changed on hide: %q", value)
 	}
 }
 

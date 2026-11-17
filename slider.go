@@ -14,11 +14,12 @@ import (
 // drags it.
 type Slider struct {
 	ui.Element
-	c     *ui.Context
-	value *float64
-	lo    float64
-	hi    float64
-	step  float64
+	c       *ui.Context
+	value   *float64
+	lo      float64
+	hi      float64
+	step    float64
+	invalid bool
 }
 
 // NewSlider creates a slider setting *value between lo and hi.
@@ -41,6 +42,10 @@ func (s *Slider) draw(p *ui.Painter, r ui.Rect) {
 	knob := t.Space(4)
 	track := t.Space(0.5)
 	y := r.Y + (r.H-knob)/2
+	onColor := t.Accent
+	if s.invalid {
+		onColor = t.Danger
+	}
 	at := float32(0)
 	if s.hi > s.lo && s.value != nil {
 		at = float32((*s.value - s.lo) / (s.hi - s.lo))
@@ -54,12 +59,12 @@ func (s *Slider) draw(p *ui.Painter, r ui.Rect) {
 	x := r.X + knob/2 + at*(r.W-knob)
 	// The track, and the part of it up to the knob in the accent.
 	p.Fill(ui.Rect{X: r.X + knob/2, Y: y + knob/2 - track/2, W: r.W - knob, H: track}, t.Border, track/2)
-	p.Fill(ui.Rect{X: r.X + knob/2, Y: y + knob/2 - track/2, W: at * (r.W - knob), H: track}, t.Accent, track/2)
+	p.Fill(ui.Rect{X: r.X + knob/2, Y: y + knob/2 - track/2, W: at * (r.W - knob), H: track}, onColor, track/2)
 	// The knob itself.
 	k := ui.Rect{X: x - knob/2, Y: y, W: knob, H: knob}
 	p.Shadow(k, knob/2, 0, 1, 3, 0, ui.RGBA(0, 0, 0, 0.2))
 	p.Fill(k, t.Background, knob/2)
-	p.Fill(k, t.Accent, knob/2)
+	p.Fill(k, onColor, knob/2)
 }
 
 // Step sets the step of the slider: the arrows and the drag move it by
@@ -93,3 +98,14 @@ func (s *Slider) Disabled(disabled bool) *Slider {
 	s.Element = s.Element.Disabled(disabled)
 	return s
 }
+
+// Invalid marks the slider as not holding a good value and returns it,
+// for chaining. The filled part and the knob take the danger color.
+func (s *Slider) Invalid(on bool) *Slider {
+	s.invalid = on
+	s.Element = s.Element.Invalid(on)
+	return s
+}
+
+// Control returns the element a field describes: the slider itself.
+func (s *Slider) Control() ui.Element { return s.Element }
