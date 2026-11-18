@@ -46,6 +46,8 @@ var pages = []page{
 	{key: "card", label: "Card", icon: icons.LayoutPanelTop(), group: "版式", desc: "页面里的面板，标题、说明与内容各就各位。", build: (*showcase).cardPage},
 	{key: "tabs", label: "Tabs", icon: icons.PanelsTopLeft(), group: "版式", desc: "一排标签，选中的那块单独成形。", build: (*showcase).tabsPage},
 	{key: "scaffold", label: "Scaffold", icon: icons.LayoutDashboard(), group: "版式", desc: "固定头尾、内容滚动的页面骨架。", build: (*showcase).scaffoldPage},
+	{key: "titlebar", label: "TitleBar", icon: icons.AppWindow(), group: "版式", desc: "自绘标题栏：左侧品牌，右侧窗口按钮，随明暗换色。", build: (*showcase).titleBarPage},
+	{key: "window", label: "Window", icon: icons.ExternalLink(), group: "版式", desc: "一行建出自定义标题栏窗口，随明暗换色。", build: (*showcase).windowPage},
 	{key: "theme", label: "外观", icon: icons.Palette(), group: "主题", desc: "明暗、色板与子树预览，下一帧生效。", build: (*showcase).themePage},
 }
 

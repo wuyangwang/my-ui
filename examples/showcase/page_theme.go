@@ -40,7 +40,7 @@ func (s *showcase) themePage(c *ui.Context, t *ui.Theme) {
 					active := s.appearance == ch.value
 					if pickVariant(myui.NewButton(c.Key("appearance "+ch.button), ch.button), active).
 						Clicked() {
-						s.appearance = ch.value
+						s.setAppearance(ch.value)
 					}
 				}
 			})

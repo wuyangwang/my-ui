@@ -48,12 +48,37 @@ type showcase struct {
 	disabled      string
 	readonly      string
 	lastEvent     string
+
+	titleBarEvent string // the last thing the title bar demo's buttons did
 }
 
-// view builds one frame. Apply runs first, every frame, so the theme
-// follows the state; everything below it takes what it sets.
+// theme returns the options the window's frame applies, every frame:
+// the appearance and palette the theme page and the app bar switch.
+func (s *showcase) theme() myui.Options {
+	return myui.Options{Appearance: s.appearance, Palette: s.palette}
+}
+
+// setAppearance switches the view's theme and the native window
+// appearance with it: myui.Apply alone leaves the system drawing a
+// light frame (a white edge) around a dark view.
+func (s *showcase) setAppearance(a myui.Appearance) {
+	s.appearance = a
+	switch a {
+	case myui.AppearanceLight:
+		mygo.Theme.SetSource(mygo.ThemeLight)
+	case myui.AppearanceDark:
+		mygo.Theme.SetSource(mygo.ThemeDark)
+	default:
+		mygo.Theme.SetSource(mygo.ThemeSystem)
+	}
+}
+
+// view builds the content under the window's title bar: the app bar,
+// then the sidebar beside the open page. Apply runs first, every
+// frame, so the theme follows the state — window.New has applied the
+// same options for the bar already, and the parts take what it sets.
 func (s *showcase) view(c *ui.Context) {
-	t := myui.Apply(c, myui.Options{Appearance: s.appearance, Palette: s.palette})
+	t := myui.Apply(c, s.theme())
 
 	// The frame's own background: behind every element MyGo paints the
 	// window theme, which the forced appearance disagrees with, so the
@@ -79,10 +104,11 @@ func (s *showcase) appBar(c *ui.Context, t *ui.Theme) {
 		ui.Row(c).FillWidth().Height(t.Space(13)).PaddingX(t.Space(6)).
 			Gap(t.Space(4)).AlignItems(ui.Center).Children(func() {
 			// The name, with the same mark the sidebar shows.
-			mark := ui.Box(c).Size(t.Space(6), t.Space(6)).Radius(t.Space(2)).
+			mark := ui.Row(c).AlignItems(ui.Center).Justify(ui.Center).
+				Size(t.Space(6), t.Space(6)).Radius(t.Space(2)).
 				Background(t.Accent)
 			mark.Children(func() {
-				ui.Icon(c, icons.Braces()).Size(t.Space(4), t.Space(4)).
+				ui.Icon(c, icons.Component()).Size(t.Space(4), t.Space(4)).
 					TextColor(t.AccentText)
 			})
 			ui.Text(c, "my-ui").FontSize(myui.TextSize(t, myui.TextLg)).Bold()
@@ -116,9 +142,9 @@ func (s *showcase) appBar(c *ui.Context, t *ui.Theme) {
 			toggle.AlignSelf(ui.Center)
 			if toggle.Clicked() {
 				if t.Dark {
-					s.appearance = myui.AppearanceLight
+					s.setAppearance(myui.AppearanceLight)
 				} else {
-					s.appearance = myui.AppearanceDark
+					s.setAppearance(myui.AppearanceDark)
 				}
 			}
 		})
@@ -237,28 +263,28 @@ func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
 func (s *showcase) main(c *ui.Context, t *ui.Theme) {
 	ui.Column(c).Grow(1).Padding(t.Space(7), t.Space(8)).Gap(t.Space(6)).
 		Children(func() {
-		// The name of the page, the group it is in, and a short line.
-		ui.Column(c).Gap(t.Space(2)).Children(func() {
-			ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, pageLabel(s.page)).
-					FontSize(myui.TextSize(t, myui.Text2Xl)).Bold()
-				badge := ui.Box(c).Padding(t.Space(0.5), t.Space(2)).
-					Radius(t.Space(2)).Background(t.Surface)
-				badge.Children(func() {
-					ui.Text(c, pageOf(s.page).group).
-						FontSize(myui.TextSize(t, myui.TextXs)).
-						TextColor(t.TextMuted)
+			// The name of the page, the group it is in, and a short line.
+			ui.Column(c).Gap(t.Space(2)).Children(func() {
+				ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
+					ui.Text(c, pageLabel(s.page)).
+						FontSize(myui.TextSize(t, myui.Text2Xl)).Bold()
+					badge := ui.Box(c).Padding(t.Space(0.5), t.Space(2)).
+						Radius(t.Space(2)).Background(t.Surface)
+					badge.Children(func() {
+						ui.Text(c, pageOf(s.page).group).
+							FontSize(myui.TextSize(t, myui.TextXs)).
+							TextColor(t.TextMuted)
+					})
 				})
+				ui.Text(c, pageOf(s.page).desc).
+					FontSize(myui.TextSize(t, myui.TextSm)).TextColor(t.TextMuted)
 			})
-			ui.Text(c, pageOf(s.page).desc).
-				FontSize(myui.TextSize(t, myui.TextSm)).TextColor(t.TextMuted)
-		})
-		ui.Box(c).FillWidth().Height(1).Background(t.Border)
+			ui.Box(c).FillWidth().Height(1).Background(t.Border)
 
-		ui.Scroll(c).Grow(1).Gap(t.Space(6)).Children(func() {
-			s.openPage(c, t)()
+			ui.Scroll(c).Grow(1).Gap(t.Space(6)).Children(func() {
+				s.openPage(c, t)()
+			})
 		})
-	})
 }
 
 // openPage hands back the builder of the open page.

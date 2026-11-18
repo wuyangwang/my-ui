@@ -60,6 +60,8 @@
 | 16 | Alert | 规格书 [components/alert.md](components/alert.md)；`alert.go`：页面里的一段消息（卡片 + 图标 + 标题 + 描述），变体给墨色（破坏性/成功/信息/警告），`role=alert` 让读屏念出来；`alert_test.go` 覆盖标题描述/live region/图标 | ✅ 已完成 |
 | 17 | Toast | 规格书 [components/toast.md](components/toast.md)；`toast.go`：窗口右下角的通知（视口 + 卡片），类型给图标与颜色，动作与关闭按钮，停留时间与淡出；`toast_test.go` 覆盖显示/关闭/动作/超时；showcase「Toast」页 | ✅ 已完成 |
 | 18 | Drawer | 规格书 [components/drawer.md](components/drawer.md)；`drawer.go`：从窗口边缘来的一块面板（用 `ui.Overlay` 搭），触发器打开、点外面或 Escape 收起，模态（焦点在里面）；`drawer_test.go` 覆盖开合与位置；showcase「Drawer」页 | ✅ 已完成 |
+| 19 | TitleBar | 规格书 [components/titlebar.md](components/titlebar.md)；`titlebar.go`：自绘标题栏，Windows 风格（左 logo+应用名、右窗口按钮、关闭键悬停危险色）或 macOS 风格（左红绿灯、未激活转灰），`Look` 选项选择（Auto 按平台）；整条 `DragWindow`、最大化按钮打 `MaximizeButton`；`titlebar_test.go` 覆盖两种风格；showcase「TitleBar」页 | ✅ 已完成 |
+| 20 | Window（无框窗口外壳） | 规格书 [components/window.md](components/window.md)；`window/` 子包：`window.New` 一行建窗（`TitleBarHidden + HideWindowButtons` + `TitleBar` + 每帧主题 + 动作接线），返回 `*mygo.Window`；`window_test.go` 覆盖布局/主题/动作触发；showcase「Window」页点按钮开演示窗口 | ✅ 已完成 |
 
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 

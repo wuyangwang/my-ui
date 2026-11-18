@@ -15,18 +15,27 @@ var catalog = map[string]map[string]string{
 		"close":        "Close",
 		"showPassword": "Show password",
 		"hidePassword": "Hide password",
+		"minimize":     "Minimize",
+		"maximize":     "Maximize",
+		"restore":      "Restore",
 	},
 	"zh-Hans": {
 		"clear":        "清除",
 		"close":        "关闭",
 		"showPassword": "显示密码",
 		"hidePassword": "隐藏密码",
+		"minimize":     "最小化",
+		"maximize":     "最大化",
+		"restore":      "还原",
 	},
 	"zh-Hant": {
 		"clear":        "清除",
 		"close":        "關閉",
 		"showPassword": "顯示密碼",
 		"hidePassword": "隱藏密碼",
+		"minimize":     "最小化",
+		"maximize":     "最大化",
+		"restore":      "還原",
 	},
 }
 

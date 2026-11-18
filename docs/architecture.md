@@ -76,7 +76,7 @@ mygo 面向 app 的 i18n 由 `mygo dev/build` 处理 `locales/*.json`；mygo 自
 ## 7. 发布与版本
 
 - 锁定 mygo **v0.8.3**（`go.mod`）；升级走专门提交，同步 `go.mod` / `README.md` / `AGENTS.md`。
-- 当前版本 my-ui **v0.2.0**（`myui.Version`，tag `v0.2.0`），与 mygo 独立编号；发布用 git tag 标记。element API 有破坏性迁移先例（`mygo migrate-ui`），mygo 升级只走独立 PR 并跑全矩阵验证。
+- 当前版本 my-ui **v0.3.0**（`myui.Version`，tag `v0.3.0`），与 mygo 独立编号；发布用 git tag 标记。element API 有破坏性迁移先例（`mygo migrate-ui`），mygo 升级只走独立 PR 并跑全矩阵验证。
 - 纯 Go module，`go get` 发布。
 
 ## 8. 测试与平台

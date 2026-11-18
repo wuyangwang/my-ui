@@ -10,11 +10,15 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
   `github.com/egoist/mygo/internal/...` (and its `internal/platform` etc.):
   internal packages are invisible to this module (one public leak exists
   upstream, `Element.Access(func(*platform.AccessNode))` — do not route
-  around it, see docs/research.md "Upstream issues").
+  around it, see docs/research.md "Upstream issues"). The one exception
+  is the `window/` subpackage, the frameless-window shell: it imports
+  mygo's root package (`NewWindow`/`WindowOptions`/`TitleBarHidden`)
+  because the window actions (`Minimize`/`ToggleMaximize`/`Close`) live
+  on `mygo.Window`, not in `ui`. No other package — the root `myui`
+  included — imports mygo's root.
 - **Pin mygo.** The mygo version my-ui targets is fixed per release —
-  currently `v0.8.3` (mygo's `go` directive is 1.27.3). While no code
-  imports mygo yet, `go mod tidy` keeps `go.mod` free of the require
-  line; the first component code adds it and, from then on, upgrades to
+  currently `v0.8.3` (mygo's `go` directive is 1.27.3), and the
+  `window/` subpackage imports mygo's root on top of `ui`. Upgrades to
   mygo go through a deliberate edit of `go.mod`, `README.md` and this
   file together.
 - **No cgo, no Bun, no npm.** Pure Go. Bun/npm tooling of the mygo repo is

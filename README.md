@@ -13,13 +13,14 @@ h.Button("Save").Primary()
 
 ## 包结构
 
-- 根包 `myui`：tokens 刻度、主题预设（`Apply`/`NewTheme`）、变体化控件（`Button`/`Input`/`TextArea`/`Select`/`ComboBox`/`MultiSelect`/`Badge`/`Icon`）、表单字段层（`Field`/`PasswordInput`）与表单控件（`Checkbox`/`Radio`/`Switch`/`Slider`）、浮层与反馈（`Tooltip`/`Popover`/`Modal`/`Drawer`/`Toast`/`Alert`）、版式件（`Card`/`Tabs`/`Progress`/`Kbd`）、页面骨架（`Scaffold`）、帧句柄（`Bind`）。
+- 根包 `myui`：tokens 刻度、主题预设（`Apply`/`NewTheme`）、变体化控件（`Button`/`Input`/`TextArea`/`Select`/`ComboBox`/`MultiSelect`/`Badge`/`Icon`）、表单字段层（`Field`/`PasswordInput`）与表单控件（`Checkbox`/`Radio`/`Switch`/`Slider`）、浮层与反馈（`Tooltip`/`Popover`/`Modal`/`Drawer`/`Toast`/`Alert`）、版式件（`Card`/`Tabs`/`Progress`/`Kbd`）、页面骨架（`Scaffold`）、自绘标题栏（`TitleBar`）、帧句柄（`Bind`）。
 - 二级包按需引入，不 import 不链接：
   - `icons/` —— Lucide（ISC）全量 2,318 个图标，函数式 API（`icons.Save()`），未调用的图标不进二进制；
+  - `window/` —— 无框窗口外壳：`window.Open(icon, name, view)` 或 `window.New` 一行建窗（mygo `TitleBarHidden + HideWindowButtons` + 内置 `TitleBar` + 主题/窗口边框/底色 + 动作接线），只给图标和名字即可，其余走默认；是唯一 import mygo 根包的子包；
   - `fonts/` —— 内嵌 OFL 字体与 `ui.RegisterFont` 注册；
   - `ai/` —— ChatList、ModelPicker、Reasoning 等重组件（规划中）。
 
-每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [textarea](docs/components/textarea.md) · [select](docs/components/select.md) · [combobox](docs/components/combobox.md) · [multiselect](docs/components/multiselect.md) · [field](docs/components/field.md) · [password](docs/components/password.md) · [checkbox](docs/components/checkbox.md) · [radio](docs/components/radio.md) · [switch](docs/components/switch.md) · [slider](docs/components/slider.md) · [badge](docs/components/badge.md) · [tooltip](docs/components/tooltip.md) · [popover](docs/components/popover.md) · [modal](docs/components/modal.md) · [drawer](docs/components/drawer.md) · [toast](docs/components/toast.md) · [alert](docs/components/alert.md) · [card](docs/components/card.md) · [tabs](docs/components/tabs.md) · [progress](docs/components/progress.md) · [kbd](docs/components/kbd.md) · [scaffold](docs/components/scaffold.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
+每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [textarea](docs/components/textarea.md) · [select](docs/components/select.md) · [combobox](docs/components/combobox.md) · [multiselect](docs/components/multiselect.md) · [field](docs/components/field.md) · [password](docs/components/password.md) · [checkbox](docs/components/checkbox.md) · [radio](docs/components/radio.md) · [switch](docs/components/switch.md) · [slider](docs/components/slider.md) · [badge](docs/components/badge.md) · [tooltip](docs/components/tooltip.md) · [popover](docs/components/popover.md) · [modal](docs/components/modal.md) · [drawer](docs/components/drawer.md) · [toast](docs/components/toast.md) · [alert](docs/components/alert.md) · [card](docs/components/card.md) · [tabs](docs/components/tabs.md) · [progress](docs/components/progress.md) · [kbd](docs/components/kbd.md) · [scaffold](docs/components/scaffold.md) · [titlebar](docs/components/titlebar.md) · [window](docs/components/window.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
 
 ## 示例
 
@@ -39,7 +40,7 @@ mygo build -skip-installer examples/showcase
 
 ## 版本约定
 
-当前版本 **my-ui v0.2.0**（`myui.Version`，git tag `v0.2.0`）。锁定 mygo **v0.8.3**（`go.mod`）；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)。my-ui 与 mygo 各自独立编号，发布用 git tag 标记。
+当前版本 **my-ui v0.3.0**（`myui.Version`，git tag `v0.3.0`）。锁定 mygo **v0.8.3**（`go.mod`）；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)。my-ui 与 mygo 各自独立编号，发布用 git tag 标记。
 
 ## 许可
 

@@ -35,6 +35,8 @@ func TestSliderHasTrack(t *testing.T) {
 	// The first slider sits near x 308..450 on the page; a track drawn
 	// across it means many non-white pixels along that row, not only a
 	// single dot. Scan a horizontal band for the dark track/knob pixels.
+	// (The window's own title bar is outside this view, so the page
+	// starts at the app bar's bottom edge.)
 	y := 260
 	dark := 0
 	for x := 300; x < 460; x++ {
@@ -55,16 +57,23 @@ func TestRadioDotIsCentered(t *testing.T) {
 	s := &showcase{page: "radio", size: "medium"}
 	tt := ui.NewTester(s.view, 1100, 700)
 	tt.Advance(time.Second)
-	// The medium radio ring is centered near (364, 259) with a radius of
-	// about 9 DIPs. The inner dot (dark) must be at the center, not the
-	// upper-left corner.
 	img := tt.Image()
 	darkAt := func(x, y int) bool {
 		p := img.At(x, y)
 		r, g, b, _ := p.RGBA()
 		return r>>8 < 100 && g>>8 < 100 && b>>8 < 100
 	}
-	if !darkAt(364, 259) {
-		t.Error("the center of the selected radio is not dark: the inner dot is not centered")
+	// The medium radio's ring: the dot is 18 DIPs across, 8 from the
+	// label ("中"), and centers on the label's line. Find the label and
+	// read the dot's center from it, so the check survives layout
+	// changes.
+	label, ok := tt.Find("中")
+	if !ok {
+		t.Fatal("the medium radio's label is missing")
+	}
+	cx := label.X - 8 - 9
+	cy := label.Y + label.H/2
+	if !darkAt(int(cx), int(cy)) {
+		t.Errorf("the center of the selected radio at (%v, %v) is not dark: the inner dot is not centered", cx, cy)
 	}
 }
