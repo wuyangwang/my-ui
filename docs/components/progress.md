@@ -1,5 +1,7 @@
 # Progress 规格书
 
+> 位置：组件在 [`display/`](../../display) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`progress.go`）。
 
 ## 1. 参考实现
@@ -19,7 +21,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewProgress(c, 0.4)`：圆角线 ✓，底色弱 ✓，强调色画到比例处 ✓；`Label(string)` ✓。
+- `displaypkg.NewProgress(c, 0.4)`：圆角线 ✓，底色弱 ✓，强调色画到比例处 ✓；`Label(string)` ✓。
 - `role=progressbar` 设在自绘元素上 ✓（用 `Element.Role`）✓。
 - `Indeterminate()` / 负的 value：一段不确定时长的活动条 ✓（自绘 + `Painter.AnimationFrame`）✓。
 - `Value(current, max)`、`Height(h)`、`Variant(v)`（状态色）✓。

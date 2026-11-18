@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 )
 
 // sectionNote is a titled block of a page: heading, note, then cards.
@@ -41,7 +42,7 @@ func (s *showcase) cardHead(c *ui.Context, t *ui.Theme, title, note string) {
 
 // pickVariant chooses the look of a switch's button: the chosen one
 // fills with the accent, the others sit outlined.
-func pickVariant(b *myui.Button, active bool) *myui.Button {
+func pickVariant(b *ctrlpkg.Button, active bool) *ctrlpkg.Button {
 	if active {
 		return b.Primary()
 	}
@@ -64,7 +65,7 @@ func pane(c *ui.Context, t *ui.Theme, palette myui.PaletteID, a myui.Appearance,
 			Radius(st.Radius).Padding(t.Space(4)).Gap(t.Space(3)).Children(func() {
 			st2 := c.Theme()
 			ui.Text(c, label).FontSize(myui.TextSize(st2, myui.TextMd)).Bold()
-			myui.NewButton(c.Key("preview "+label), "在卡片里按下").Primary()
+			ctrlpkg.NewButton(c.Key("preview "+label), "在卡片里按下").Primary()
 			ui.Text(c, "子树主题独立，提示与弹层也继承这一层。").
 				FontSize(myui.TextSize(st2, myui.TextXs)).TextColor(st2.TextMuted)
 		})

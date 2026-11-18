@@ -9,7 +9,7 @@ import (
 func TestShadesStepsTheLightTowardBlack(t *testing.T) {
 	base := ui.Hex("#dc2626")
 	black := ui.RGB(0, 0, 0)
-	hover, pressed, ink := shades(base, false)
+	hover, pressed, ink := Shades(base, false)
 	if hover != base.MixOklab(black, 0.14) {
 		t.Errorf("the light hover is %v, want 0.14 toward black", hover)
 	}
@@ -24,7 +24,7 @@ func TestShadesStepsTheLightTowardBlack(t *testing.T) {
 func TestShadesLiftsTheDarkHoverTowardWhite(t *testing.T) {
 	base := ui.Hex("#dc2626")
 	black, white := ui.RGB(0, 0, 0), ui.RGB(255, 255, 255)
-	hover, pressed, _ := shades(base, true)
+	hover, pressed, _ := Shades(base, true)
 	if hover != base.MixOklab(white, 0.2) {
 		t.Errorf("the dark hover is %v, want 0.2 toward white", hover)
 	}
@@ -44,7 +44,7 @@ func TestApplyAsksShadesForTheSystemAccent(t *testing.T) {
 	ui.NewTesterWith(view, 200, 100, ui.TesterOptions{
 		Preferences: ui.Preferences{Accent: accent},
 	})
-	hover, pressed, ink := shades(accent, true)
+	hover, pressed, ink := Shades(accent, true)
 	if got.AccentHover != hover || got.AccentPressed != pressed || got.AccentText != ink {
 		t.Errorf("the system accent took %v, %v, %v; want Shades' answer %v, %v, %v",
 			got.AccentHover, got.AccentPressed, got.AccentText, hover, pressed, ink)

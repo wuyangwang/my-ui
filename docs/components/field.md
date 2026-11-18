@@ -1,5 +1,7 @@
 # Field 规格书
 
+> 位置：组件在 [`forms/`](../../forms) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`form.go`）。表单字段的组合层：标签 + 控件 + 说明 + 错误。
 
 ## 1. 参考实现
@@ -75,7 +77,7 @@
 用法：
 
 ```go
-h := myui.Bind(c)
+h := bindpkg.Bind(c)
 h.Field("邮箱", func() ui.Element {
 	return h.Input(&app.email).Outline().Control()
 }).Description("我们只用它发通知").Required(true).

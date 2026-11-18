@@ -93,10 +93,10 @@ func NewTheme(c *ui.Context, o Options) *ui.Theme {
 		accent, hover, pressed := pal.Triplet(dark)
 		t.Accent, t.AccentHover, t.AccentPressed, t.AccentText = accent, hover, pressed, OnAccent(accent)
 	} else if a := prefs.Accent; a.A != 0 {
-		// The system's accent colors the theme, and the derived shades
+		// The system's accent colors the theme, and the derived Shades
 		// hover and pressed over it, as a palette's authored ones sit
 		// beside their base.
-		t.AccentHover, t.AccentPressed, t.AccentText = shades(a, dark)
+		t.AccentHover, t.AccentPressed, t.AccentText = Shades(a, dark)
 		t.Accent = a
 	}
 	if prefs.HighContrast {

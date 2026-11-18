@@ -4,6 +4,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"github.com/wuyangwang/my-ui/icons"
 	myuiwin "github.com/wuyangwang/my-ui/window"
 )
@@ -14,7 +15,7 @@ func (s *showcase) windowPage(c *ui.Context, t *ui.Theme) {
 	s.sectionNote(c, t, "用途", "Window：window.New 一行建窗——无框窗口（TitleBarHidden + HideWindowButtons）+ 内置 TitleBar + 窗口动作接线，标题栏随明暗主题换色。点下面的按钮开一个试试", func() {
 		s.card(c, t, func() {
 			ui.Column(c).Gap(t.Space(3)).Children(func() {
-				open := myui.NewButton(c.Key("open custom window"), "打开自定义窗口").Primary()
+				open := ctrlpkg.NewButton(c.Key("open custom window"), "打开自定义窗口").Primary()
 				if open.Clicked() {
 					s.openCustomWindow()
 				}
@@ -59,7 +60,7 @@ func (s *showcase) openCustomWindow() {
 					FontSize(myui.TextSize(th, myui.TextLg)).Bold()
 				ui.Text(c, "标题栏在主题自己的颜色里画——系统标题栏不会跟随应用的明暗切换，这个会。右上是窗口按钮，整条标题栏都可以拖拽。").
 					FontSize(myui.TextSize(th, myui.TextSm)).TextColor(th.TextMuted)
-				close := myui.NewButton(c.Key("close custom window"), "关闭此窗口")
+				close := ctrlpkg.NewButton(c.Key("close custom window"), "关闭此窗口")
 				if close.Clicked() && win != nil {
 					win.Close()
 				}

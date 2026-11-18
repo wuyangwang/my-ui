@@ -1,5 +1,7 @@
 # Tooltip 规格书
 
+> 位置：组件在 [`overlays/`](../../overlays) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`tooltip.go`）。
 
 ## 1. 参考实现
@@ -56,7 +58,7 @@ func NewTooltip(c *ui.Context, anchor ui.Element, text string) *Tooltip
 用法：
 
 ```go
-myui.NewTooltip(c, myui.NewButton(c, "帮助").Element, "这是帮助文字")
+overlaypkg.NewTooltip(c, ctrlpkg.NewButton(c, "帮助").Element, "这是帮助文字")
 ```
 
 ## 6. 状态

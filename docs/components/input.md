@@ -1,5 +1,7 @@
 # Input 规格书
 
+> 位置：组件在 [`forms/`](../../forms) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**首轮已实现**（变体/尺寸/清除/事件/前后缀/错误态）。后置项见 §3。实现见 `input.go`，测试见 `input_test.go`，示例见 `examples/showcase` 的「Input」页。
 
 ## 1. 参考实现
@@ -51,7 +53,7 @@
 - **共用基座**：`field[T]`（`field.go`）是文本字段的公共部分——外框、四个槽位（前后缀/清除/文本）、消息槽、变体与尺寸的取色、事件与查询式接口。泛型参数 `T` 是包裹它的控件类型，所以 `Input` 的链返回 `*Input`、`TextArea` 的链返回 `*TextArea`（各自的类型不丢）。
   - 为什么不复制一份：Input 与 TextArea 的 API 有 30 余个方法重合，复制会让两者日后漂移；泛型基座让新增字段类控件（搜索框、下拉触发器）直接复用。
 - 依赖：`myui` → `mygo/ui` + `myui/icons`（只用清除按钮那一个图标，实测对二进制影响约等于零）。
-- 入口：既可 `myui.NewInput(c, &v)`，也可用每帧句柄 `myui.Bind(c).Input(&v)`（见 [handle.md](handle.md)）。
+- 入口：既可 `formspkg.NewInput(c, &v)`，也可用每帧句柄 `bindpkg.Bind(c).Input(&v)`（见 [handle.md](handle.md)）。
 - 组合件不另立 `InputGroup`：清除与前后缀都是「输入框的一部分」，同源同预设；shadcn 拆开是因为 CSS 组合方便，Go 里槽位方案已经解决。
 
 ## 5. API 契约
@@ -88,7 +90,7 @@
 用法：
 
 ```go
-h := myui.Bind(c)
+h := bindpkg.Bind(c)
 h.Input(&app.email).Outline().Placeholder("邮箱").
 	Invalid(app.emailError != "").ErrorText(app.emailError).
 	OnChanged(func(v string) { app.email = v })

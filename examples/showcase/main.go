@@ -8,6 +8,9 @@
 package main
 
 import (
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
+	formspkg "github.com/wuyangwang/my-ui/forms"
+	overlaypkg "github.com/wuyangwang/my-ui/overlays"
 	"log"
 	"strconv"
 
@@ -92,7 +95,7 @@ func (s *showcase) view(c *ui.Context) {
 	})
 	// The toasts of the window: one place for them, whatever page is
 	// open.
-	myui.NewToastViewport(c)
+	overlaypkg.NewToastViewport(c)
 }
 
 // appBar is the docs-style strip across the top of the window: the
@@ -117,7 +120,7 @@ func (s *showcase) appBar(c *ui.Context, t *ui.Theme) {
 
 			// The component search, the one control a docs bar needs.
 			ui.Box(c).Width(t.Space(6))
-			myui.NewInput(c.Key("nav search"), &s.navQuery).Outline().Sm().
+			formspkg.NewInput(c.Key("nav search"), &s.navQuery).Outline().Sm().
 				Width(t.Space(64)).PrefixIcon(icons.Search()).
 				Placeholder("搜索组件…").Label("搜索组件")
 
@@ -137,7 +140,7 @@ func (s *showcase) appBar(c *ui.Context, t *ui.Theme) {
 			}
 			// A myui button sizes itself to content with AlignSelf(Start),
 			// so an icon-only one in the centered bar needs that undone.
-			toggle := myui.NewButton(c.Key("app theme"), "").
+			toggle := ctrlpkg.NewButton(c.Key("app theme"), "").
 				Icon(icon).Label("切换明暗").Ghost().Sm()
 			toggle.AlignSelf(ui.Center)
 			if toggle.Clicked() {
@@ -196,7 +199,7 @@ func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 // closes the others.
 func (s *showcase) fold(c *ui.Context, t *ui.Theme, name string, n int) {
 	label := name + " (" + strconv.Itoa(n) + ")"
-	b := myui.NewButton(c.Key("fold "+name), label).Ghost().Block()
+	b := ctrlpkg.NewButton(c.Key("fold "+name), label).Ghost().Block()
 	b.FontSize(myui.TextSize(t, myui.TextSm)).Bold()
 	b.Justify(ui.Start)
 	b.Padding(t.Space(3), t.Space(2)).Radius(t.Space(2))
@@ -239,7 +242,7 @@ func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
 		} else {
 			ui.Box(c).Width(3).Height(t.Space(6))
 		}
-		b := myui.NewButton(c.Key("nav "+p.key), p.label).Ghost().Block()
+		b := ctrlpkg.NewButton(c.Key("nav "+p.key), p.label).Ghost().Block()
 		b.FontSize(myui.TextSize(t, myui.TextMd))
 		b.Justify(ui.Start)
 		b.Padding(t.Space(2.5), t.Space(2.5)).Radius(t.Space(2))

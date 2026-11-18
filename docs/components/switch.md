@@ -1,5 +1,7 @@
 # Switch 规格书
 
+> 位置：组件在 [`controls/`](../../controls) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`switch.go`）。
 
 ## 1. 参考实现
@@ -22,7 +24,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewSwitch(c, &on)`：36×20 的胶囊 + 16 的旋钮 ✓；开时强调色底 ✓；旋钮 140ms 走位 ✓（`Animate` ✓，随桌面的 reduce motion 由框架兜底 ✓）。
+- `ctrlpkg.NewSwitch(c, &on)`：36×20 的胶囊 + 16 的旋钮 ✓；开时强调色底 ✓；旋钮 140ms 走位 ✓（`Animate` ✓，随桌面的 reduce motion 由框架兜底 ✓）。
 - `OnChanged(func(bool))` ✓；`Label(string)`（无障碍名 ✓，开关本身没有文字 ✓）；`Disabled(bool)` ✓。
 
 **已知限制**

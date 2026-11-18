@@ -1,5 +1,7 @@
 # Popover 规格书
 
+> 位置：组件在 [`overlays/`](../../overlays) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`popover.go`）。
 
 ## 1. 参考实现
@@ -54,10 +56,10 @@ func (p *Popover) SetOpen(open bool) *Popover
 用法：
 
 ```go
-myui.NewPopover(c, &app.open, func() ui.Element {
-	return myui.NewButton(c, "更多").Element
+overlaypkg.NewPopover(c, &app.open, func() ui.Element {
+	return ctrlpkg.NewButton(c, "更多").Element
 }, func(panel ui.Element) {
-	myui.NewField(c, "备注", func() ui.Element { ... })
+	formspkg.NewField(c, "备注", func() ui.Element { ... })
 })
 ```
 

@@ -1,5 +1,7 @@
 # Checkbox 规格书
 
+> 位置：组件在 [`controls/`](../../controls) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`checkbox.go`）。
 
 ## 1. 参考实现
@@ -23,7 +25,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewCheckbox(c, &checked, "标签")`：方框（14/16/18/22 DIP 四档）+ 圆角 + 描边；选中时强调色底 + 对勾 ✓；标签是文字，也是无障碍名 ✓。
+- `ctrlpkg.NewCheckbox(c, &checked, "标签")`：方框（14/16/18/22 DIP 四档）+ 圆角 + 描边；选中时强调色底 + 对勾 ✓；标签是文字，也是无障碍名 ✓。
 - `Size`/`Xs`/`Sm`/`Md`/`Lg` ✓；`OnChanged(func(bool))` ✓；`Disabled(bool)` ✓。
 
 **已知限制**

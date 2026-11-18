@@ -1,5 +1,7 @@
 # Tabs 规格书
 
+> 位置：组件在 [`display/`](../../display) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`tabs.go`）。
 
 ## 1. 参考实现
@@ -20,7 +22,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewTabs(c, &selected, myui.Tab{Label: "概览", Content: func(){…}}, …)`：标签行（弱底色 + 圆角 + 内衬 ✓），选中的那个在自己的面上（带一点阴影 ✓）；只有开着的那块内容被建 ✓。
+- `displaypkg.NewTabs(c, &selected, displaypkg.Tab{Label: "概览", Content: func(){…}}, …)`：标签行（弱底色 + 圆角 + 内衬 ✓），选中的那个在自己的面上（带一点阴影 ✓）；只有开着的那块内容被建 ✓。
 - `OnChanged(func(int))` ✓；`Tab.Icon` 放图标 ✓、`Tab.Disabled` 禁用 ✓（框架键盘导航自动跳过禁用项 ✓）；`Line()` 切到 shadcn 的下划线样式 ✓。
 
 **已知限制**

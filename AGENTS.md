@@ -43,10 +43,18 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
   writes is the app's, the library only reads the trigger's `Clicked()`.
 - **Main thread.** Components are constructed from views that run on the
   main thread; no goroutines may touch UI state. Post work like mygo does.
-- **Optional weight stays out of the root package.** Heavy or rare things
-  (fonts, icon sets, AI components) live in subpackages; importing root
-  must not pull them (no `init` chains into subpackages, no
-  `go:embed` in root). Every subpackage stands alone beside `myui`.
+- **Components live in grouped subpackages, the root is the core.**
+  `myui` holds only the shared base (theme, tokens, variant/size/shape,
+  motion, i18n, rules). Components are grouped by function: `controls/`,
+  `forms/`, `overlays/`, `display/`, with `bind/` for the per-frame handle
+  and `window/` for the frameless shell. Component packages dot-import
+  the core for the shared vocabulary and qualify each other with named
+  imports; the root never imports a component package (no cycles).
+  A widget mygo already provides unchanged is re-exported as a var
+  (`NewToggleGroup`, `Segmented`) rather than implemented again.
+- **Optional weight stays out of the root package.** Fonts, icon sets and
+  AI components live in their own subpackages; importing root must not
+  pull them (no `init` chains into subpackages, no `go:embed` in root).
 - **Motion respects the desktop.** Use `Animate*`/transitions from ui;
   components carry no timers of their own, so reduced motion and
   background-unwanted frames come free.
@@ -107,9 +115,12 @@ CI-safe on all three desktop OSes plus js/wasm.
   options fall through to the widget's own methods after the preset is applied.
   `Variant`/`Size` 是根包共享词表，`Variant` 零值为 `Native`（不涂预设），
   `Secondary` 为其 shadcn 别名。
-- `myui.Bind(c)` is the sugar over the constructors: a handle for one
+- `bind.Bind(c)` is the sugar over the constructors: a handle for one
   window, so a view may bind it once and leave the context out of the
-  calls. Both forms are there; the constructors stay the primitive.
+  calls. The constructors in the component packages stay the primitive.
+- Input-like controls (Input, TextArea, PasswordInput, Select, ComboBox,
+  MultiSelect) fill their parent by default; `Width(w)` pins a fixed
+  size. Keep that behavior when adding a field-like component.
 - Package docs in code comments are written in English (Go ecosystem
   style); the files under `docs/` and `README.md` are written in Chinese.
 - New components first: the ordered plan in docs/roadmap.md decides what

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 )
 
 // swatches is one palette switch entry: the id and its label.
@@ -38,7 +39,7 @@ func (s *showcase) themePage(c *ui.Context, t *ui.Theme) {
 				}
 				for _, ch := range choices {
 					active := s.appearance == ch.value
-					if pickVariant(myui.NewButton(c.Key("appearance "+ch.button), ch.button), active).
+					if pickVariant(ctrlpkg.NewButton(c.Key("appearance "+ch.button), ch.button), active).
 						Clicked() {
 						s.setAppearance(ch.value)
 					}
@@ -51,7 +52,7 @@ func (s *showcase) themePage(c *ui.Context, t *ui.Theme) {
 			ui.Row(c).Gap(t.Space(2)).Children(func() {
 				for _, p := range swatches {
 					active := s.palette == p.id
-					if pickVariant(myui.NewButton(c.Key("palette "+p.button), p.button), active).
+					if pickVariant(ctrlpkg.NewButton(c.Key("palette "+p.button), p.button), active).
 						Clicked() {
 						s.palette = p.id
 					}

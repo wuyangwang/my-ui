@@ -1,5 +1,7 @@
 # MultiSelect 规格书
 
+> 位置：组件在 [`forms/`](../../forms) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`multiselect.go`）。多选：选中的项以芯片（tag）呈现。
 
 ## 1. 参考实现
@@ -56,8 +58,8 @@
 用法：
 
 ```go
-h := myui.Bind(c)
-h.MultiSelect(&app.langs, []myui.SelectOption{
+h := bindpkg.Bind(c)
+h.MultiSelect(&app.langs, []formspkg.SelectOption{
 	{Label: "简体中文", Value: "zh-Hans"},
 	{Label: "English", Value: "en"},
 }).Outline().Label("语言").

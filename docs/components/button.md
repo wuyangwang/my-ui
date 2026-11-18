@@ -1,5 +1,7 @@
 # Button 规格书
 
+> 位置：组件在 [`controls/`](../../controls) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`button.go`）。shadcn 式变体词汇的样板：后来的控件照它的形状做。
 
 ## 1. 参考实现
@@ -65,11 +67,11 @@
 用法：
 
 ```go
-myui.NewButton(c, "保存").Primary()
-myui.NewButton(c, "删除").Destructive().Sm()
-myui.NewButton(c, "保存").Icon(icons.Save()).Primary()
-myui.NewButton(c, "").Icon(icons.Settings()).Label("设置")   // 只有图标
-myui.NewButton(c, "筛选").Outline().Shape(myui.ShapeRound)
+ctrlpkg.NewButton(c, "保存").Primary()
+ctrlpkg.NewButton(c, "删除").Destructive().Sm()
+ctrlpkg.NewButton(c, "保存").Icon(icons.Save()).Primary()
+ctrlpkg.NewButton(c, "").Icon(icons.Settings()).Label("设置")   // 只有图标
+ctrlpkg.NewButton(c, "筛选").Outline().Shape(myui.ShapeRound)
 ```
 
 ## 6. 状态

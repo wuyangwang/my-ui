@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/egoist/mygo/ui"
-	myui "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 )
 
 // radioPage shows the radio buttons: the choices of a group, and their
@@ -12,12 +12,12 @@ func (s *showcase) radioPage(c *ui.Context, t *ui.Theme) {
 		s.card(c, t, func() {
 			ui.Column(c).Gap(t.Space(3)).Children(func() {
 				ui.Row(c).Gap(t.Space(4)).Children(func() {
-					myui.NewRadio(c.Key("rd small"), &s.size, "small", "小")
-					myui.NewRadio(c.Key("rd medium"), &s.size, "medium", "中")
-					myui.NewRadio(c.Key("rd large"), &s.size, "large", "大")
+					ctrlpkg.NewRadio(c.Key("rd small"), &s.size, "small", "小")
+					ctrlpkg.NewRadio(c.Key("rd medium"), &s.size, "medium", "中")
+					ctrlpkg.NewRadio(c.Key("rd large"), &s.size, "large", "大")
 				})
 				ui.Row(c).Gap(t.Space(4)).Children(func() {
-					myui.NewRadio(c.Key("rd off"), &s.size, "none", "不可选").Disabled(true)
+					ctrlpkg.NewRadio(c.Key("rd off"), &s.size, "none", "不可选").Disabled(true)
 				})
 			})
 		})

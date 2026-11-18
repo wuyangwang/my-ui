@@ -1,5 +1,7 @@
 # Radio 规格书
 
+> 位置：组件在 [`controls/`](../../controls) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`radio.go`）。
 
 ## 1. 参考实现
@@ -21,7 +23,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewRadio(c, &selected, value, "标签")`：圆环（14/16/18/22 DIP）+ 描边；选中时强调色环 + 中间的点 ✓；标签 ✓。
+- `ctrlpkg.NewRadio(c, &selected, value, "标签")`：圆环（14/16/18/22 DIP）+ 描边；选中时强调色环 + 中间的点 ✓；标签 ✓。
 - `Size` 四档 ✓；`OnChanged(func(T))` ✓；`Disabled(bool)` ✓。
 
 **已知限制**
@@ -45,7 +47,7 @@ func (r *Radio[T]) Disabled(disabled bool) *Radio[T]
 用法：
 
 ```go
-myui.NewRadio(c, &app.size, "large", "大")
+ctrlpkg.NewRadio(c, &app.size, "large", "大")
 ```
 
 ## 6. 状态

@@ -1,5 +1,7 @@
 # Slider 规格书
 
+> 位置：组件在 [`controls/`](../../controls) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`slider.go`）。
 
 ## 1. 参考实现
@@ -21,7 +23,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewSlider(c, &value, lo, hi)`：轨道（2 DIP）+ 旋钮（16 DIP，带阴影 ✓）；轨道到旋钮的一段是强调色 ✓。
+- `ctrlpkg.NewSlider(c, &value, lo, hi)`：轨道（2 DIP）+ 旋钮（16 DIP，带阴影 ✓）；轨道到旋钮的一段是强调色 ✓。
 - `Step(float64)` ✓；`OnChanged(func(float64))` ✓；`Label(string)` ✓；`Disabled(bool)` ✓。
 
 **已知限制**
@@ -47,7 +49,7 @@ func (s *Slider) Disabled(disabled bool) *Slider
 用法：
 
 ```go
-myui.NewSlider(c, &app.volume, 0, 100).Step(10).Label("音量")
+ctrlpkg.NewSlider(c, &app.volume, 0, 100).Step(10).Label("音量")
 ```
 
 ## 6. 状态

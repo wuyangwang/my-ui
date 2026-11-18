@@ -1,5 +1,7 @@
 # PasswordInput 规格书
 
+> 位置：组件在 [`forms/`](../../forms) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`password.go`）。
 
 ## 1. 参考实现
@@ -57,7 +59,7 @@ func (p *PasswordInput) EyeColor(c ui.Color) *PasswordInput
 用法：
 
 ```go
-h := myui.Bind(c)
+h := bindpkg.Bind(c)
 h.PasswordInput(&app.password).Outline().Label("密码").Placeholder("输入密码")
 ```
 

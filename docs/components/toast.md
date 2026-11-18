@@ -1,5 +1,7 @@
 # Toast 规格书
 
+> 位置：组件在 [`overlays/`](../../overlays) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`toast.go`）。
 
 ## 1. 参考实现
@@ -25,8 +27,8 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewToastViewport(c)`：窗口的 toast 视口，**每帧在视图里调一次** ✓；它取代主题自带的观感 ✓。toast 停在**右下角** ✓（shadcn 的位置 ✓），卡片：surface 底 + 描边 + 圆角 + 内衬 + 阴影 ✓。
-- `myui.NewToast(c, "已保存")` → `.Description(...)`/`.Success()`/`.Info()`/`.Warning()`/`.Destructive()`/`.Timeout(...)`/`.Action("撤销", fn)`/`.ID(...)`/`.OnClose(...)` → `.Show()` 返回 id ✓。
+- `overlaypkg.NewToastViewport(c)`：窗口的 toast 视口，**每帧在视图里调一次** ✓；它取代主题自带的观感 ✓。toast 停在**右下角** ✓（shadcn 的位置 ✓），卡片：surface 底 + 描边 + 圆角 + 内衬 + 阴影 ✓。
+- `overlaypkg.NewToast(c, "已保存")` → `.Description(...)`/`.Success()`/`.Info()`/`.Warning()`/`.Destructive()`/`.Timeout(...)`/`.Action("撤销", fn)`/`.ID(...)`/`.OnClose(...)` → `.Show()` 返回 id ✓。
 - 每种类型一个图标与颜色（success/info/warning/error）✓；标题加粗、描述弱一些 ✓；动作按钮 ✓；关闭按钮（无障碍名「关闭」）✓；时间将尽时淡出 ✓。
 
 **已知限制**
@@ -66,10 +68,10 @@ func (t *Toast) Show() string
 
 ```go
 // 视图里，每帧一次：
-myui.NewToastViewport(c)
+overlaypkg.NewToastViewport(c)
 
 // 动作里：
-myui.NewToast(c, "已保存").Description("改动已经写入。").Success().Show()
+overlaypkg.NewToast(c, "已保存").Description("改动已经写入。").Success().Show()
 ```
 
 ## 6. 状态

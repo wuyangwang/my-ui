@@ -1,5 +1,7 @@
 # ComboBox 规格书
 
+> 位置：组件在 [`forms/`](../../forms) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`combobox.go`）。可搜索的下拉：触发器就是输入框。
 
 ## 1. 参考实现
@@ -67,8 +69,8 @@ func (b *ComboBox) Open() bool
 用法：
 
 ```go
-h := myui.Bind(c)
-h.ComboBox(&app.query, []myui.SelectOption{
+h := bindpkg.Bind(c)
+h.ComboBox(&app.query, []formspkg.SelectOption{
 	{Label: "简体中文", Value: "zh-Hans"},
 	{Label: "English", Value: "en"},
 }).Outline().Placeholder("搜索语言…").

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	formspkg "github.com/wuyangwang/my-ui/forms"
 )
 
 // selectPage is the Select's page: the options, the states and the
@@ -11,7 +12,7 @@ func (s *showcase) selectPage(c *ui.Context, t *ui.Theme) {
 	s.sectionNote(c, t, "选项", "标签与值可以不同：绑定的是值，触发器显示的是标签", func() {
 		s.card(c, t, func() {
 			ui.Column(c).Gap(t.Space(3)).Children(func() {
-				myui.NewSelect(c.Key("sel-lang"), &s.lang, []myui.SelectOption{
+				formspkg.NewSelect(c.Key("sel-lang"), &s.lang, []formspkg.SelectOption{
 					{Label: "简体中文", Value: "zh-Hans"},
 					{Label: "繁體中文", Value: "zh-Hant"},
 					{Label: "English", Value: "en"},
@@ -19,10 +20,10 @@ func (s *showcase) selectPage(c *ui.Context, t *ui.Theme) {
 					{Label: "한국어", Value: "ko", Disabled: true},
 				}).Outline().Label("语言").Placeholder("选择语言").
 					OnChanged(func(v string) { s.lastEvent = "chosen: " + v })
-				myui.NewSelect(c.Key("sel-size"), &s.size, []myui.SelectOption{
+				formspkg.NewSelect(c.Key("sel-size"), &s.size, []formspkg.SelectOption{
 					{Value: "小"}, {Value: "中"}, {Value: "大"},
 				}).Outline().Label("尺寸")
-				myui.NewSelect(c.Key("sel-disabled"), &s.size, []myui.SelectOption{
+				formspkg.NewSelect(c.Key("sel-disabled"), &s.size, []formspkg.SelectOption{
 					{Value: "小"},
 				}).Outline().Label("禁用").Disabled(true)
 			})
@@ -32,11 +33,11 @@ func (s *showcase) selectPage(c *ui.Context, t *ui.Theme) {
 	s.sectionNote(c, t, "变体与尺寸", "与 Input 同一套预设：Native 是输入框那套外观（底色+描边），不是空壳", func() {
 		s.card(c, t, func() {
 			ui.Column(c).Gap(t.Space(2)).Children(func() {
-				myui.NewSelect(c.Key("sel-native"), &s.size, []myui.SelectOption{{Value: "原生"}}).Label("Native").Placeholder("Native")
-				myui.NewSelect(c.Key("sel-ghost"), &s.size, []myui.SelectOption{{Value: "幽灵"}}).Ghost().Label("Ghost").Placeholder("Ghost")
-				myui.NewSelect(c.Key("sel-sm"), &s.size, []myui.SelectOption{{Value: "小"}}).Sm().Outline().Label("小").Placeholder("小")
-				myui.NewSelect(c.Key("sel-md"), &s.size, []myui.SelectOption{{Value: "中"}}).Md().Outline().Label("中").Placeholder("中")
-				myui.NewSelect(c.Key("sel-lg"), &s.size, []myui.SelectOption{{Value: "大"}}).Lg().Outline().Label("大").Placeholder("大")
+				formspkg.NewSelect(c.Key("sel-native"), &s.size, []formspkg.SelectOption{{Value: "原生"}}).Label("Native").Placeholder("Native")
+				formspkg.NewSelect(c.Key("sel-ghost"), &s.size, []formspkg.SelectOption{{Value: "幽灵"}}).Ghost().Label("Ghost").Placeholder("Ghost")
+				formspkg.NewSelect(c.Key("sel-sm"), &s.size, []formspkg.SelectOption{{Value: "小"}}).Sm().Outline().Label("小").Placeholder("小")
+				formspkg.NewSelect(c.Key("sel-md"), &s.size, []formspkg.SelectOption{{Value: "中"}}).Md().Outline().Label("中").Placeholder("中")
+				formspkg.NewSelect(c.Key("sel-lg"), &s.size, []formspkg.SelectOption{{Value: "大"}}).Lg().Outline().Label("大").Placeholder("大")
 			})
 		})
 	})
@@ -44,8 +45,8 @@ func (s *showcase) selectPage(c *ui.Context, t *ui.Theme) {
 	s.sectionNote(c, t, "宽度", "随内容，但有默认最小宽度；Width 可显式指定", func() {
 		s.card(c, t, func() {
 			ui.Column(c).Gap(t.Space(2)).Children(func() {
-				myui.NewSelect(c.Key("sel-w-default"), &s.size, []myui.SelectOption{{Value: "小"}}).Outline().Label("默认宽").Placeholder("默认宽度")
-				myui.NewSelect(c.Key("sel-w-wide"), &s.size, []myui.SelectOption{{Value: "小"}}).Outline().Width(320).Label("指定宽").Placeholder("320 DIP")
+				formspkg.NewSelect(c.Key("sel-w-default"), &s.size, []formspkg.SelectOption{{Value: "小"}}).Outline().Label("默认宽").Placeholder("默认宽度")
+				formspkg.NewSelect(c.Key("sel-w-wide"), &s.size, []formspkg.SelectOption{{Value: "小"}}).Outline().Width(320).Label("指定宽").Placeholder("320 DIP")
 			})
 		})
 	})

@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
+	formspkg "github.com/wuyangwang/my-ui/forms"
+	overlaypkg "github.com/wuyangwang/my-ui/overlays"
 	"strings"
 
 	"github.com/egoist/mygo"
@@ -18,11 +21,11 @@ func (s *showcase) iconPage(c *ui.Context, t *ui.Theme) {
 	s.sectionNote(c, t, "尺寸与语义色", "尺寸档为 14 / 20 / 24 DIP；变体给图标上语义色", func() {
 		s.card(c, t, func() {
 			ui.Row(c).Gap(t.Space(4)).AlignItems(ui.Center).Children(func() {
-				myui.NewIcon(c.Key("icon-sm"), icons.Star()).Sm().Label("小")
-				myui.NewIcon(c.Key("icon-md"), icons.Star()).Md().Label("中")
-				myui.NewIcon(c.Key("icon-lg"), icons.Star()).Lg().Label("大")
-				myui.NewIcon(c.Key("icon-accent"), icons.Star()).Primary().Md().Label("强调")
-				myui.NewIcon(c.Key("icon-danger"), icons.Star()).Destructive().Md().Label("危险")
+				ctrlpkg.NewIcon(c.Key("icon-sm"), icons.Star()).Sm().Label("小")
+				ctrlpkg.NewIcon(c.Key("icon-md"), icons.Star()).Md().Label("中")
+				ctrlpkg.NewIcon(c.Key("icon-lg"), icons.Star()).Lg().Label("大")
+				ctrlpkg.NewIcon(c.Key("icon-accent"), icons.Star()).Primary().Md().Label("强调")
+				ctrlpkg.NewIcon(c.Key("icon-danger"), icons.Star()).Destructive().Md().Label("危险")
 			})
 		})
 	})
@@ -31,7 +34,7 @@ func (s *showcase) iconPage(c *ui.Context, t *ui.Theme) {
 	s.sectionNote(c, t, "全量图标", "Lucide（ISC）与品牌标（CC0）：指针停在上面看名字，点击复制名字", func() {
 		s.card(c, t, func() {
 			ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
-				myui.NewInput(c.Key("icon search"), &s.iconQuery).Outline().Sm().
+				formspkg.NewInput(c.Key("icon search"), &s.iconQuery).Outline().Sm().
 					PrefixIcon(icons.Search()).
 					Placeholder("搜索图标…").
 					Label("搜索图标")
@@ -62,15 +65,15 @@ func (s *showcase) icon(c *ui.Context, name string, svg *ui.SVG) {
 		return
 	}
 	t := c.Theme()
-	b := myui.NewButton(c.Key("icon "+name), "").Ghost()
+	b := ctrlpkg.NewButton(c.Key("icon "+name), "").Ghost()
 	b.Padding(t.Space(2)).AlignSelf(ui.Center).Radius(t.Radius)
 	// The name of the icon is the name of the button, for the screen
 	// reader.
 	b.Label(name)
 	b.Children(func() {
-		myui.NewIcon(c, svg).Lg()
+		ctrlpkg.NewIcon(c, svg).Lg()
 	})
-	myui.NewTooltip(c, b.Element, name)
+	overlaypkg.NewTooltip(c, b.Element, name)
 	if b.Clicked() {
 		s.copy(c, name)
 	}
@@ -83,7 +86,7 @@ func (s *showcase) copy(c *ui.Context, text string) {
 		return
 	}
 	mygo.Clipboard.WriteText(text)
-	myui.NewToast(c, "已复制 "+text).Show()
+	overlaypkg.NewToast(c, "已复制 "+text).Show()
 }
 
 // filterIcons are the icons whose name holds the query: the ones of the

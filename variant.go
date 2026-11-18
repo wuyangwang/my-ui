@@ -61,59 +61,59 @@ const (
 	ShapeCircle
 )
 
-// semantic is a role a color plays in a theme: the success of an
+// Semantic is a role a color plays in a theme: the success of an
 // operation, the warning about it, or the information in it.
-type semantic uint8
+type Semantic uint8
 
 const (
-	semanticSuccess semantic = iota
-	semanticWarning
-	semanticInfo
+	SemanticSuccess Semantic = iota
+	SemanticWarning
+	SemanticInfo
 )
 
-// semantics is the fallback color of every semantic role, light and
+// Semantics is the fallback color of every Semantic role, light and
 // dark. MyGo's Theme carries Success and Warning, which a custom theme
 // may set; the fallback is used when a theme leaves a slot empty. Info
 // has no slot in MyGo's Theme (see docs/architecture.md), so it always
 // comes from here.
-var semantics = map[semantic][2]ui.Color{
-	semanticSuccess: {ui.Hex("#16a34a"), ui.Hex("#4ade80")},
-	semanticWarning: {ui.Hex("#d97706"), ui.Hex("#fbbf24")},
-	semanticInfo:    {ui.Hex("#0284c7"), ui.Hex("#38bdf8")},
+var Semantics = map[Semantic][2]ui.Color{
+	SemanticSuccess: {ui.Hex("#16a34a"), ui.Hex("#4ade80")},
+	SemanticWarning: {ui.Hex("#d97706"), ui.Hex("#fbbf24")},
+	SemanticInfo:    {ui.Hex("#0284c7"), ui.Hex("#38bdf8")},
 }
 
-// semanticColor is the color of a semantic role on a theme. Success and
+// SemanticColor is the color of a Semantic role on a theme. Success and
 // Warning come from the theme when it sets them, so the colors follow a
 // custom theme and the appearance as every other token does; Info falls
 // back to the fixed table because MyGo's Theme has no slot for it.
-func semanticColor(t *ui.Theme, s semantic) ui.Color {
+func SemanticColor(t *ui.Theme, s Semantic) ui.Color {
 	var fromTheme ui.Color
 	switch s {
-	case semanticSuccess:
+	case SemanticSuccess:
 		fromTheme = t.Success
-	case semanticWarning:
+	case SemanticWarning:
 		fromTheme = t.Warning
 	}
 	if fromTheme.A != 0 {
 		return fromTheme
 	}
-	c := semantics[s]
+	c := Semantics[s]
 	if t.Dark {
 		return c[1]
 	}
 	return c[0]
 }
 
-// semanticOf is the semantic role a variant names, and whether it names
+// SemanticOf is the Semantic role a variant names, and whether it names
 // one at all.
-func semanticOf(v Variant) (semantic, bool) {
+func SemanticOf(v Variant) (Semantic, bool) {
 	switch v {
 	case Success:
-		return semanticSuccess, true
+		return SemanticSuccess, true
 	case Warning:
-		return semanticWarning, true
+		return SemanticWarning, true
 	case Info:
-		return semanticInfo, true
+		return SemanticInfo, true
 	}
 	return 0, false
 }

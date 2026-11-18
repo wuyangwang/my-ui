@@ -18,7 +18,7 @@ func TestApplyUsesShadcnThemeForTheSystemAndNoPalette(t *testing.T) {
 	if th == nil {
 		t.Fatal("Apply in the system appearance with no palette left the theme alone")
 	}
-	if !th.Dark || th.Background != shadcnDark().Background {
+	if !th.Dark || th.Background != ShadcnDark().Background {
 		t.Errorf("the default theme is not shadcn's dark one: dark %v, background %v", th.Dark, th.Background)
 	}
 	tt.SetDark(false)
@@ -33,13 +33,13 @@ func TestApplyForcesTheAppearanceAndThePalette(t *testing.T) {
 	if !got.Dark {
 		t.Error("the theme is not dark after Apply, want the forced dark")
 	}
-	accent, hover, pressed := palettes[PaletteBlue].Triplet(true)
+	accent, hover, pressed := Palettes[PaletteBlue].Triplet(true)
 	if got.Accent != accent || got.AccentHover != hover || got.AccentPressed != pressed {
 		t.Errorf("accent %v, hover %v, pressed %v; want the dark blue ones %v, %v, %v",
 			got.Accent, got.AccentHover, got.AccentPressed, accent, hover, pressed)
 	}
-	if got.Background != shadcnDark().Background {
-		t.Errorf("background %v, want shadcn's dark one's %v", got.Background, shadcnDark().Background)
+	if got.Background != ShadcnDark().Background {
+		t.Errorf("background %v, want shadcn's dark one's %v", got.Background, ShadcnDark().Background)
 	}
 }
 
@@ -52,7 +52,7 @@ func TestApplyFollowsTheSystemOfTheFrameItRunsIn(t *testing.T) {
 	if !got.Dark {
 		t.Error("the theme is not dark, want the system's")
 	}
-	accent, hover, pressed := palettes[PaletteRose].Triplet(true)
+	accent, hover, pressed := Palettes[PaletteRose].Triplet(true)
 	if got.Accent != accent || got.AccentHover != hover || got.AccentPressed != pressed {
 		t.Errorf("accent %v, hover %v, pressed %v; want the rose dark ones", got.Accent, got.AccentHover, got.AccentPressed)
 	}
@@ -87,7 +87,7 @@ func TestApplyScalesText(t *testing.T) {
 	ui.NewTesterWith(view, 300, 200, ui.TesterOptions{
 		Preferences: ui.Preferences{TextScale: 2},
 	})
-	if want := shadcnDark().FontSize * 2; got.FontSize != want {
+	if want := ShadcnDark().FontSize * 2; got.FontSize != want {
 		t.Errorf("FontSize %v, want twice the dark theme's %v", got.FontSize, want)
 	}
 }
@@ -103,10 +103,10 @@ func TestApplyHighContrast(t *testing.T) {
 	if got.Focus.A != 255 {
 		t.Errorf("focus ring alpha %d, want an opaque one", got.Focus.A)
 	}
-	if got.Border == shadcnDark().Border {
+	if got.Border == ShadcnDark().Border {
 		t.Error("the border stayed as the dark theme's, want it strengthened")
 	}
-	if got.TextMuted == shadcnDark().TextMuted {
+	if got.TextMuted == ShadcnDark().TextMuted {
 		t.Error("the muted text stayed as the dark theme's, want it strengthened")
 	}
 }

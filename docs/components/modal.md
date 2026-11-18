@@ -1,5 +1,7 @@
 # Modal 规格书
 
+> 位置：组件在 [`overlays/`](../../overlays) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`modal.go`）。
 
 ## 1. 参考实现
@@ -57,13 +59,13 @@ func (m *Modal) SetOpen(open bool) *Modal
 用法：
 
 ```go
-myui.NewModal(c, &app.open, func() ui.Element {
-	return myui.NewButton(c, "删除").Destructive().Element
+overlaypkg.NewModal(c, &app.open, func() ui.Element {
+	return ctrlpkg.NewButton(c, "删除").Destructive().Element
 }, func(panel ui.Element) {
 	panel.Label("删除项目")
 	ui.Text(c, "确定删除这个项目吗？")
-	myui.NewButton(c, "取消").Ghost()
-	myui.NewButton(c, "删除").Destructive()
+	ctrlpkg.NewButton(c, "取消").Ghost()
+	ctrlpkg.NewButton(c, "删除").Destructive()
 })
 ```
 

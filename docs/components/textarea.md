@@ -1,5 +1,7 @@
 # TextArea 规格书
 
+> 位置：组件在 [`forms/`](../../forms) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`textarea.go`）。与 Input 同构，共用 `field[T]` 基座（见 [input.md](input.md) §4）。
 
 ## 1. 参考实现
@@ -70,7 +72,7 @@
 用法：
 
 ```go
-h := myui.Bind(c)
+h := bindpkg.Bind(c)
 h.TextArea(&app.draft).Outline().Placeholder("写点什么…").
 	Lines(3, 8).
 	OnChanged(func(v string) { app.draftLen = len(v) })

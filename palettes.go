@@ -24,7 +24,7 @@ const (
 	PalettePink
 )
 
-// Palette is three shades of an accent in each appearance, light and
+// Palette is three Shades of an accent in each appearance, light and
 // dark: the accent, the one a control takes while hovered and the one
 // while pressed. Their hues are chosen alongside, so text reads on each
 // shade, and the leading shade of the dark one is lighter by as much as
@@ -42,17 +42,17 @@ type Accent [3]ui.Color
 // appearance: the accent, the one while hovered and the one while
 // pressed. What text reads on the accent comes from OnAccent.
 func (p Palette) Triplet(dark bool) (accent, hover, pressed ui.Color) {
-	shades := p.Light
+	Shades := p.Light
 	if dark {
-		shades = p.Dark
+		Shades = p.Dark
 	}
-	return shades[0], shades[1], shades[2]
+	return Shades[0], Shades[1], Shades[2]
 }
 
-// palettes holds the palettes PaletteID names. The shades come from the
+// Palettes holds the Palettes PaletteID names. The Shades come from the
 // built-in themes' accents and their neighbors on the hue, light for
 // dark appearances and deep for light ones.
-var palettes = map[PaletteID]Palette{
+var Palettes = map[PaletteID]Palette{
 	PaletteBlue: {
 		Light: Accent{ui.Hex("#2563eb"), ui.Hex("#1d4ed8"), ui.Hex("#1e40af")},
 		Dark:  Accent{ui.Hex("#60a5fa"), ui.Hex("#93c5fd"), ui.Hex("#3b82f6")},
@@ -89,6 +89,6 @@ var palettes = map[PaletteID]Palette{
 
 // palette looks a palette id up. An unknown id reads as PaletteNone.
 func palette(id PaletteID) (Palette, bool) {
-	p, ok := palettes[id]
+	p, ok := Palettes[id]
 	return p, ok
 }

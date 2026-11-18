@@ -1,0 +1,5 @@
+package forms
+
+import "github.com/egoist/mygo/ui"
+
+var testIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" fill="currentColor"/></svg>`))

@@ -17,8 +17,8 @@ import "github.com/egoist/mygo/ui"
 //     card on the page paints this and leans on its border and shadow
 //     to stand out, as shadcn's bg-card does.
 
-// shadcnLight returns the shadcn zinc theme for a light appearance.
-func shadcnLight() *ui.Theme {
+// ShadcnLight returns the shadcn zinc theme for a light appearance.
+func ShadcnLight() *ui.Theme {
 	return &ui.Theme{
 		Background:      ui.Hex("#ffffff"),
 		Surface:         ui.Hex("#f4f4f5"),
@@ -45,8 +45,8 @@ func shadcnLight() *ui.Theme {
 	}
 }
 
-// shadcnDark returns the shadcn zinc theme for a dark appearance.
-func shadcnDark() *ui.Theme {
+// ShadcnDark returns the shadcn zinc theme for a dark appearance.
+func ShadcnDark() *ui.Theme {
 	return &ui.Theme{
 		Dark:            true,
 		Background:      ui.Hex("#09090b"),
@@ -78,7 +78,7 @@ func shadcnDark() *ui.Theme {
 // palette, a system accent or the desktop's preferences paint over it.
 func shadcnBase(dark bool) *ui.Theme {
 	if dark {
-		return shadcnDark()
+		return ShadcnDark()
 	}
-	return shadcnLight()
+	return ShadcnLight()
 }

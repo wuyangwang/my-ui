@@ -1,5 +1,7 @@
 # Badge 规格书
 
+> 位置：组件在 [`display/`](../../display) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`badge.go`）。
 
 ## 1. 参考实现
@@ -21,7 +23,7 @@
 
 **已实现**：`Native`（零值，保留内置观感）/`Secondary`（别名）/`Primary`/`Outline`/`Ghost`/`Destructive`/`Link` × `SizeSm/Md/Lg`；填充色/描边/文字色按预设。
 
-**后置**：角标与状态点（挂在 `myui.Icon`/头像的角上）、可关闭标签（关闭按钮）、语义色别名（success/info/warning）。
+**后置**：角标与状态点（挂在 `ctrlpkg.Icon`/头像的角上）、可关闭标签（关闭按钮）、语义色别名（success/info/warning）。
 
 ## 4. 项目结构是否合理
 
@@ -47,7 +49,7 @@ func (b *Badge) Size(s Size) *Badge  // SizeSm/Md/Lg
 用法：
 
 ```go
-myui.NewBadge(c, "12").Primary().Sm()
+displaypkg.NewBadge(c, "12").Primary().Sm()
 ```
 
 ## 6. 状态

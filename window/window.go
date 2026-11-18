@@ -28,6 +28,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	controls "github.com/wuyangwang/my-ui/controls"
 )
 
 // The built-in zinc pair, used for the very first frame before the
@@ -61,8 +62,8 @@ type Options struct {
 	// Name is the name of the app the bar shows beside the logo.
 	Name string
 	// Look picks the style of the window controls, Windows's or the
-	// Mac's; the zero look follows the platform (myui.TitleBarLook).
-	Look myui.TitleBarLook
+	// Mac's; the zero look follows the platform (controls.TitleBarLook).
+	Look controls.TitleBarLook
 
 	// Theme returns the theme options the frame applies, every frame:
 	// the app's appearance and palette live here, so the bar and the
@@ -191,7 +192,7 @@ func (sh *shell) render(c *ui.Context) {
 			}
 		}
 	}
-	bar := myui.TitleBarOptions{
+	bar := controls.TitleBarOptions{
 		Name:       sh.o.Name,
 		Icon:       sh.o.Icon,
 		Look:       sh.o.Look,
@@ -209,7 +210,7 @@ func (sh *shell) render(c *ui.Context) {
 	// the system's light one under the transparent bar, which shows
 	// as a white edge on a forced dark frame.
 	ui.Column(c).Fill().Background(t.Background).Children(func() {
-		myui.NewTitleBar(c, bar)
+		controls.NewTitleBar(c, bar)
 		if sh.o.View != nil {
 			ui.Box(c).Grow(1).Children(func() { sh.o.View(c) })
 		}

@@ -1,5 +1,7 @@
 # Select 规格书
 
+> 位置：组件在 [`forms/`](../../forms) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`select.go`）。
 
 ## 1. 参考实现（已核到具体条目）
@@ -97,8 +99,8 @@ func (s *Select) Changed() bool
 用法：
 
 ```go
-h := myui.Bind(c)
-h.Select(&app.lang, []myui.SelectOption{
+h := bindpkg.Bind(c)
+h.Select(&app.lang, []formspkg.SelectOption{
 	{Label: "简体中文", Value: "zh-Hans"},
 	{Label: "English", Value: "en"},
 	{Value: "日本語"},

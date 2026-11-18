@@ -22,7 +22,7 @@
 | 尺寸 | `ui.Icon(...).FontSize(n)` / `.Size(w,h)` | ✅ |
 | 按需装载（不进二进制） | **函数内 `//go:embed`**（mygo `ui/svg.go` 文档即此模式）+ 链接器丢弃未引用函数 | ✅ 采用 Lobe 同款：每图标一个函数，函数内 embed |
 | 惰性解析 | 首次调用时解析并缓存（`sync.OnceValue` / 包内缓存） | ✅ 不在 `init` 全量解析 |
-| 旋转/加载动效 | `ui.Icon(...).Rotate()` / `.Loop()` | ✅（`myui.Icon` 侧再包一层） |
+| 旋转/加载动效 | `ui.Icon(...).Rotate()` / `.Loop()` | ✅（`ctrlpkg.Icon` 侧再包一层） |
 | 无障碍名 | `ui.Element.Label(string)` | ✅ |
 
 不可行/需规避：不得依赖 `Element.Access(func(*platform.AccessNode))`（internal 类型泄漏，见 [../research.md](../research.md) §五），故图标的无障碍只走 `Label`。
@@ -65,12 +65,12 @@ my-ui/
 │   ├── gen/                # 生成器（独立 main 包）
 │   ├── LICENSE             # Lucide ISC（含 Feather MIT 说明）
 │   └── README.md
-├── icon.go                 # 根包 myui.Icon：尺寸/语义色/无障碍名预设（L3）
+├── icon.go                 # 根包 ctrlpkg.Icon：尺寸/语义色/无障碍名预设（L3）
 └── icons/                  # 根包不 import icons 子包以外的东西
 ```
 
 - **依赖方向**：`icons` → `mygo/ui`（单向）；`icons` 不 import 根包 `myui`；根包 `myui` 只引用 `icons` 中的**一个**图标（清除按钮），实测代价可忽略。
-- **根包 `myui.Icon(c, svg)`**：只依赖 `*ui.SVG`，提供尺寸档（`SizeSm/Md/Lg` → 14/20/24 DIP）、语义色（`Variant`）、`Label` 无障碍名、`Spin` 旋转。
+- **根包 `ctrlpkg.Icon(c, svg)`**：只依赖 `*ui.SVG`，提供尺寸档（`SizeSm/Md/Lg` → 14/20/24 DIP）、语义色（`Variant`）、`Label` 无障碍名、`Spin` 旋转。
 - **为什么图标不进根包**：2,322 个 SVG 资源必须隔离在二级包（AGENTS.md 硬规则：根包无 `go:embed`）。根包只借用一个图标，且已实测无代价。
 
 ## 5. API 契约
@@ -103,7 +103,7 @@ func (i *Icon) Spin() *Icon               // 旋转（ui 的 Loop/Rotate）
 用法：
 
 ```go
-myui.NewIcon(c, icons.Save()).Md().Label("保存")
+ctrlpkg.NewIcon(c, icons.Save()).Md().Label("保存")
 ```
 
 ## 6. 状态
@@ -112,7 +112,7 @@ myui.NewIcon(c, icons.Save()).Md().Label("保存")
 - [x] vendor Lucide 1.70.0 SVG 入库 + LICENSE
 - [x] 生成器 + 生成产物（2,318 个图标 + 14 个别名）
 - [x] 别名表
-- [x] 根包 `myui.Icon`
+- [x] 根包 `ctrlpkg.Icon`
 - [x] 测试（icons 包 + 根包 icon_test.go）
 - [x] showcase「Icon」页
 - [x] 品牌标子包 `icons/brand`（已实现，3,462 个）

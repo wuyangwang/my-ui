@@ -8,6 +8,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	controls "github.com/wuyangwang/my-ui/controls"
 )
 
 // pixel reads what the tester drew at a DIP of the window.
@@ -43,7 +44,7 @@ func shellTester(t *testing.T, o Options) (*ui.Tester, map[string]bool, *bool) {
 }
 
 func TestShellLaysTheBarOverTheView(t *testing.T) {
-	o := Options{Name: "MyGo App", Look: myui.TitleBarWindows}
+	o := Options{Name: "MyGo App", Look: controls.TitleBarWindows}
 	o.View = func(c *ui.Context) {
 		ui.Text(c, "Body").Bold()
 	}
@@ -72,7 +73,7 @@ func TestShellLaysTheBarOverTheView(t *testing.T) {
 }
 
 func TestShellWithoutAViewStillShowsTheBar(t *testing.T) {
-	tt, _, _ := shellTester(t, Options{Name: "MyGo App", Look: myui.TitleBarMac})
+	tt, _, _ := shellTester(t, Options{Name: "MyGo App", Look: controls.TitleBarMac})
 	if _, ok := tt.Find("MyGo App"); !ok {
 		t.Fatal("the bar's name is missing")
 	}
@@ -82,7 +83,7 @@ func TestShellWithoutAViewStillShowsTheBar(t *testing.T) {
 }
 
 func TestShellThemeFeedsTheBar(t *testing.T) {
-	o := Options{Name: "MyGo App", Look: myui.TitleBarWindows}
+	o := Options{Name: "MyGo App", Look: controls.TitleBarWindows}
 	o.Theme = func() myui.Options { return myui.Options{Appearance: myui.AppearanceDark} }
 	o.View = func(c *ui.Context) {
 		if !c.Theme().Dark {
@@ -94,7 +95,7 @@ func TestShellThemeFeedsTheBar(t *testing.T) {
 
 func TestShellWindowBackgroundFollowsTheAppearance(t *testing.T) {
 	appearance := myui.AppearanceLight
-	o := Options{Name: "MyGo App", Look: myui.TitleBarWindows}
+	o := Options{Name: "MyGo App", Look: controls.TitleBarWindows}
 	o.Theme = func() myui.Options { return myui.Options{Appearance: appearance} }
 	tt, fired, _ := shellTester(t, o)
 	if !fired["bg:#ffffff"] {
@@ -135,7 +136,7 @@ func TestShellFrameAppearanceFollowsTheTheme(t *testing.T) {
 func TestShellPaintsDarkFrameEdges(t *testing.T) {
 	o := Options{
 		Name:  "MyGo App",
-		Look:  myui.TitleBarWindows,
+		Look:  controls.TitleBarWindows,
 		Theme: func() myui.Options { return myui.Options{Appearance: myui.AppearanceDark} },
 	}
 	tt, _, _ := shellTester(t, o)
@@ -151,7 +152,7 @@ func TestShellPaintsDarkFrameEdges(t *testing.T) {
 }
 
 func TestShellControlsFireThroughTheActions(t *testing.T) {
-	tt, fired, _ := shellTester(t, Options{Name: "MyGo App", Look: myui.TitleBarWindows})
+	tt, fired, _ := shellTester(t, Options{Name: "MyGo App", Look: controls.TitleBarWindows})
 	adv := func() { tt.Advance(time.Second); tt.Advance(time.Second) }
 	for _, click := range []string{"Close", "Minimize", "Maximize"} {
 		if err := tt.Click(click); err != nil {

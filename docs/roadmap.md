@@ -1,5 +1,6 @@
 # my-ui 路线图
 
+
 > 基线 mygo **v0.8.3**（证据见 [research.md](research.md)）。本文是按序实施计划：**每一项交付 = 规格书 + 实现 + `ui.Tester` 测试 + `examples/showcase` 示例页/区块**（适用时）。首个 tag 为 `v0.2.0`，开发中不考虑更早版本的历史兼容。
 
 ## 原则
@@ -18,11 +19,9 @@
 | 3 | Button | 规格书 [components/button.md](components/button.md)；`button.go`：共享 `Variant`/`Size` + `Primary/Outline/Ghost/Destructive/Link` 预设与 hover/pressed/禁用 + 图标/忙碌态；`button_test.go` 覆盖变体绘制与交互、尺寸、禁用、图标、忙碌态；showcase「Button」页 | ✅ 已完成 |
 | 4 | Input | 规格书 [components/input.md](components/input.md)；`input.go`：复合结构（外框 + 前后缀/清除/计数槽位 + 内层输入）、清除按钮（`icons.X()` + `KeepFocus`）、事件（变化/失焦/清除/回车）、错误态、`MaxLength`/`Count`；`input_test.go` 覆盖尺寸、禁用/只读、暗色、清除、事件、错误文案、前后缀、计数；showcase「Input」页 | ✅ 已完成 |
 | 5 | Badge | 规格书 [components/badge.md](components/badge.md)；`badge.go`：标签/徽标预设（共享 `Variant/Size`）；Tester 覆盖主要变体与明暗主题、尺寸；showcase「Badge」页（含组合示例） | ✅ 已完成 |
-| 6 | Scaffold | 规格书 [components/scaffold.md](components/scaffold.md)；`scaffold.go`：页面布局骨架（`TitleBar()` 安全区、顶栏、滚动内容区、底栏与底部预留/`ScrollbarInsets`）；Tester 覆盖基础布局与标题栏安全区；showcase「Scaffold」页 | ✅ 已完成 |
 | 7 | Icon | 规格书 [components/icons.md](components/icons.md)；`icon.go`：尺寸档（14/20/24 DIP）、语义色、`Label` 无障碍名、`Spin` 旋转；`icons/` 二级包（Lucide 全量 2,318 个图标 + 14 个别名，函数式 API，未用不进二进制）；`icons/icons_test.go` + `icon_test.go`；showcase「Icon」页 | ✅ 已完成 |
-| 8 | 帧句柄 | 规格书 [components/handle.md](components/handle.md)；`bind.go`：`myui.Bind(c)` 每帧绑定一次，组件不再逐个传 `c`；不引入包级状态 | ✅ 已完成 |
+| 8 | 帧句柄 | 规格书 [components/handle.md](components/handle.md)；`bind.go`：`bindpkg.Bind(c)` 每帧绑定一次，组件不再逐个传 `c`；不引入包级状态 | ✅ 已完成 |
 
-**一期验收（已达成）**：`Button/Input/Badge/Scaffold/Icon` 均已交付实现 + `ui.Tester` 测试 + showcase 演示；本地 `go build/vet/test ./...` 通过。跨平台/wasm 矩阵（macOS/Linux/Windows + `GOOS=js GOARCH=wasm go vet`）待在对应环境/CI 验证。
 
 ## 组件打磨（参考实现对照驱动）
 
@@ -73,7 +72,6 @@
 |---|---|---|
 | 展示/布局 | 展示件：Card（`card.go`）、Tabs（`tabs.go`）、Progress（`progress.go`）、Kbd（`kbd.go`）、Divider/Avatar（框架自带外观 ✓） | ✅ 已完成（Card/Tabs/Progress/Kbd） |
 | 导航/覆盖层 | Tabs ✅、Breadcrumb、Pagination、DropdownMenu、ContextMenu、Accordion/Collapsible、Command Palette、应用内 Menubar | ⏳ 未开始（Tabs 已做） |
-| 展示/布局 | Divider ✓、Avatar ✓、Tag、Kbd ✅、**Skeleton（骨架屏：加载占位；与 Scaffold 的页面布局骨架不是一回事）**、EmptyState、Result、Progress ✅、Spin、HoverCard、Carousel、AspectRatio | ⏳ 未开始 |
 | 数据/复杂 | Table（样式与排序/过滤预设）、SortableList 等 | ⏳ 未开始 |
 
 ## 三期：AI 二级包（`ai/`）

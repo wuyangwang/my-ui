@@ -20,7 +20,7 @@ import (
 // The theme carries the accent's trio in slots of its own; the Danger,
 // the Warning and the Success come as one slot each, which is why the
 // build asks Shades for the states of those.
-func shades(base ui.Color, dark bool) (hover, pressed, ink ui.Color) {
+func Shades(base ui.Color, dark bool) (hover, pressed, ink ui.Color) {
 	black, white := ui.RGB(0, 0, 0), ui.RGB(255, 255, 255)
 	if dark {
 		hover, pressed = base.MixOklab(white, 0.2), base.MixOklab(black, 0.28)

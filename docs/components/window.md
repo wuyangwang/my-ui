@@ -1,6 +1,6 @@
 # Window 规格书
 
-> 状态：**已实现**（`window/window.go`）。无框窗口外壳：`window.New` 一行建窗——mygo 无框窗口（`TitleBarHidden + HideWindowButtons`）+ 根包的 `myui.NewTitleBar` + 每帧主题应用 + 窗口动作接线，app 不再自己拼装这几样。
+> 状态：**已实现**（`window/window.go`）。无框窗口外壳：`window.New` 一行建窗——mygo 无框窗口（`TitleBarHidden + HideWindowButtons`）+ 根包的 `ctrlpkg.NewTitleBar` + 每帧主题应用 + 窗口动作接线，app 不再自己拼装这几样。
 
 ## 1. 参考实现
 
@@ -41,7 +41,7 @@ type Options struct {
 	Icon               *ui.SVG             // 品牌标图标；不传则用默认组件标
 	Logo               func(c *ui.Context) // 自定义品牌标构建器（覆盖 Icon）
 	Name               string              // 应用名，标右侧；同时是默认窗口标题
-	Look               myui.TitleBarLook   // Auto 按构建平台取 Windows/macOS 风格
+	Look               ctrlpkg.TitleBarLook   // Auto 按构建平台取 Windows/macOS 风格
 	Theme              func() myui.Options // 每帧的主题选项；nil 用默认
 	BackgroundColor    string              // 窗口自身底色（mygo CSS 语法）；空则每帧取主题 Background
 	View               func(c *ui.Context) // 标题栏之下的内容

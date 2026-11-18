@@ -1,5 +1,7 @@
 # TitleBar 规格书
 
+> 位置：组件在 [`controls/`](../../controls) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`titlebar.go`）。自绘窗口标题栏：左侧 logo + 应用名，右侧窗口按钮（Windows 风格）或左侧红绿灯（macOS 风格），整条可拖拽，颜色随主题明暗每帧更新——解决系统标题栏不跟随应用明暗切换的问题。`window/` 子包把它和无框窗口一起封装成一行建窗的 `window.New`（见 [window.md](window.md)）。
 
 ## 1. 参考实现
@@ -41,7 +43,6 @@
 ## 4. 项目结构是否合理
 
 - 位置：根包 L4（窗口级组合件），只依赖 `ui` + `icons`，不 import `mygo` 根包：窗口句柄与动作留在 app。
-- 命名 `TitleBar`；`Scaffold` 的 `UseTitleBar` 是"预留安全区"，本组件是"自绘整条"，两者互补不重叠。
 
 ## 5. API 契约
 
@@ -80,7 +81,7 @@ win := mygo.NewWindow(mygo.WindowOptions{
 })
 // 视图里每帧：
 maximized = win.IsMaximized()
-myui.NewTitleBar(c, myui.TitleBarOptions{
+ctrlpkg.NewTitleBar(c, ctrlpkg.TitleBarOptions{
 	Name:       "MyGo App",
 	Maximized:  &maximized,
 	OnMinimize: win.Minimize,

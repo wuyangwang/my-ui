@@ -1,5 +1,7 @@
 # Alert 规格书
 
+> 位置：组件在 [`display/`](../../display) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`alert.go`）。
 
 ## 1. 参考实现
@@ -23,7 +25,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewAlert(c, "注意")` → `.Description("…")`/`.Icon(svg)`/`.Variant(v)` + `.Default()`/`.Destructive()`/`.Success()`/`.Info()`/`.Warning()`。
+- `displaypkg.NewAlert(c, "注意")` → `.Description("…")`/`.Icon(svg)`/`.Variant(v)` + `.Default()`/`.Destructive()`/`.Success()`/`.Info()`/`.Warning()`。
 - 卡片：surface 底 + 描边 + 圆角 + `Space(3)/Space(4)` 内衬 + `TextSm` ✓；图标在左（16 DIP ✓），标题加粗，描述弱一些 ✓。
 - 变体给墨色：破坏性是危险色 ✓，success/info/warning 是语义色 ✓（描述用同色九成 ✓，shadcn 的 `text-destructive/90` ✓）。
 - `role=alert` ✓ → 读屏在它出现时念出来 ✓。
@@ -59,7 +61,7 @@ func (a *Alert) Warning() *Alert
 用法：
 
 ```go
-myui.NewAlert(c, "保存前看一眼").
+displaypkg.NewAlert(c, "保存前看一眼").
 	Description("这条改动会影响所有人。").
 	Warning().
 	Icon(icons.TriangleAlert())

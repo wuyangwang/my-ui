@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"github.com/wuyangwang/my-ui/icons"
 )
 
@@ -14,14 +15,14 @@ func (s *showcase) titleBarPage(c *ui.Context, t *ui.Theme) {
 			ui.Column(c).Gap(t.Space(3)).Children(func() {
 				ui.Text(c, "Windows 风格（Look: TitleBarWindows）").
 					FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
-				s.titleBarDemo(c, t, myui.TitleBarWindows)
+				s.titleBarDemo(c, t, ctrlpkg.TitleBarWindows)
 			})
 		})
 		s.card(c, t, func() {
 			ui.Column(c).Gap(t.Space(3)).Children(func() {
 				ui.Text(c, "macOS 风格（Look: TitleBarMac，红绿灯在左）").
 					FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
-				s.titleBarDemo(c, t, myui.TitleBarMac)
+				s.titleBarDemo(c, t, ctrlpkg.TitleBarMac)
 			})
 		})
 	})
@@ -34,7 +35,7 @@ func (s *showcase) titleBarPage(c *ui.Context, t *ui.Theme) {
 					FontSize(myui.TextSize(t, myui.TextXs))
 				ui.Text(c, "  Content: ui.View(view)})").
 					FontSize(myui.TextSize(t, myui.TextXs))
-				ui.Text(c, "myui.NewTitleBar(c, myui.TitleBarOptions{").
+				ui.Text(c, "ctrlpkg.NewTitleBar(c, ctrlpkg.TitleBarOptions{").
 					FontSize(myui.TextSize(t, myui.TextXs))
 				ui.Text(c, "  Name: \"MyGo App\", Maximized: &maximized,").
 					FontSize(myui.TextSize(t, myui.TextXs))
@@ -49,11 +50,11 @@ func (s *showcase) titleBarPage(c *ui.Context, t *ui.Theme) {
 
 // titleBarDemo lays one title bar into a fake window frame, its
 // callbacks feeding a line of feedback under it.
-func (s *showcase) titleBarDemo(c *ui.Context, t *ui.Theme, look myui.TitleBarLook) {
+func (s *showcase) titleBarDemo(c *ui.Context, t *ui.Theme, look ctrlpkg.TitleBarLook) {
 	// The demo's window: a frame with a title bar and a body.
 	ui.Column(c).FillWidth().Background(t.Background).Border(1, t.Border).
 		Radius(myui.Radius(t, myui.RadiusMd)).Children(func() {
-		myui.NewTitleBar(c, myui.TitleBarOptions{
+		ctrlpkg.NewTitleBar(c, ctrlpkg.TitleBarOptions{
 			Look:       look,
 			Icon:       icons.Component(),
 			Name:       "my-ui",

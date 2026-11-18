@@ -1,5 +1,7 @@
 # Card 规格书
 
+> 位置：组件在 [`display/`](../../display) 子包；主题/tokens 仍在根包 `myui`。
+
 > 状态：**已实现**（`card.go`）。
 
 ## 1. 参考实现
@@ -19,7 +21,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `myui.NewCard(c, "概览")` → `.Description("…")` / `.Content(func(){…})`。
+- `displaypkg.NewCard(c, "概览")` → `.Description("…")` / `.Content(func(){…})`。
 - 卡片：surface 底 + 描边 + 圆角 + `Space(4)` 内衬 ✓；标题 `TextLg` 加粗 ✓；说明弱一些 ✓。
 
 **已知限制**
