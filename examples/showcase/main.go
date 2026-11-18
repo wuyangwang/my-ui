@@ -54,6 +54,11 @@ type showcase struct {
 
 	titleBarEvent string // the last thing the title bar demo's buttons did
 	pageNum       int    // the status page's pager
+	crumb         int    // the more page's breadcrumb
+	amount        float64
+	ratio         float64
+	searchQuery   string
+	hoverOpen     bool
 }
 
 // theme returns the options the window's frame applies, every frame:

@@ -69,6 +69,11 @@
 | 23 | Result | 规格书 [components/result.md](components/result.md)；`display/result.go`：四种状态的图标与语义色 + 标题/说明/动作；`result_test.go`；showcase「状态件」页 | ✅ 已完成 |
 | 24 | Pagination | 规格书 [components/pagination.md](components/pagination.md)；`display/pagination.go`：页码指针绑定、省略号窗口、上一页/下一页图标；`pagination_test.go`；showcase「状态件」页 | ✅ 已完成 |
 
+| 25 | Breadcrumb | 规格书 [components/breadcrumb.md](components/breadcrumb.md)；`display/breadcrumb.go`：层级路径，当前项强调墨色、其余可点写回索引；`breadcrumb_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 26 | InputNumber | 规格书 [components/input-number.md](components/input-number.md)；`forms/input_number.go`：mygo `NumberInput` + 共享 Variant/Size/Width；`input_number_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 27 | SearchBar | 规格书 [components/search-bar.md](components/search-bar.md)；`forms/search_bar.go`：共享 Frame 基座 + 放大镜 + 清除图标；`search_bar_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 28 | HoverCard | 规格书 [components/hover-card.md](components/hover-card.md)；`overlays/hover_card.go`：`ui.PopoverBase` + hover 判定与帧数宽限；`hover_card_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 
 ## 二期：导航、展示与桌面细粒度组件（按需排期）
@@ -78,7 +83,7 @@
 | 类别 | 组件 | 状态 |
 |---|---|---|
 | 展示/布局 | Skeleton ✅、EmptyState ✅、Result ✅、Pagination ✅；Divider/Avatar（mygo 自带，`display/` 重导出 ✓）；Skeleton、HoverCard、Carousel、AspectRatio 等 | ✅ 已完成（Skeleton/EmptyState/Result/Pagination） |
-| 导航/覆盖层 | Breadcrumb、DropdownMenu、ContextMenu、Command Palette、应用内 Menubar（Tabs 已做） | ⏳ 未开始 |
+| 导航/覆盖层 | Breadcrumb ✅、HoverCard ✅；DropdownMenu、ContextMenu、Command Palette、应用内 Menubar（Tabs 已做） | ✅ 已完成（Breadcrumb/HoverCard） |
 | 数据/复杂 | Table（样式与排序/过滤预设）、SortableList 等 | ⏳ 未开始 |
 
 ## 三期：AI 二级包（`ai/`）
