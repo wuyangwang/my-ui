@@ -38,6 +38,7 @@ type Options struct {
 	MinWidth, MinHeight int
 	Maximized        bool
 	Center           bool
+	StateKey         string              // mygo 窗口位置/大小的持久化 key；空则不保存
 	Icon               *ui.SVG             // 品牌标图标；不传则用默认组件标
 	Logo               func(c *ui.Context) // 自定义品牌标构建器（覆盖 Icon）
 	Name               string              // 应用名，标右侧；同时是默认窗口标题
@@ -73,4 +74,4 @@ window.New(window.Options{
 - [x] 调研与实现
 - [x] 测试（`window/window_test.go`：标题栏在上内容在下、无 View 也有栏、`Theme` 喂给 app 视图、三个控件经 `actions` 触发、窗口底色随明暗切换、暗色四边无白边、原生边框外观随主题切换、默认 Title 取 Name）
 - [x] showcase「Window」页：点按钮用 `window.New` 开一个自定义窗口（只传 `Icon` + `Name` + View/Theme）；品牌标改用标题栏内置绘制（`Icon: icons.Component()`），切主题时同步 `mygo.Theme.SetSource`
-- [ ] 关闭拦截、窗口状态持久化（后置）
+- [ ] 关闭拦截、菜单栏接入（窗口状态持久化已由 `StateKey` 支持）

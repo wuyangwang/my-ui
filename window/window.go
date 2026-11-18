@@ -51,6 +51,11 @@ type Options struct {
 	// Center centers the window on its screen.
 	Center bool
 
+	// StateKey lets mygo restore and save the window's position and size
+	// between runs, as WindowOptions.StateKey does. Empty leaves that to
+	// the platform.
+	StateKey string
+
 	// Logo builds a custom mark ahead of the name, with the frame's
 	// context. It takes the place of Icon when both are given.
 	Logo func(c *ui.Context)
@@ -141,6 +146,7 @@ func New(o Options) *mygo.Window {
 		HideWindowButtons: true,
 		Maximized:         o.Maximized,
 		BackgroundColor:   bg,
+		StateKey:          o.StateKey,
 		Content:           content,
 	})
 	act.minimize = win.Minimize
