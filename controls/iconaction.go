@@ -13,8 +13,8 @@ func checkGlyph(box float32) float32 {
 	if s < IconSizeXs {
 		return IconSizeXs
 	}
-	if s > IconSizeMd {
-		return IconSizeMd
+	if s > IconSizeSm {
+		return IconSizeSm
 	}
 	return s
 }

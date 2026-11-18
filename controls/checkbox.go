@@ -52,7 +52,11 @@ func (cb *Checkbox) applyLook() {
 		}
 		cb.box.Background(fill).Border(1, fill)
 		cb.box.Children(func() {
-			ui.Icon(cb.c, icons.Check()).Size(checkGlyph(d), checkGlyph(d)).TextColor(t.AccentText)
+			// ui.Box is a column; margin the leaf into the center
+			// instead of nesting a Row, which duplicates the glyph.
+			s := checkGlyph(d)
+			ui.Icon(cb.c, icons.Check()).Size(s, s).
+				Margin((d-s)/2, 0, 0, (d-s)/2).TextColor(t.AccentText)
 		})
 	}
 }
@@ -162,12 +166,16 @@ func (cs *CheckboxState) applyLook() {
 		cs.box.Background(t.Accent).Border(1, t.Accent)
 		cs.box.Children(func() {
 			s := checkGlyph(float32(d))
-			ui.Icon(cs.c, icons.Check()).Size(s, s).TextColor(t.AccentText)
+			ui.Icon(cs.c, icons.Check()).Size(s, s).
+				Margin((float32(d)-s)/2, 0, 0, (float32(d)-s)/2).
+				TextColor(t.AccentText)
 		})
 	case ui.CheckMixed:
 		cs.box.Background(t.Accent).Border(1, t.Accent)
 		cs.box.Children(func() {
-			ui.Box(cs.c).Size(float32(d-8), 2).Radius(1).Background(t.AccentText)
+			w := float32(d - 8)
+			ui.Box(cs.c).Size(w, 2).Radius(1).Background(t.AccentText).
+				Margin(float32(d-2)/2, 0, 0, (float32(d)-w)/2)
 		})
 	}
 }
