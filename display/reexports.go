@@ -2,9 +2,9 @@ package display
 
 import "github.com/egoist/mygo/ui"
 
-// MyGo's display and layout widgets, re-exported unchanged. my-ui's
-// own components add a theme preset; these are the framework's bare
-// widgets, worth having under the same import as the rest of the view.
+// Only MyGo widgets my-ui has no counterpart for are re-exported.
+// Badge, Progress and Tabs have themed my-ui versions, so their MyGo
+// equivalents are deliberately left out.
 var (
 	// NewText is ui.Text.
 	NewText = ui.Text
@@ -74,10 +74,4 @@ var (
 	NewSpacer = ui.Spacer
 	// NewThemed is ui.Themed, which paints a subtree in its own theme.
 	NewThemed = ui.Themed
-	// NewTabsBase is ui.TabsBase.
-	NewTabsBase = ui.TabsBase
-	// NewProgressBase is ui.Progress.
-	NewProgressBase = ui.Progress
-	// NewBadgeBase is ui.Badge.
-	NewBadgeBase = ui.Badge
 )

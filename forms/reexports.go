@@ -2,28 +2,11 @@ package forms
 
 import "github.com/egoist/mygo/ui"
 
-// MyGo's input widgets, re-exported unchanged. Use my-ui's Input and
-// friends for the themed presets; use these when the framework's own
-// widget is what the app needs.
+// Only the MyGo inputs my-ui has no counterpart for are re-exported.
+// Input, TextArea, PasswordInput, Select, ComboBox and MultiSelect have
+// my-ui versions with the library's look and events, so their MyGo
+// equivalents (including the Base and Buffer variants) are left out.
 var (
-	// NewTextInput is ui.TextInput.
-	NewTextInput = ui.TextInput
-	// NewTextInputBase is ui.TextInputBase.
-	NewTextInputBase = ui.TextInputBase
-	// NewTextInputBuffer is ui.TextInputBuffer.
-	NewTextInputBuffer = ui.TextInputBuffer
-	// NewTextInputBufferBase is ui.TextInputBufferBase.
-	NewTextInputBufferBase = ui.TextInputBufferBase
-	// NewTextAreaBase is ui.TextAreaBase.
-	NewTextAreaBase = ui.TextAreaBase
-	// NewTextAreaBuffer is ui.TextAreaBuffer.
-	NewTextAreaBuffer = ui.TextAreaBuffer
-	// NewTextAreaBufferBase is ui.TextAreaBufferBase.
-	NewTextAreaBufferBase = ui.TextAreaBufferBase
-	// NewComboboxBase is ui.ComboboxBase.
-	NewComboboxBase = ui.ComboboxBase
-	// NewTokenField is ui.TokenField, the chips-and-suggestions widget.
-	NewTokenField = ui.TokenField
 	// NewNumberInput is ui.NumberInput.
 	NewNumberInput = ui.NumberInput
 	// NewDecimalInput is ui.DecimalInput.

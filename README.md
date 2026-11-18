@@ -28,7 +28,7 @@ h.Button("Save").Primary()
   - `display/` —— 消息、徽标、卡片、标签页、进度、键帽（`displaypkg.NewAlert` 等）；
   - `bind/` —— 每帧帧句柄 `bind.Bind(c)`；
   - `window/` —— 无框窗口外壳：`window.Open(icon, name, view)` 或 `window.New` 一行建窗（mygo `TitleBarHidden + HideWindowButtons` + 内置 `TitleBar` + 主题/窗口边框/底色 + 动作接线），只给图标和名字即可，其余走默认；是唯一 import mygo 根包的子包；
-  - mygo/ui 原样提供的控件也从对应分组重导出（`display.NewTable`、`forms.NewTextInput`、`overlays.NewDialogBase` 等），不重复实现、不额外加样式；
+  - mygo/ui 里 my-ui 没有对应版本的控件也从对应分组重导出（`display.NewTable`、`forms.NewNumberInput`、`overlays.NewMenuBase` 等）；my-ui 已有的控件（Button、Input、Select 等）不再导出 mygo 的同款或 Base 版本；
   - `icons/` —— Lucide（ISC）全量 2,318 个图标，函数式 API（`icons.Save()`），未调用的图标不进二进制；
   - `fonts/` —— 内嵌 OFL 字体与 `ui.RegisterFont` 注册；
   - `ai/` —— ChatList、ModelPicker、Reasoning 等重组件（规划中）。
