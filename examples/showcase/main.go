@@ -59,6 +59,10 @@ type showcase struct {
 	ratio         float64
 	searchQuery   string
 	hoverOpen     bool
+	menuOpen      bool
+	contextOpen   bool
+	lastAction    string
+	tableState    ui.ListState
 }
 
 // theme returns the options the window's frame applies, every frame:

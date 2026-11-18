@@ -74,6 +74,11 @@
 | 27 | SearchBar | 规格书 [components/search-bar.md](components/search-bar.md)；`forms/search_bar.go`：共享 Frame 基座 + 放大镜 + 清除图标；`search_bar_test.go`；showcase「更多组件」页 | ✅ 已完成 |
 | 28 | HoverCard | 规格书 [components/hover-card.md](components/hover-card.md)；`overlays/hover_card.go`：`ui.PopoverBase` + hover 判定与帧数宽限；`hover_card_test.go`；showcase「更多组件」页 | ✅ 已完成 |
 
+| 29 | DropdownMenu | 规格书 [components/dropdown-menu.md](components/dropdown-menu.md)；`overlays/dropdown_menu.go` + `menu_common.go`：包 mygo `MenuBase`，shadcn 面板/条目外观；`dropdown_menu_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 30 | ContextMenu | 规格书 [components/context-menu.md](components/context-menu.md)；`overlays/context_menu.go`：包 mygo `ContextMenuBase`，共用菜单条目外观；`context_menu_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 31 | Spin | 规格书 [components/spin.md](components/spin.md)；`display/spin.go`：`NewIcon(...).Spin()`，尺寸/Variant 预设，动效由框架兜底；`spin_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 32 | Table | 规格书 [components/table.md](components/table.md)；`display/table.go`：包 mygo `Table`（ListState/排序/选择仍由框架提供），shadcn 边框与弱墨列头容器；`table_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 
 ## 二期：导航、展示与桌面细粒度组件（按需排期）
@@ -83,8 +88,8 @@
 | 类别 | 组件 | 状态 |
 |---|---|---|
 | 展示/布局 | Skeleton ✅、EmptyState ✅、Result ✅、Pagination ✅；Divider/Avatar（mygo 自带，`display/` 重导出 ✓）；Skeleton、HoverCard、Carousel、AspectRatio 等 | ✅ 已完成（Skeleton/EmptyState/Result/Pagination） |
-| 导航/覆盖层 | Breadcrumb ✅、HoverCard ✅；DropdownMenu、ContextMenu、Command Palette、应用内 Menubar（Tabs 已做） | ✅ 已完成（Breadcrumb/HoverCard） |
-| 数据/复杂 | Table（样式与排序/过滤预设）、SortableList 等 | ⏳ 未开始 |
+| 导航/覆盖层 | Breadcrumb ✅、HoverCard ✅、DropdownMenu ✅、ContextMenu ✅；Command Palette、应用内 Menubar（Tabs 已做） | ✅ 已完成（四项） |
+| 数据/复杂 | Table ✅；SortableList | ✅ 已完成（Table） |
 
 ## 三期：AI 二级包（`ai/`）
 
