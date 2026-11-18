@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/egoist/mygo/ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"github.com/wuyangwang/my-ui/icons"
 )
 
@@ -275,22 +276,18 @@ func (f *Frame[T]) Clearable() T {
 		if f.size == SizeLg {
 			d = 20
 		}
-		t := c.Theme()
-		// The button keeps the focus in the field while it is pressed, and
-		// it is a stop of the Tab key, as a clear button is in Ant Design.
-		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label(Message(c, "clear"))
-		b.Children(func() {
-			ic := ui.Icon(c, icons.X()).Size(d-4, d-4)
-			if b.Hovered() {
-				ic = ic.TextColor(t.Text)
-			} else {
-				ic = ic.TextColor(t.TextMuted)
-			}
+		// The shared icon button carries the field's clear affordance:
+		// the same glyph size and hover states as every other one.
+		ctrlpkg.NewIconAction(c, ctrlpkg.IconActionOptions{
+			SVG:      icons.X(),
+			Label:    Message(c, "clear"),
+			Size:     d,
+			IconSize: IconSizeXs,
+			OnClick: func() {
+				*f.value = ""
+				f.cleared = true
+			},
 		})
-		if b.Clicked() {
-			*f.value = ""
-			f.cleared = true
-		}
 	})
 	return f.Self
 }

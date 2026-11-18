@@ -3,6 +3,7 @@ package forms
 import (
 	"github.com/egoist/mygo/ui"
 	. "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"github.com/wuyangwang/my-ui/icons"
 )
 
@@ -56,7 +57,8 @@ type Select struct {
 	options         []SelectOption
 	valueSlot       ui.Element // the slot of the choice
 	placeholderSlot ui.Element // the slot of the placeholder
-	clearSlot       ui.Element // the slot of the clear button
+	clearSlot       ui.Element // the slot of the clear icon
+	arrowSlot       ui.Element // the slot of the chevron, hidden while clearing
 	clearable       bool
 	variant         Variant
 	size            Size
@@ -88,7 +90,16 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 		s.valueSlot = ui.Row(c).Grow(1).AlignItems(ui.Center)
 		s.placeholderSlot = ui.Row(c).AlignItems(ui.Center)
 		s.clearSlot = ui.Row(c).AlignItems(ui.Center)
-		ui.Icon(c, icons.ChevronDown()).Margin(0, 0, 0, c.Theme().Space(1.5))
+		// A clearable select with a choice shows the clear icon in place
+		// of the chevron, as Element Plus and shadcn do: one glyph at a
+		// time, in the same slot.
+		s.arrowSlot = ui.Row(c).AlignItems(ui.Center)
+		s.arrowSlot.Children(func() {
+			if _, ok := s.chosen(); ok && s.clearable {
+				return
+			}
+			ui.Icon(c, icons.ChevronDown()).Size(IconSizeSm, IconSizeSm)
+		})
 	})
 
 	// The choice the trigger shows; an empty choice leaves room for the
@@ -99,27 +110,21 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 		}
 	})
 
-	// The button that empties the choice, while there is one and the
-	// select is clearable.
+	// The clear icon takes the chevron's place while there is a choice.
 	s.clearSlot.Children(func() {
 		if _, ok := s.chosen(); !ok || !s.clearable {
 			return
 		}
-		t := c.Theme()
-		d := float32(16)
-		// The button keeps the focus in the field while it is pressed, and
-		// it is a stop of the Tab key, as a clear button is in Ant Design.
-		b := ui.ButtonBase(c).Size(d, d).KeepFocus().Label(Message(c, "clear"))
-		b.Children(func() {
-			ic := ui.Icon(c, icons.X()).Size(d-5, d-5).TextColor(t.TextMuted)
-			if b.Hovered() {
-				ic = ic.TextColor(t.Text)
-			}
+		ctrlpkg.NewIconAction(c, ctrlpkg.IconActionOptions{
+			SVG:      icons.X(),
+			Label:    Message(c, "clear"),
+			Size:     16,
+			IconSize: IconSizeXs,
+			OnClick: func() {
+				*selected = ""
+				s.cleared = true
+			},
 		})
-		if b.Clicked() {
-			*selected = ""
-			s.cleared = true
-		}
 	})
 
 	// The popup holds the options.
@@ -153,7 +158,7 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 				item.Children(func() {
 					ui.Text(c, o.Text()).Grow(1)
 					if o.Value == *selected {
-						ui.Icon(c, icons.Check()).TextColor(t.Accent)
+						ui.Icon(c, icons.Check()).Size(IconSizeSm, IconSizeSm).TextColor(t.Accent)
 					}
 				})
 				if o.Disabled {

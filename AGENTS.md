@@ -121,6 +121,11 @@ CI-safe on all three desktop OSes plus js/wasm.
 - Input-like controls (Input, TextArea, PasswordInput, Select, ComboBox,
   MultiSelect) fill their parent by default; `Width(w)` pins a fixed
   size. Keep that behavior when adding a field-like component.
+- Icons use the root's `IconSizeXs/Sm/Md/Lg` scale, never ad-hoc DIPs.
+  A clear/close affordance is an icon with a button role
+  (`controls.NewIconAction`), not a ButtonBase wrapper: hover and press
+  change only the glyph's ink, through the shared StateTransition. In a
+  clearable Select the clear icon replaces the chevron.
 - Package docs in code comments are written in English (Go ecosystem
   style); the files under `docs/` and `README.md` are written in Chinese.
 - New components first: the ordered plan in docs/roadmap.md decides what

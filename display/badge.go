@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/egoist/mygo/ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"github.com/wuyangwang/my-ui/icons"
 )
 
@@ -169,17 +170,18 @@ func (b *Badge) Count(n, max int) *Badge {
 // chaining. Clicking it sets *closed to true.
 func (b *Badge) Closable(closed *bool) *Badge {
 	b.Children(func() {
-		btn := ui.ButtonBase(b.c).Size(12, 12).KeepFocus().Margin(0, 0, 0, b.c.Theme().Space(1)).
-			Label(Message(b.c, "close"))
-		btn.Children(func() {
-			ic := ui.Icon(b.c, icons.X()).Size(10, 10)
-			if btn.Hovered() {
-				ic = ic.TextColor(b.c.Theme().Text)
-			}
+		close := ctrlpkg.NewIconAction(b.c, ctrlpkg.IconActionOptions{
+			SVG:      icons.X(),
+			Label:    Message(b.c, "close"),
+			Size:     16,
+			IconSize: IconSizeXs,
+			OnClick: func() {
+				if closed != nil {
+					*closed = true
+				}
+			},
 		})
-		if btn.Clicked() && closed != nil {
-			*closed = true
-		}
+		close = close.Margin(0, 0, 0, b.c.Theme().Space(1))
 	})
 	return b
 }

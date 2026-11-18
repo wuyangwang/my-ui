@@ -162,11 +162,16 @@ func (a *Alert) Closable(closed *bool) *Alert {
 		return a
 	}
 	a.action.Children(func() {
-		b := ctrlpkg.NewButton(a.c, "").Ghost().Xs()
-		b.Icon(icons.X()).Label(Message(a.c, "close"))
-		if b.Clicked() && a.closed != nil {
-			*a.closed = true
-		}
+		ctrlpkg.NewIconAction(a.c, ctrlpkg.IconActionOptions{
+			SVG:      icons.X(),
+			Label:    Message(a.c, "close"),
+			IconSize: IconSizeSm,
+			OnClick: func() {
+				if a.closed != nil {
+					*a.closed = true
+				}
+			},
+		})
 	})
 	return a
 }

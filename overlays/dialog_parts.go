@@ -34,14 +34,18 @@ func BuildSlots(c *ui.Context, build func(panel ui.Element), panel ui.Element, o
 			}
 		})
 		d.footer = ui.Row(c).Justify(ui.End).Gap(th.Space(2))
-		// The corner close button, as shadcn's dialog and sheet.
-		close := ctrlpkg.NewButton(c, "").Ghost().Xs()
-		close.Icon(icons.X()).Label(Message(c, "close"))
-		close.Element = close.Element.Absolute().Top(th.Space(4)).Right(th.Space(4))
-		if close.Clicked() && open != nil {
-			*open = false
-		}
-		d.close = close.Element
+		// The corner close icon, as shadcn's dialog and sheet.
+		close := ctrlpkg.NewIconAction(c, ctrlpkg.IconActionOptions{
+			SVG:      icons.X(),
+			Label:    Message(c, "close"),
+			IconSize: IconSizeSm,
+			OnClick: func() {
+				if open != nil {
+					*open = false
+				}
+			},
+		}).Absolute().Top(th.Space(4)).Right(th.Space(4))
+		d.close = close
 	})
 	return d
 }

@@ -39,6 +39,16 @@ const (
 // Spacing2Xl pass well), the room one scale step takes.
 func Space(t *ui.Theme, n float32) float32 { return t.Space(n) }
 
+// The icon scale, in DIPs. Every component's icons use these four
+// steps, so a glyph of one widget is the size of the same glyph in
+// another. IconSizeMd is the text's own size; the others are fixed.
+const (
+	IconSizeXs float32 = 12
+	IconSizeSm float32 = 14
+	IconSizeMd float32 = 16
+	IconSizeLg float32 = 24
+)
+
 // The radius scale, in multiples of the theme's radius (RadiusLg rounds
 // the corners of one of the widgets at Theme.Radius — its base scale).
 const (

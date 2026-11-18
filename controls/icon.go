@@ -121,11 +121,11 @@ func (i *Icon) applySizing() {
 	var d float32
 	switch i.size {
 	case SizeXs:
-		d = 12
+		d = IconSizeXs
 	case SizeSm:
-		d = 14
+		d = IconSizeSm
 	case SizeLg:
-		d = 24
+		d = IconSizeLg
 	case SizeMd:
 		d = 20
 	default:

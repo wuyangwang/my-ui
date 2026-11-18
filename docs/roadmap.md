@@ -1,5 +1,7 @@
 # my-ui 路线图
 
+> v0.4.0 起组件按功能分组到 `controls/`、`forms/`、`overlays/`、`display/` 子包，根包只留主题/tokens 底座；`myui.NewXxx` 调用需按分组改 import。
+
 
 > 基线 mygo **v0.8.3**（证据见 [research.md](research.md)）。本文是按序实施计划：**每一项交付 = 规格书 + 实现 + `ui.Tester` 测试 + `examples/showcase` 示例页/区块**（适用时）。首个 tag 为 `v0.2.0`，开发中不考虑更早版本的历史兼容。
 
@@ -70,7 +72,7 @@
 
 | 类别 | 组件 | 状态 |
 |---|---|---|
-| 展示/布局 | 展示件：Card（`card.go`）、Tabs（`tabs.go`）、Progress（`progress.go`）、Kbd（`kbd.go`）、Divider/Avatar（框架自带外观 ✓） | ✅ 已完成（Card/Tabs/Progress/Kbd） |
+| 展示/布局 | 展示件：Card（`card.go`）、Tabs（`tabs.go`）、Progress（`progress.go`）、Kbd（`kbd.go`）、Divider/Avatar（mygo 自带，`display/` 重导出 ✓） | ✅ 已完成（Card/Tabs/Progress/Kbd + 重导出） |
 | 导航/覆盖层 | Tabs ✅、Breadcrumb、Pagination、DropdownMenu、ContextMenu、Accordion/Collapsible、Command Palette、应用内 Menubar | ⏳ 未开始（Tabs 已做） |
 | 数据/复杂 | Table（样式与排序/过滤预设）、SortableList 等 | ⏳ 未开始 |
 

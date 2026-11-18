@@ -75,7 +75,7 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 				item.Children(func() {
 					ui.Text(c, o.Text())
 					if o.Value == *b.chosen {
-						ui.Icon(c, icons.Check()).TextColor(t.Accent)
+						ui.Icon(c, icons.Check()).Size(IconSizeSm, IconSizeSm).TextColor(t.Accent)
 					}
 				})
 			}

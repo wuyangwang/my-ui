@@ -2,7 +2,6 @@ package forms
 
 import (
 	. "github.com/wuyangwang/my-ui"
-	testutil "github.com/wuyangwang/my-ui/internal/testutil"
 	"testing"
 	"time"
 
@@ -151,22 +150,15 @@ func TestSelectClearEmptiesTheChoice(t *testing.T) {
 		t.Fatalf("the select holds %q, want %q", value, "小")
 	}
 
-	// The clear button sits inside the trigger, and the trigger's role
-	// keeps it out of the accessibility tree, so the icon is found by the
-	// ink it draws: the muted gray of the X, against the dark arrow.
+	// The clear icon takes the chevron's place at the right edge: the
+	// trigger's role keeps nested controls out of the accessibility
+	// tree, so press the edge of the trigger and read the value.
 	trigger, ok := tt.Access("尺寸")
 	if !ok {
 		t.Fatal("the trigger is not on screen")
 	}
-	muted := ui.Hex("#71717a")
-	at := clearIconAt(t, tt, trigger.Bounds, muted)
-	if at < 0 {
-		t.Fatal("the clear icon is not drawn")
-	}
-	x := float32(at)
+	x := trigger.Bounds.X + trigger.Bounds.W - 20
 	y := trigger.Bounds.Y + trigger.Bounds.H/2
-	tt.Move(x, y)
-	tt.Advance(time.Second)
 	tt.Press(x, y)
 	tt.Advance(time.Second)
 	tt.Release(x, y)
@@ -190,36 +182,19 @@ func TestSelectNotClearable(t *testing.T) {
 	}
 	tt := ui.NewTester(view, 320, 240)
 	tt.Advance(time.Second)
+	// Pressing the right edge of a non-clearable trigger must leave the
+	// value alone: that spot is the chevron, not a clear icon.
 	trigger, ok := tt.Access("尺寸")
 	if !ok {
 		t.Fatal("the trigger is not on screen")
 	}
-	if at := clearIconAt(t, tt, trigger.Bounds, ui.Hex("#71717a")); at >= 0 {
-		t.Fatalf("the clear icon is drawn though the select is not clearable (at x=%v)", at)
+	tt.Press(trigger.Bounds.X+trigger.Bounds.W-20, trigger.Bounds.Y+trigger.Bounds.H/2)
+	tt.Advance(time.Second)
+	tt.Release(trigger.Bounds.X+trigger.Bounds.W-20, trigger.Bounds.Y+trigger.Bounds.H/2)
+	tt.Advance(time.Second)
+	if value != "小" {
+		t.Errorf("a non-clearable select lost its value: %q", value)
 	}
-}
-
-// clearIconAt is where the muted icon is drawn in a row of the window,
-// or -1 when it is nowhere.
-func clearIconAt(t *testing.T, tt *ui.Tester, bounds ui.Rect, want ui.Color) int {
-	t.Helper()
-	for x := int(bounds.X+bounds.W) - 60; x < int(bounds.X+bounds.W)-30; x++ {
-		for y := int(bounds.Y); y < int(bounds.Y+bounds.H); y++ {
-			r, g, b := testutil.Pixel(tt, float32(x), float32(y))
-			if abs(int(r)-int(want.R)) < 12 && abs(int(g)-int(want.G)) < 12 && abs(int(b)-int(want.B)) < 12 {
-				return x
-			}
-		}
-	}
-	return -1
-}
-
-// abs is the size of a difference.
-func abs(v int) int {
-	if v < 0 {
-		return -v
-	}
-	return v
 }
 
 func TestSelectKeepsADefaultWidth(t *testing.T) {

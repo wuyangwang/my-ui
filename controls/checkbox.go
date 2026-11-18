@@ -52,7 +52,7 @@ func (cb *Checkbox) applyLook() {
 		}
 		cb.box.Background(fill).Border(1, fill)
 		cb.box.Children(func() {
-			ui.Icon(cb.c, icons.Check()).Size(d-4, d-4).TextColor(t.AccentText)
+			ui.Icon(cb.c, icons.Check()).Size(checkGlyph(d), checkGlyph(d)).TextColor(t.AccentText)
 		})
 	}
 }
@@ -161,7 +161,8 @@ func (cs *CheckboxState) applyLook() {
 	case ui.CheckOn:
 		cs.box.Background(t.Accent).Border(1, t.Accent)
 		cs.box.Children(func() {
-			ui.Icon(cs.c, icons.Check()).Size(float32(d-4), float32(d-4)).TextColor(t.AccentText)
+			s := checkGlyph(float32(d))
+			ui.Icon(cs.c, icons.Check()).Size(s, s).TextColor(t.AccentText)
 		})
 	case ui.CheckMixed:
 		cs.box.Background(t.Accent).Border(1, t.Accent)
