@@ -57,7 +57,7 @@ func (d *DatePicker) apply() {
 		}
 	}
 	v, h := FramePadding(t, d.size)
-	d.Element = d.Element.Radius(t.Radius).Padding(v, h).FontSize(FrameFontSize(t, d.size))
+	d.Element = d.Element.Radius(Radius(t, RadiusMd)).Padding(v, h).FontSize(FrameFontSize(t, d.size))
 	if d.width > 0 {
 		d.Element = d.Element.Width(d.width)
 	} else {

@@ -37,7 +37,7 @@ func NewAlert(c *ui.Context, title string) *Alert {
 	a := &Alert{c: c, title: title}
 	th := c.Theme()
 	alert := ui.Box(c).Row().AlignItems(ui.Start).Gap(th.Space(3)).
-		Background(th.Surface).Border(1, th.Border).Radius(th.Radius).
+		Background(th.Surface).Border(1, th.Border).Radius(Radius(th, RadiusMd)).
 		Padding(th.Space(3), th.Space(4)).
 		FontSize(TextSize(th, TextSm)).
 		Role(ui.RoleAlert).

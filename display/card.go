@@ -37,7 +37,7 @@ func newCard(c *ui.Context, title string) *Card {
 	card := &Card{c: c}
 	t := c.Theme()
 	col := ui.Column(c).Background(t.Surface).Border(1, t.Border).
-		Radius(Radius(t, RadiusLg)).Padding(t.Space(5)).Gap(0)
+		FillWidth().Radius(Radius(t, RadiusXl)).Padding(t.Space(5)).Gap(0)
 	col.Children(func() {
 		card.head = ui.Row(c).AlignItems(ui.Center).Justify(ui.SpaceBetween).
 			Gap(t.Space(3))

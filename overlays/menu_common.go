@@ -19,7 +19,7 @@ type MenuItem struct {
 // buildMenuPanel gives a mygo menu panel shadcn's look: the theme's
 // background, a hairline border, the theme's radius and a soft shadow.
 func buildMenuPanel(c *ui.Context, t *ui.Theme, panel ui.Element) {
-	panel.Padding(t.Space(1)).Radius(t.Radius).
+	panel.Padding(t.Space(1)).Radius(Radius(t, RadiusMd)).
 		Background(t.Background).Border(1, t.Border).
 		Shadow(0, 4, 16, -4, t.Text.Alpha(0.14))
 }
@@ -35,7 +35,7 @@ func buildMenuItems(c *ui.Context, t *ui.Theme, parts ui.MenuParts, items []Menu
 				Margin(t.Space(1), 0)
 			continue
 		}
-		row := parts.Item().Padding(t.Space(1.5), t.Space(2)).Radius(t.Radius / 2)
+		row := parts.Item().Padding(t.Space(1.5), t.Space(2)).Radius(Radius(t, RadiusSm))
 		switch {
 		case item.Disabled:
 			row = row.Disabled(true).TextColor(t.TextMuted)

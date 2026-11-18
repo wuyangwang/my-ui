@@ -119,8 +119,14 @@ func TestScalesResolveOnTheTheme(t *testing.T) {
 	if got := Space(th, SpacingXs); got != th.Space(1) {
 		t.Errorf("Space at 1 is %v, want the theme's", got)
 	}
-	if got := Radius(th, RadiusLg); got != th.Radius*1.5 {
-		t.Errorf("Radius at 1.5 is %v, want the theme's raised one", got)
+	if got := Radius(th, RadiusMd); got != th.Radius*0.75 {
+		t.Errorf("RadiusMd (shadcn md) is %v, want 6", got)
+	}
+	if got := Radius(th, RadiusLg); got != th.Radius {
+		t.Errorf("RadiusLg (shadcn lg) is %v, want the theme's radius %v", got, th.Radius)
+	}
+	if got := Radius(th, RadiusXl); got != th.Radius*1.5 {
+		t.Errorf("RadiusXl (shadcn xl) is %v, want the raised radius", got)
 	}
 }
 

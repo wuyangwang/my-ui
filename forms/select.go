@@ -135,7 +135,7 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 	// A select that can be searched is another component, a ComboBox.
 	s.parts.Popup(func(panel ui.Element) {
 		t := c.Theme()
-		panel.Background(t.Background).Border(1, t.Border).Radius(t.Radius).
+		panel.Background(t.Background).Border(1, t.Border).Radius(Radius(t, RadiusMd)).
 			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
 
 		// A long list scrolls inside the popup instead of running off the
@@ -151,7 +151,7 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 					ui.Text(c, group).FontSize(TextSize(t, TextXs)).TextColor(t.TextMuted).
 						Padding(t.Space(1), t.Space(2))
 				}
-				item := s.parts.Item(o.Value).Padding(t.Space(1.5), t.Space(2)).Radius(t.Radius / 2)
+				item := s.parts.Item(o.Value).Padding(t.Space(1.5), t.Space(2)).Radius(Radius(t, RadiusSm))
 				if item.Highlighted() {
 					item.Background(t.Accent.Alpha(0.10))
 				}
@@ -370,7 +370,7 @@ func (s *Select) apply() {
 	if s.invalid {
 		border = t.Danger
 	}
-	radius := t.Radius
+	radius := Radius(t, RadiusMd)
 	if s.shape == ShapeRound || s.shape == ShapeCircle {
 		radius = 1000
 	}

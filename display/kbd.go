@@ -42,7 +42,7 @@ func (k *Kbd) build() {
 			}
 			text := ui.Text(k.c, key).Font("monospace").
 				TextColor(k.ink()).Background(k.fill()).
-				Border(1, t.Border).Radius(t.Radius/2).
+				Border(1, t.Border).Radius(Radius(t, RadiusSm)).
 				Padding(k.padV(), k.padH())
 			text.FontSize(k.fontSize())
 		}

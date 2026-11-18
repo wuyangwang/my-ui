@@ -98,7 +98,7 @@ func toastCard(c *ui.Context, t ui.Toast, fadeIn bool) {
 	th := c.Theme()
 	parts := ui.ToastBase(c, t)
 	card := parts.Root.Row().AlignItems(ui.Center).Gap(th.Space(3)).
-		Background(th.Surface).Border(1, th.Border).Radius(th.Radius).
+		Background(th.Surface).Border(1, th.Border).Radius(Radius(th, RadiusMd)).
 		Padding(th.Space(3), th.Space(4)).
 		Shadow(0, 8, 24, 0, ui.RGBA(0, 0, 0, 0.18)).
 		MaxWidth(th.Space(80)).

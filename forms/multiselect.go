@@ -210,13 +210,13 @@ func (m *MultiSelect) apply() {
 		if m.invalid {
 			border = t.Danger
 		}
-		m.Element = m.Element.Background(l.Bg).Border(l.Width, border).Radius(t.Radius).Padding(v, h)
+		m.Element = m.Element.Background(l.Bg).Border(l.Width, border).Radius(Radius(t, RadiusMd)).Padding(v, h)
 	}
 	switch m.shape {
 	case ShapeRound, ShapeCircle:
 		m.Element = m.Element.Radius(1000)
 	default:
-		m.Element = m.Element.Radius(t.Radius)
+		m.Element = m.Element.Radius(Radius(t, RadiusMd))
 	}
 	m.Element = m.Element.FontSize(FrameFontSize(t, m.size))
 }

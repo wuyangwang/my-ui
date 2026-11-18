@@ -73,6 +73,9 @@ func NewButton(c *ui.Context, label string) *Button {
 	// The room between the icon and the text rides on the icon, so that
 	// a button without an icon has no room in it.
 	b.Element = btn.Gap(0).Transition(StateTransition())
+	// Apply the default scale even without a Variant: a bare button is
+	// still a shadcn-sized button, not the framework's built-in one.
+	b.applySizing()
 	// Size to the content as a button does: a column stretches its
 	// children across, which a button never asks for.
 	b.AlignSelf(ui.Start)
@@ -317,13 +320,13 @@ func (b *Button) applySizing() {
 	t := b.c.Theme()
 	switch b.size {
 	case SizeXs:
-		b.Padding(t.Space(0.5), t.Space(2)).FontSize(TextSize(t, TextXs))
+		b.Padding(t.Space(0.5), t.Space(2)).FontSize(TextSize(t, TextXs)).Height(28)
 	case SizeSm:
-		b.Padding(t.Space(1), t.Space(2.5)).FontSize(TextSize(t, TextSm))
+		b.Padding(t.Space(1), t.Space(2.5)).FontSize(TextSize(t, TextSm)).Height(32)
 	case SizeLg:
-		b.Padding(t.Space(2.5), t.Space(4.5)).FontSize(TextSize(t, TextLg))
+		b.Padding(t.Space(2.5), t.Space(4.5)).FontSize(TextSize(t, TextLg)).Height(40)
 	default:
-		b.Padding(t.Space(1.5), t.Space(3.5)).FontSize(t.FontSize)
+		b.Padding(t.Space(1.5), t.Space(3.5)).FontSize(t.FontSize).Height(36)
 	}
 	b.applyShape()
 }
@@ -357,6 +360,6 @@ func (b *Button) applyShape() {
 	case ShapeRound, ShapeCircle:
 		b.Radius(1000)
 	default:
-		b.Radius(t.Radius)
+		b.Radius(Radius(t, RadiusMd))
 	}
 }

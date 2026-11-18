@@ -63,7 +63,7 @@ func (a *AutoComplete) apply() {
 		}
 	}
 	v, h := FramePadding(t, a.size)
-	a.Element = a.Element.Radius(t.Radius).Padding(v, h).FontSize(FrameFontSize(t, a.size))
+	a.Element = a.Element.Radius(Radius(t, RadiusMd)).Padding(v, h).FontSize(FrameFontSize(t, a.size))
 	if a.width > 0 {
 		a.Element = a.Element.Width(a.width)
 	} else {

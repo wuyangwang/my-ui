@@ -49,13 +49,14 @@ const (
 	IconSizeLg float32 = 24
 )
 
-// The radius scale, in multiples of the theme's radius (RadiusLg rounds
-// the corners of one of the widgets at Theme.Radius — its base scale).
+// The radius scale, in multiples of the theme's radius, aligned with
+// shadcn's: Sm 4, Md 6, Lg 8 (Theme.Radius), Xl 12 DIPs. Controls use
+// Md, cards and popovers that need more air use Xl.
 const (
-	RadiusSm float32 = 0.6
-	RadiusMd float32 = 1
-	RadiusLg float32 = 1.5
-	RadiusXl float32 = 2.2
+	RadiusSm float32 = 0.5
+	RadiusMd float32 = 0.75
+	RadiusLg float32 = 1
+	RadiusXl float32 = 1.5
 )
 
 // Radius r returns Theme.Radius at scale s (RadiusSm through RadiusXl),

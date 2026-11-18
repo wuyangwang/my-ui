@@ -59,7 +59,7 @@ func (n *InputNumber) apply() {
 		}
 	}
 	v, h := FramePadding(t, n.size)
-	n.Element = n.Element.Radius(t.Radius).Padding(v, h).FontSize(FrameFontSize(t, n.size))
+	n.Element = n.Element.Radius(Radius(t, RadiusMd)).Padding(v, h).FontSize(FrameFontSize(t, n.size))
 	if n.width > 0 {
 		n.Element = n.Element.Width(n.width)
 	} else {

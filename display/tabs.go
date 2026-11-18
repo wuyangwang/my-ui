@@ -83,13 +83,13 @@ func (tb *Tabs) apply() {
 	if tb.variant == tabsLine {
 		tb.list.Background(ui.Transparent).Border(0, ui.Transparent).Padding(t.Space(1), 0)
 	} else {
-		tb.list.Background(t.SurfaceHover).Border(0, ui.Transparent).Radius(t.Radius).Padding(t.Space(1))
+		tb.list.Background(t.SurfaceHover).Border(0, ui.Transparent).Radius(Radius(t, RadiusMd)).Padding(t.Space(1))
 	}
 	for i, tr := range tb.triggers {
 		if tb.variant == tabsLine {
 			tr.Padding(t.Space(2), t.Space(3)).Radius(0).BorderWidth(0, 0, 2, 0)
 		} else {
-			tr.Padding(t.Space(1.5), t.Space(3)).Radius(t.Radius/2).BorderWidth(0, 0, 0, 0)
+			tr.Padding(t.Space(1.5), t.Space(3)).Radius(Radius(t, RadiusSm)).BorderWidth(0, 0, 0, 0)
 		}
 		chosen := i == *tb.selected
 		disabled := i < len(tb.tabs) && tb.tabs[i].Disabled

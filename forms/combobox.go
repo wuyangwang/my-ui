@@ -53,7 +53,7 @@ func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox 
 	// The popup holds the options the text matches.
 	p.Popup(func(panel ui.Element) {
 		t := c.Theme()
-		panel.Background(t.Background).Border(1, t.Border).Radius(t.Radius).
+		panel.Background(t.Background).Border(1, t.Border).Radius(Radius(t, RadiusMd)).
 			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
 		filter := strings.TrimSpace(*text)
 		group := ""
@@ -286,13 +286,13 @@ func (b *ComboBox) apply() {
 		if b.invalid {
 			border = t.Danger
 		}
-		b.Element = b.Element.Background(l.Bg).Border(l.Width, border).Radius(t.Radius).Padding(v, h)
+		b.Element = b.Element.Background(l.Bg).Border(l.Width, border).Radius(Radius(t, RadiusMd)).Padding(v, h)
 	}
 	switch b.shape {
 	case ShapeRound, ShapeCircle:
 		b.Element = b.Element.Radius(1000)
 	default:
-		b.Element = b.Element.Radius(t.Radius)
+		b.Element = b.Element.Radius(Radius(t, RadiusMd))
 	}
 	b.Element = b.Element.FontSize(FrameFontSize(t, b.size))
 }

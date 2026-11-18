@@ -1,6 +1,10 @@
 package overlays
 
-import "github.com/egoist/mygo/ui"
+import (
+	. "github.com/wuyangwang/my-ui"
+
+	"github.com/egoist/mygo/ui"
+)
 
 // HoverCard opens a panel while the pointer is on its anchor or on the
 // panel itself. The open flag belongs to the app, like Popover's.
@@ -37,7 +41,7 @@ func NewHoverCard(c *ui.Context, open *bool, anchor func() ui.Element, build fun
 
 		panel := ui.PopoverBase(c, trigger, open, func(p ui.Element) {
 			p = p.Background(t.Background).Border(1, t.Border).
-				Radius(t.Radius).Padding(t.Space(3), t.Space(4)).
+				Radius(Radius(t, RadiusMd)).Padding(t.Space(3), t.Space(4)).
 				Shadow(0, 4, 16, -4, t.Text.Alpha(0.18))
 			if build != nil {
 				build(p)

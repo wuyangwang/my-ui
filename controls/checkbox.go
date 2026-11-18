@@ -44,7 +44,7 @@ func (cb *Checkbox) applyLook() {
 	if cb.invalid {
 		border = t.Danger
 	}
-	cb.box.Size(d, d).Radius(t.Radius/2).Border(1, border)
+	cb.box.Size(d, d).Radius(Radius(t, RadiusSm)).Border(1, border)
 	if cb.checked != nil && *cb.checked {
 		fill := t.Accent
 		if cb.invalid {
@@ -153,7 +153,7 @@ func (cs *CheckboxState) applyLook() {
 	} else if cs.size == SizeLg {
 		d = 22
 	}
-	cs.box.Size(float32(d), float32(d)).Radius(t.Radius/2).Border(1, t.Border)
+	cs.box.Size(float32(d), float32(d)).Radius(Radius(t, RadiusSm)).Border(1, t.Border)
 	if cs.state == nil {
 		return
 	}

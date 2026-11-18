@@ -68,6 +68,9 @@ func NewFrame[T any](c *ui.Context, value *string, make func(c *ui.Context, valu
 	})
 
 	f.Element = column
+	// Apply the default look and padding even for the zero variant: a
+	// bare field keeps shadcn's size, not the framework's built-in one.
+	f.apply()
 	return f
 }
 
@@ -390,7 +393,7 @@ func (f *Frame[T]) radius() float32 {
 	case ShapeRound, ShapeCircle:
 		return 1000
 	default:
-		return t.Radius
+		return Radius(t, RadiusMd)
 	}
 }
 
@@ -438,13 +441,13 @@ func (f *Frame[T]) fontSize() float32 { return FrameFontSize(f.c.Theme(), f.size
 func FramePadding(t *ui.Theme, size Size) (v, h float32) {
 	switch size {
 	case SizeXs:
-		return t.Space(0.5), t.Space(2)
+		return t.Space(1), t.Space(2)
 	case SizeSm:
-		return t.Space(1), t.Space(2.5)
+		return t.Space(1.25), t.Space(2.5)
 	case SizeLg:
-		return t.Space(2.5), t.Space(4)
+		return t.Space(3), t.Space(4)
 	default:
-		return t.Space(1.5), t.Space(3)
+		return t.Space(2), t.Space(3)
 	}
 }
 
