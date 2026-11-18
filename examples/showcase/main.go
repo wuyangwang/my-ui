@@ -71,6 +71,8 @@ type showcase struct {
 	tagClosed     bool
 	cmdOpen       bool
 	cmdQuery      string
+	scroll        ui.ScrollState // the content column's scroll position
+	lastPage      string         // the page the scroll position belongs to
 }
 
 // theme returns the options the window's frame applies, every frame:
@@ -293,6 +295,13 @@ func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
 // main is the page column beside the sidebar: the page title, then the
 // page on a scroll.
 func (s *showcase) main(c *ui.Context, t *ui.Theme) {
+	// The scroll belongs to the open page. Reset it before building the
+	// new page, so the next component starts at the top rather than
+	// inheriting the previous page's offset.
+	if s.lastPage != s.page {
+		s.scroll.Y = 0
+		s.lastPage = s.page
+	}
 	ui.Column(c).Grow(1).Padding(t.Space(7), t.Space(8)).Gap(t.Space(6)).
 		Children(func() {
 			// Page name, group pill, then one line of context.
@@ -313,7 +322,11 @@ func (s *showcase) main(c *ui.Context, t *ui.Theme) {
 			})
 			ui.Box(c).FillWidth().Height(1).Background(t.Border)
 
-			ui.Scroll(c).Grow(1).Gap(t.Space(6)).Children(func() {
+			// The scroll's identity follows the page: switching to
+			// another component builds a new scroll, starting at the
+			// top, instead of reusing the old page's offset.
+			ui.Scroll(c).TrackScroll(&s.scroll).Grow(1).
+				Gap(t.Space(6)).Children(func() {
 				s.openPage(c, t)()
 			})
 		})
