@@ -13,6 +13,7 @@ import (
 	overlaypkg "github.com/wuyangwang/my-ui/overlays"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
@@ -63,6 +64,10 @@ type showcase struct {
 	contextOpen   bool
 	lastAction    string
 	tableState    ui.ListState
+	autoValue     string
+	pickedDate    time.Time
+	slide         int
+	tagClosed     bool
 }
 
 // theme returns the options the window's frame applies, every frame:

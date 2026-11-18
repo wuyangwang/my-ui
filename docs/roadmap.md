@@ -79,6 +79,11 @@
 | 31 | Spin | 规格书 [components/spin.md](components/spin.md)；`display/spin.go`：`NewIcon(...).Spin()`，尺寸/Variant 预设，动效由框架兜底；`spin_test.go`；showcase「更多组件」页 | ✅ 已完成 |
 | 32 | Table | 规格书 [components/table.md](components/table.md)；`display/table.go`：包 mygo `Table`（ListState/排序/选择仍由框架提供），shadcn 边框与弱墨列头容器；`table_test.go`；showcase「更多组件」页 | ✅ 已完成 |
 
+| 33 | AutoComplete | 规格书 [components/auto-complete.md](components/auto-complete.md)；`forms/auto_complete.go`：包 mygo `Autocomplete` + 共享 Variant/Size/Width；`auto_complete_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 34 | DatePicker | 规格书 [components/date-picker.md](components/date-picker.md)；`forms/date_picker.go`：包 mygo `DateInput` + 共享外观；`date_picker_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 35 | Carousel | 规格书 [components/carousel.md](components/carousel.md)；`display/carousel.go`：索引指针绑定、左右图标与圆点；`carousel_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+| 36 | Tag | 规格书 [components/tag.md](components/tag.md)；`display/tag.go`：轻量标签、语义弱底、可关闭图标；`tag_test.go`；showcase「更多组件」页 | ✅ 已完成 |
+
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 
 ## 二期：导航、展示与桌面细粒度组件（按需排期）

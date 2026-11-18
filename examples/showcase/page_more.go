@@ -64,6 +64,34 @@ func (s *showcase) morePage(c *ui.Context, t *ui.Theme) {
 			})
 		})
 	})
+	s.sectionNote(c, t, "AutoComplete / DatePicker", "都包 mygo 的输入底座，套共享 Variant/Size/Width", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(3)).Children(func() {
+				forms.NewAutoComplete(c, &s.autoValue, []string{"苹果", "香蕉", "橘子"}).
+					Variant(myui.Outline).Placeholder("输入或选择水果").Width(280)
+				forms.NewDatePicker(c, &s.pickedDate).Variant(myui.Outline).Width(180)
+			})
+		})
+	})
+	s.sectionNote(c, t, "Carousel / Tag", "轮播索引由 app 持有；标签是轻量元信息标记", func() {
+		s.card(c, t, func() {
+			ui.Column(c).Gap(t.Space(3)).Children(func() {
+				display.NewCarousel(c, &s.slide, 3, func(i int) {
+					ui.Row(c).Height(t.Space(16)).AlignItems(ui.Center).Children(func() {
+						ui.Text(c, []string{"第一张", "第二张", "第三张"}[i]).Bold()
+					})
+				})
+				ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center).Children(func() {
+					display.NewTag(c, display.TagOptions{
+						Label: "新功能", Icon: icons.Sparkles(),
+						Closed: &s.tagClosed,
+					}).Variant(myui.Success)
+					display.NewTag(c, display.TagOptions{Label: "草稿"}).Variant(myui.Secondary)
+					ui.Text(c, "关闭后标签仍会保留，演示不移除数据").TextColor(t.TextMuted)
+				})
+			})
+		})
+	})
 	s.sectionNote(c, t, "Spin / Table", "旋转图标走框架动效；表格由 mygo ListState 管排序与选择", func() {
 		s.card(c, t, func() {
 			ui.Row(c).Gap(t.Space(4)).AlignItems(ui.Center).Children(func() {
