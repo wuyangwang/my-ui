@@ -41,6 +41,53 @@ formspkg.NewInput(c, &name).Outline().Width(170)
 
 每个组件的调研与契约见 [`docs/components/`](docs/components)：[button](docs/components/button.md) · [input](docs/components/input.md) · [textarea](docs/components/textarea.md) · [select](docs/components/select.md) · [combobox](docs/components/combobox.md) · [multiselect](docs/components/multiselect.md) · [field](docs/components/field.md) · [password](docs/components/password.md) · [checkbox](docs/components/checkbox.md) · [radio](docs/components/radio.md) · [switch](docs/components/switch.md) · [slider](docs/components/slider.md) · [badge](docs/components/badge.md) · [tooltip](docs/components/tooltip.md) · [popover](docs/components/popover.md) · [modal](docs/components/modal.md) · [drawer](docs/components/drawer.md) · [toast](docs/components/toast.md) · [alert](docs/components/alert.md) · [card](docs/components/card.md) · [tabs](docs/components/tabs.md) · [progress](docs/components/progress.md) · [kbd](docs/components/kbd.md) · [titlebar](docs/components/titlebar.md) · [window](docs/components/window.md) · [icons](docs/components/icons.md) · [handle](docs/components/handle.md) · [motion](docs/components/motion.md)。工程结论见 [docs/research.md](docs/research.md)，分层与约定见 [docs/architecture.md](docs/architecture.md)，协作规则见 [AGENTS.md](AGENTS.md)。
 
+## 自定义窗口 + 橙色主题
+
+`window.New` 把无框窗口、自绘标题栏（左 logo + 应用名，右窗口按钮）、主题、窗口边框/底色和动作接线一次做完。只需给图标、名字、主题和视图：
+
+```go
+package main
+
+import (
+	"log"
+
+	"github.com/egoist/mygo"
+	"github.com/egoist/mygo/ui"
+	myui "github.com/wuyangwang/my-ui"
+	"github.com/wuyangwang/my-ui/icons"
+	"github.com/wuyangwang/my-ui/window"
+)
+
+func main() {
+	mygo.App.WhenReady(func() {
+		window.New(window.Options{
+			Title:  "My App",
+			Name:   "My App",
+			Icon:   icons.Component(), // 也可传自己的 SVG；不传用默认组件标
+			Width:  1100,
+			Height: 700,
+			Theme: func() myui.Options {
+				return myui.Options{
+					Appearance: myui.AppearanceDark, // System / Light / Dark
+					Palette:    myui.PaletteOrange,   // 橙色强调色
+				}
+			},
+			View: func(c *ui.Context) {
+				t := c.Theme() // 已经是橙色主题
+				ui.Column(c).Fill().Padding(t.Space(6)).Children(func() {
+					ui.Text(c, "Hello, my-ui").FontSize(myui.TextSize(t, myui.Text2Xl))
+				})
+			},
+		})
+	})
+	if err := mygo.App.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+标题栏风格默认按平台（macOS 红绿灯 / Windows 右侧按钮），也可 `Look: controls.TitleBarLookMac` 强制；想自定义整个品牌区就传 `Logo: func(c *ui.Context) { ... }` 代替 `Icon`。`Theme` 每帧返回当前选项，切换明暗/色板时标题栏、内容和原生窗口边框一起换色。
+
 ## 示例
 
 `examples/showcase`：按组件文档站的样式排布——顶栏放品牌、组件搜索（直接过滤侧栏）与版本/明暗切换；侧栏按分组折叠，每个组件一页，标题下写明该组件的用途；变体与状态以紧凑的演示卡排列，可点的组件本身就在卡里。可切换明暗/色板并用 `ui.Themed` 预览子树主题。
