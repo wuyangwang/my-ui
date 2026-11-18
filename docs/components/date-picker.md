@@ -13,6 +13,7 @@
 
 ## 3. 实现到何种程度
 - `NewDatePicker(c, date *time.Time)`；`.Variant`、`.Size`、`.Width(w)`（默认占满）；弹层行为交给 mygo。
+- 日期为 nil 或零值时默认**今天**：日历打开在当前月，mygo 给“今天”画强调色边框；选中今天后由底层日历涂成强调色实底。
 
 ## 4. 项目结构
 - `forms/` 子包。

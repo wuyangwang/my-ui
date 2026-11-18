@@ -338,7 +338,7 @@ func (s *showcase) openPage(c *ui.Context, t *ui.Theme) func() {
 	return func() { p.build(s, c, t) }
 }
 func main() {
-	s := &showcase{page: pages[0].key}
+	s := &showcase{page: pages[0].key, pickedDate: time.Now()}
 	// The showcase speaks Chinese: the strings the controls hold fixed
 	// follow the language of the app.
 	mygo.App.SetLocale("zh-Hans")

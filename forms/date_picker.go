@@ -18,8 +18,16 @@ type DatePicker struct {
 	width   float32
 }
 
-// NewDatePicker builds a date field editing *date.
+// NewDatePicker builds a date field editing *date. A nil or zero date
+// defaults to today, so the calendar opens on the current month with
+// today marked, as a date picker should.
 func NewDatePicker(c *ui.Context, date *time.Time) *DatePicker {
+	if date == nil {
+		date = new(time.Time)
+	}
+	if date.IsZero() {
+		*date = time.Now()
+	}
 	d := &DatePicker{c: c}
 	d.Element = ui.DateInput(c, date).Transition(StateTransition())
 	d.apply()
