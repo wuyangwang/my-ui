@@ -2,23 +2,14 @@ package forms
 
 import "github.com/egoist/mygo/ui"
 
-// Only the MyGo inputs my-ui has no counterpart for are re-exported.
-// Input, TextArea, PasswordInput, Select, ComboBox and MultiSelect have
-// my-ui versions with the library's look and events, so their MyGo
-// equivalents (including the Base and Buffer variants) are left out.
+// Only MyGo inputs my-ui neither provides nor plans to provide are
+// re-exported. InputNumber/SearchBar/AutoComplete/DatePicker are on the
+// roadmap, so NumberInput, SearchField, Autocomplete and DateInput are
+// deliberately left out; Input, TextArea, Select, ComboBox and
+// MultiSelect have my-ui versions.
 var (
-	// NewNumberInput is ui.NumberInput.
-	NewNumberInput = ui.NumberInput
-	// NewDecimalInput is ui.DecimalInput.
-	NewDecimalInput = ui.DecimalInput
-	// NewDateInput is ui.DateInput.
-	NewDateInput = ui.DateInput
 	// NewTimeInput is ui.TimeInput.
 	NewTimeInput = ui.TimeInput
-	// NewSearchField is ui.SearchField.
-	NewSearchField = ui.SearchField
-	// NewAutocomplete is ui.Autocomplete.
-	NewAutocomplete = ui.Autocomplete
 	// NewEditableText is ui.EditableText.
 	NewEditableText = ui.EditableText
 	// NewForm is ui.Form.

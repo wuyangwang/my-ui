@@ -53,6 +53,7 @@ type showcase struct {
 	lastEvent     string
 
 	titleBarEvent string // the last thing the title bar demo's buttons did
+	pageNum       int    // the status page's pager
 }
 
 // theme returns the options the window's frame applies, every frame:

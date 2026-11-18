@@ -18,6 +18,8 @@ var catalog = map[string]map[string]string{
 		"minimize":     "Minimize",
 		"maximize":     "Maximize",
 		"restore":      "Restore",
+		"previous":     "Previous page",
+		"next":         "Next page",
 	},
 	"zh-Hans": {
 		"clear":        "清除",
@@ -27,6 +29,8 @@ var catalog = map[string]map[string]string{
 		"minimize":     "最小化",
 		"maximize":     "最大化",
 		"restore":      "还原",
+		"previous":     "上一页",
+		"next":         "下一页",
 	},
 	"zh-Hant": {
 		"clear":        "清除",
@@ -36,6 +40,8 @@ var catalog = map[string]map[string]string{
 		"minimize":     "最小化",
 		"maximize":     "最大化",
 		"restore":      "還原",
+		"previous":     "上一頁",
+		"next":         "下一頁",
 	},
 }
 

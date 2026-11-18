@@ -64,6 +64,11 @@
 | 19 | TitleBar | 规格书 [components/titlebar.md](components/titlebar.md)；`titlebar.go`：自绘标题栏，Windows 风格（左 logo+应用名、右窗口按钮、关闭键悬停危险色）或 macOS 风格（左红绿灯、未激活转灰），`Look` 选项选择（Auto 按平台）；整条 `DragWindow`、最大化按钮打 `MaximizeButton`；`titlebar_test.go` 覆盖两种风格；showcase「TitleBar」页 | ✅ 已完成 |
 | 20 | Window（无框窗口外壳） | 规格书 [components/window.md](components/window.md)；`window/` 子包：`window.New` 一行建窗（`TitleBarHidden + HideWindowButtons` + `TitleBar` + 每帧主题 + 动作接线），返回 `*mygo.Window`；`window_test.go` 覆盖布局/主题/动作触发；showcase「Window」页点按钮开演示窗口 | ✅ 已完成 |
 
+| 21 | Skeleton | 规格书 [components/skeleton.md](components/skeleton.md)；`display/skeleton.go`：加载占位条，`Circle()` 头像、`Width(w)`、`Size(sz)`；`skeleton_test.go` 覆盖绘制与变体；showcase「状态件」页 | ✅ 已完成 |
+| 22 | EmptyState | 规格书 [components/empty-state.md](components/empty-state.md)；`display/empty_state.go`：图标 + 标题 + 说明 + 动作槽；`empty_state_test.go`；showcase「状态件」页 | ✅ 已完成 |
+| 23 | Result | 规格书 [components/result.md](components/result.md)；`display/result.go`：四种状态的图标与语义色 + 标题/说明/动作；`result_test.go`；showcase「状态件」页 | ✅ 已完成 |
+| 24 | Pagination | 规格书 [components/pagination.md](components/pagination.md)；`display/pagination.go`：页码指针绑定、省略号窗口、上一页/下一页图标；`pagination_test.go`；showcase「状态件」页 | ✅ 已完成 |
+
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 
 ## 二期：导航、展示与桌面细粒度组件（按需排期）
@@ -72,8 +77,8 @@
 
 | 类别 | 组件 | 状态 |
 |---|---|---|
-| 展示/布局 | 展示件：Card（`card.go`）、Tabs（`tabs.go`）、Progress（`progress.go`）、Kbd（`kbd.go`）、Divider/Avatar（mygo 自带，`display/` 重导出 ✓） | ✅ 已完成（Card/Tabs/Progress/Kbd + 重导出） |
-| 导航/覆盖层 | Tabs ✅、Breadcrumb、Pagination、DropdownMenu、ContextMenu、Accordion/Collapsible、Command Palette、应用内 Menubar | ⏳ 未开始（Tabs 已做） |
+| 展示/布局 | Skeleton ✅、EmptyState ✅、Result ✅、Pagination ✅；Divider/Avatar（mygo 自带，`display/` 重导出 ✓）；Skeleton、HoverCard、Carousel、AspectRatio 等 | ✅ 已完成（Skeleton/EmptyState/Result/Pagination） |
+| 导航/覆盖层 | Breadcrumb、DropdownMenu、ContextMenu、Command Palette、应用内 Menubar（Tabs 已做） | ⏳ 未开始 |
 | 数据/复杂 | Table（样式与排序/过滤预设）、SortableList 等 | ⏳ 未开始 |
 
 ## 三期：AI 二级包（`ai/`）

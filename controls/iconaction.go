@@ -23,7 +23,7 @@ func checkGlyph(box float32) float32 {
 // with a 14 DIP glyph inside. Clear and close affordances in every
 // component use it, so the same icon has the same size and the same
 // states everywhere.
-const iconActionHit = float32(20)
+const IconActionHit = float32(20)
 
 // IconActionOptions configures NewIconAction.
 type IconActionOptions struct {
@@ -49,7 +49,7 @@ type IconActionOptions struct {
 func NewIconAction(c *ui.Context, o IconActionOptions) ui.Element {
 	hit, glyph := o.Size, o.IconSize
 	if hit == 0 {
-		hit = iconActionHit
+		hit = IconActionHit
 	}
 	if glyph == 0 {
 		glyph = IconSizeSm

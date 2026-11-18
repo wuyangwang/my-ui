@@ -2,10 +2,10 @@ package controls
 
 import "github.com/egoist/mygo/ui"
 
-// Only the MyGo widgets my-ui has no counterpart for are re-exported
-// here. Button, Icon, Checkbox, Radio, Switch, Slider and Toggle have
-// my-ui versions with the library's look, so their MyGo equivalents
-// (including the Base variants) are deliberately left out.
+// Only MyGo widgets that my-ui neither provides nor plans to provide
+// are re-exported here. Spinner/Spin is on the roadmap, so it is not
+// exported; Button, Icon, Checkbox, Radio, Switch, Slider and Toggle
+// have my-ui versions, so neither they nor their Base variants are.
 var (
 	// NewBackButton is ui.BackButton.
 	NewBackButton = ui.BackButton
@@ -15,8 +15,6 @@ var (
 	NewRangeSlider = ui.RangeSlider
 	// NewStepSlider is ui.StepSlider.
 	NewStepSlider = ui.StepSlider
-	// NewSpinner is ui.Spinner.
-	NewSpinner = ui.Spinner
 	// NewStepper is ui.Stepper.
 	NewStepper = ui.Stepper
 	// NewRating is ui.Rating.

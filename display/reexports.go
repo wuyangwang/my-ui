@@ -2,9 +2,11 @@ package display
 
 import "github.com/egoist/mygo/ui"
 
-// Only MyGo widgets my-ui has no counterpart for are re-exported.
-// Badge, Progress and Tabs have themed my-ui versions, so their MyGo
-// equivalents are deliberately left out.
+// Only MyGo widgets my-ui neither provides nor plans to provide are
+// re-exported. Breadcrumb, Table, Accordion/Collapsible, Spin,
+// EmptyState, Result and Carousel are on the roadmap, so their MyGo
+// counterparts (Breadcrumbs, Table, Accordion*.Spinner, …) are left
+// out. Badge, Progress and Tabs have my-ui versions.
 var (
 	// NewText is ui.Text.
 	NewText = ui.Text
@@ -24,26 +26,12 @@ var (
 	NewRichText = ui.RichText
 	// NewLink is ui.Link.
 	NewLink = ui.Link
-	// NewTable is ui.Table.
-	NewTable = ui.Table
 	// NewTree is ui.Tree.
 	NewTree = ui.Tree
 	// NewTreeBase is ui.TreeBase.
 	NewTreeBase = ui.TreeBase
 	// NewTreeItem is ui.TreeItem.
 	NewTreeItem = ui.TreeItem
-	// NewAccordion is ui.Accordion.
-	NewAccordion = ui.Accordion
-	// NewAccordionBase is ui.AccordionBase.
-	NewAccordionBase = ui.AccordionBase
-	// NewAccordionItem is ui.AccordionItem.
-	NewAccordionItem = ui.AccordionItem
-	// NewCollapsible is ui.Collapsible.
-	NewCollapsible = ui.Collapsible
-	// NewCollapsibleBase is ui.CollapsibleBase.
-	NewCollapsibleBase = ui.CollapsibleBase
-	// NewBreadcrumbs is ui.Breadcrumbs.
-	NewBreadcrumbs = ui.Breadcrumbs
 	// NewCalendar is ui.Calendar.
 	NewCalendar = ui.Calendar
 	// NewGrid is ui.Grid.

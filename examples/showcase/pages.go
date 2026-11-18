@@ -47,6 +47,7 @@ var pages = []page{
 	{key: "tabs", label: "Tabs", icon: icons.PanelsTopLeft(), group: "版式", desc: "一排标签，选中的那块单独成形。", build: (*showcase).tabsPage},
 	{key: "titlebar", label: "TitleBar", icon: icons.AppWindow(), group: "版式", desc: "自绘标题栏：左侧品牌，右侧窗口按钮，随明暗换色。", build: (*showcase).titleBarPage},
 	{key: "window", label: "Window", icon: icons.ExternalLink(), group: "版式", desc: "一行建出自定义标题栏窗口，随明暗换色。", build: (*showcase).windowPage},
+	{key: "status", label: "状态件", icon: icons.LayoutPanelTop(), group: "版式", desc: "Skeleton、EmptyState、Result 与 Pagination。", build: (*showcase).statusPage},
 	{key: "theme", label: "外观", icon: icons.Palette(), group: "主题", desc: "明暗、色板与子树预览，下一帧生效。", build: (*showcase).themePage},
 }
 

@@ -50,8 +50,11 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
   and `window/` for the frameless shell. Component packages dot-import
   the core for the shared vocabulary and qualify each other with named
   imports; the root never imports a component package (no cycles).
-  A widget mygo already provides unchanged is re-exported as a var
-  (`NewToggleGroup`, `Segmented`) rather than implemented again.
+  A widget mygo already provides is re-exported as a var only when
+  my-ui neither has nor plans a counterpart (`NewToggleGroup`,
+  `Segmented`, `display.NewText`); components on the roadmap (Table,
+  Spin, DatePicker, …) are deliberately not re-exported — they will
+  get my-ui versions.
 - **Optional weight stays out of the root package.** Fonts, icon sets and
   AI components live in their own subpackages; importing root must not
   pull them (no `init` chains into subpackages, no `go:embed` in root).
