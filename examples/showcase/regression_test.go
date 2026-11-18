@@ -32,22 +32,28 @@ func TestSliderHasTrack(t *testing.T) {
 	tt := ui.NewTester(s.view, 1100, 700)
 	tt.Advance(time.Second)
 	img := tt.Image()
-	// The first slider sits near x 308..450 on the page; a track drawn
-	// across it means many non-white pixels along that row, not only a
-	// single dot. Scan a horizontal band for the dark track/knob pixels.
-	// (The window's own title bar is outside this view, so the page
-	// starts at the app bar's bottom edge.)
-	y := 260
-	dark := 0
-	for x := 300; x < 460; x++ {
-		p := img.At(x, y)
-		r, g, b, _ := p.RGBA()
-		if r>>8 < 120 && g>>8 < 120 && b>>8 < 120 {
-			dark++
+	// Read the slider's own box instead of a baked pixel row: the
+	// showcase's spacing changes as its layout evolves. A track shows
+	// as a long horizontal run of non-background pixels, not a dot.
+	slider, ok := tt.Access("音量")
+	if !ok {
+		t.Fatal("the volume slider is missing")
+	}
+	best := 0
+	for y := int(slider.Bounds.Y); y < int(slider.Bounds.Y+slider.Bounds.H); y++ {
+		run := 0
+		for x := int(slider.Bounds.X); x < int(slider.Bounds.X+slider.Bounds.W); x++ {
+			r, g, b, _ := img.At(x, y).RGBA()
+			if r>>8 < 235 || g>>8 < 235 || b>>8 < 235 {
+				run++
+			}
+		}
+		if run > best {
+			best = run
 		}
 	}
-	if dark < 40 {
-		t.Errorf("only %d dark pixels along the slider row, want a track (the knob alone would be ~16)", dark)
+	if best < 40 {
+		t.Errorf("the longest slider row has %d painted pixels, want a track", best)
 	}
 }
 

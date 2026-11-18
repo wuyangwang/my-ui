@@ -6,11 +6,12 @@ import (
 	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 )
 
-// sectionNote is a titled block of a page: heading, note, then cards.
+// sectionNote is one section of a page: a heading, a muted line of
+// context, then the demo. Every page uses this shape, so the right
+// column reads the same way whichever component is open.
 func (s *showcase) sectionNote(c *ui.Context, t *ui.Theme, block, note string, build func()) {
 	ui.Column(c).Gap(t.Space(4)).Children(func() {
-		ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2.5)).Children(func() {
-			ui.Box(c).Width(3).Height(t.Space(5)).Radius(2).Background(t.Accent)
+		ui.Column(c).Gap(t.Space(1)).Children(func() {
 			ui.Text(c, block).FontSize(myui.TextSize(t, myui.TextLg)).Bold()
 			ui.Text(c, note).FontSize(myui.TextSize(t, myui.TextSm)).TextColor(t.TextMuted)
 		})
@@ -18,17 +19,32 @@ func (s *showcase) sectionNote(c *ui.Context, t *ui.Theme, block, note string, b
 	})
 }
 
-// card is a plain surface panel a page lays content into. On shadcn's
-// theme a card sits on the same white as the page, so a hairline border
-// and two soft shadows do the separating. A Row above grows it across
-// the page width.
+// card is the one demo surface every page uses: the page's background,
+// a hairline border, shadcn's xl radius, one soft shadow and the same
+// inset. A Row above grows it across the content column.
 func (s *showcase) card(c *ui.Context, t *ui.Theme, build func()) {
 	ui.Row(c).Children(func() {
 		ui.Column(c).Grow(1).Background(t.Background).Border(1, t.Border).
-			Radius(myui.Radius(t, myui.RadiusLg)).
-			Padding(t.Space(4), t.Space(5)).Gap(t.Space(3)).
-			Shadow(0, 1, 2, 0, t.Text.Alpha(0.06)).
-			Shadow(0, 8, 24, -8, t.Text.Alpha(0.10)).Children(build)
+			Radius(myui.Radius(t, myui.RadiusXl)).
+			Padding(t.Space(5), t.Space(6)).Gap(t.Space(4)).
+			Shadow(0, 1, 3, 0, t.Text.Alpha(0.05)).Children(build)
+	})
+}
+
+// demoCard is a uniform tile for variant grids: a label, a short note
+// and the control itself, all on the same card as the other demos.
+func (s *showcase) demoCard(c *ui.Context, t *ui.Theme, name, cn, note string, build func()) {
+	s.card(c, t, func() {
+		ui.Row(c).FillWidth().AlignItems(ui.Center).Gap(t.Space(3)).Children(func() {
+			ui.Column(c).Grow(1).Gap(t.Space(1)).Children(func() {
+				ui.Row(c).AlignItems(ui.Baseline).Gap(t.Space(1.5)).Children(func() {
+					ui.Text(c, cn).FontSize(myui.TextSize(t, myui.TextSm)).Bold()
+					ui.Text(c, name).FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+				})
+				ui.Text(c, note).FontSize(myui.TextSize(t, myui.TextXs)).TextColor(t.TextMuted)
+			})
+			build()
+		})
 	})
 }
 

@@ -108,19 +108,8 @@ func (s *showcase) buttonPage(c *ui.Context, t *ui.Theme) {
 // itself on the right, so a gallery of them reads as a table of examples
 // instead of a grid of near-empty boxes.
 func (s *showcase) presetCard(c *ui.Context, t *ui.Theme, name, cn, tip, label string, preset func(*ctrlpkg.Button) *ctrlpkg.Button) {
-	s.card(c, t, func() {
-		ui.Row(c).FillWidth().Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
-			ui.Column(c).Grow(1).Gap(t.Space(1)).Children(func() {
-				ui.Row(c).AlignItems(ui.Baseline).Gap(t.Space(1.5)).Children(func() {
-					ui.Text(c, cn).FontSize(myui.TextSize(t, myui.TextSm)).Bold()
-					ui.Text(c, name).FontSize(myui.TextSize(t, myui.TextXs)).
-						TextColor(t.TextMuted)
-				})
-				ui.Text(c, tip).FontSize(myui.TextSize(t, myui.TextXs)).
-					TextColor(t.TextMuted)
-			})
-			b := ctrlpkg.NewButton(c.Key("button "+name), label)
-			preset(b)
-		})
+	s.demoCard(c, t, name, cn, tip, func() {
+		b := ctrlpkg.NewButton(c.Key("button "+name), label)
+		preset(b)
 	})
 }

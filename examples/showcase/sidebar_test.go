@@ -66,6 +66,20 @@ func TestTheSidebarFoldsThePages(t *testing.T) {
 	if inSidebar(tt, "Button") {
 		t.Error("the pages of the closed fold still show")
 	}
+	// Clicking the open fold closes it too: the fallback to the open
+	// page's group must not overrule an explicit close.
+	label, ok = foldLabel(tt, "主题")
+	if !ok {
+		t.Fatal("the open fold's title is missing")
+	}
+	if err := tt.Click(label); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(100 * 1000 * 1000)
+	tt.Advance(100 * 1000 * 1000)
+	if inSidebar(tt, "外观") {
+		t.Error("clicking the open fold did not close it")
+	}
 }
 
 // TestTheSidebarSearchesThePages: a search leaves only what it finds,

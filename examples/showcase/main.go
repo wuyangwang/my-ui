@@ -27,7 +27,8 @@ type showcase struct {
 	appearance myui.Appearance
 	palette    myui.PaletteID
 	navQuery   string // what the sidebar's search holds
-	openFold   string // the fold the sidebar keeps open
+	openFold   string // the fold the user opened explicitly
+	collapsed  string // the fold the user closed, overriding the page's group
 	iconQuery  string // what the icon page's search holds
 	drawerOpen bool
 
@@ -68,6 +69,8 @@ type showcase struct {
 	pickedDate    time.Time
 	slide         int
 	tagClosed     bool
+	cmdOpen       bool
+	cmdQuery      string
 }
 
 // theme returns the options the window's frame applies, every frame:
@@ -122,24 +125,27 @@ func (s *showcase) view(c *ui.Context) {
 // pretends to be a product account.
 func (s *showcase) appBar(c *ui.Context, t *ui.Theme) {
 	ui.Column(c).FillWidth().Children(func() {
-		ui.Row(c).FillWidth().Height(t.Space(13)).PaddingX(t.Space(6)).
-			Gap(t.Space(4)).AlignItems(ui.Center).Children(func() {
-			// The name, with the same mark the sidebar shows.
-			mark := ui.Row(c).AlignItems(ui.Center).Justify(ui.Center).
-				Size(t.Space(6), t.Space(6)).Radius(t.Space(2)).
-				Background(t.Accent)
-			mark.Children(func() {
-				ui.Icon(c, icons.Component()).Size(t.Space(4), t.Space(4)).
-					TextColor(t.AccentText)
+		ui.Row(c).FillWidth().Height(t.Space(14)).AlignItems(ui.Center).Children(func() {
+			// The brand takes exactly the sidebar's width, so the
+			// top bar and the nav below line up on the same edge.
+			brand := ui.Row(c).Width(256).PaddingX(t.Space(5)).
+				AlignItems(ui.Center).Gap(t.Space(2.5))
+			brand.Children(func() {
+				mark := ui.Row(c).AlignItems(ui.Center).Justify(ui.Center).
+					Size(t.Space(6), t.Space(6)).Radius(myui.Radius(t, myui.RadiusMd)).
+					Background(t.Accent)
+				mark.Children(func() {
+					ui.Icon(c, icons.Component()).Size(t.Space(4), t.Space(4)).
+						TextColor(t.AccentText)
+				})
+				ui.Text(c, "my-ui").FontSize(myui.TextSize(t, myui.TextMd)).Bold()
+				ui.Text(c, "组件库").FontSize(myui.TextSize(t, myui.TextXs)).
+					TextColor(t.TextMuted)
 			})
-			ui.Text(c, "my-ui").FontSize(myui.TextSize(t, myui.TextLg)).Bold()
-			ui.Text(c, "组件库").FontSize(myui.TextSize(t, myui.TextSm)).
-				TextColor(t.TextMuted)
 
 			// The component search, the one control a docs bar needs.
-			ui.Box(c).Width(t.Space(6))
 			formspkg.NewInput(c.Key("nav search"), &s.navQuery).Outline().Sm().
-				Width(t.Space(64)).PrefixIcon(icons.Search()).
+				Width(t.Space(70)).PrefixIcon(icons.Search()).
 				Placeholder("搜索组件…").Label("搜索组件")
 
 			ui.Box(c).Grow(1)
@@ -189,7 +195,7 @@ func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 		ui.Text(c, "组件").FontSize(myui.TextSize(t, myui.TextXs)).Bold().
 			TextColor(t.TextMuted).Padding(t.Space(1), t.Space(3))
 
-		ui.Scroll(c).Grow(1).Gap(t.Space(3)).Children(func() {
+		ui.Scroll(c).Grow(1).Gap(t.Space(2)).Children(func() {
 			found := 0
 			for _, g := range groups() {
 				shown := filterPages(pagesOf(g), s.navQuery)
@@ -222,7 +228,7 @@ func (s *showcase) fold(c *ui.Context, t *ui.Theme, name string, n int) {
 	b := ctrlpkg.NewButton(c.Key("fold "+name), label).Ghost().Block().Xs()
 	b.FontSize(myui.TextSize(t, myui.TextXs))
 	b.Justify(ui.Start)
-	b.Padding(t.Space(2), t.Space(3)).Radius(t.Space(1.5))
+	b.Padding(t.Space(1.5), t.Space(3)).Radius(myui.Radius(t, myui.RadiusSm))
 	b.TextColor(t.TextMuted)
 	if open {
 		b.Icon(icons.ChevronDown())
@@ -230,10 +236,14 @@ func (s *showcase) fold(c *ui.Context, t *ui.Theme, name string, n int) {
 		b.Icon(icons.ChevronRight())
 	}
 	if b.Clicked() {
-		if s.openFold == name {
+		if s.foldOpen(name) {
+			// An explicit close must beat the fallback to the open
+			// page's group, or the current fold can never collapse.
 			s.openFold = ""
+			s.collapsed = name
 		} else {
 			s.openFold = name
+			s.collapsed = ""
 		}
 	}
 }
@@ -243,6 +253,9 @@ func (s *showcase) fold(c *ui.Context, t *ui.Theme, name string, n int) {
 func (s *showcase) foldOpen(g string) bool {
 	if s.navQuery != "" {
 		return true
+	}
+	if s.collapsed == g {
+		return false
 	}
 	if s.openFold != "" {
 		return s.openFold == g
@@ -260,7 +273,8 @@ func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
 		b := ctrlpkg.NewButton(c.Key("nav "+p.key), p.label).Ghost().Block()
 		b.FontSize(myui.TextSize(t, myui.TextSm))
 		b.Justify(ui.Start)
-		b.Height(t.Space(10)).Padding(0, t.Space(3)).Radius(t.Radius)
+		b.Height(t.Space(9)).Padding(0, t.Space(3)).
+			Radius(myui.Radius(t, myui.RadiusMd))
 		if p.icon != nil {
 			b.Icon(p.icon)
 		}
@@ -271,6 +285,7 @@ func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
 		}
 		if b.Clicked() {
 			s.page = p.key
+			s.collapsed = "" // navigating to a page opens its group again
 		}
 	})
 }
@@ -280,7 +295,7 @@ func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
 func (s *showcase) main(c *ui.Context, t *ui.Theme) {
 	ui.Column(c).Grow(1).Padding(t.Space(7), t.Space(8)).Gap(t.Space(6)).
 		Children(func() {
-			// The name of the page, the group it is in, and a short line.
+			// Page name, group pill, then one line of context.
 			ui.Column(c).Gap(t.Space(2)).Children(func() {
 				ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, pageLabel(s.page)).

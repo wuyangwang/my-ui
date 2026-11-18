@@ -35,7 +35,9 @@ func buildMenuItems(c *ui.Context, t *ui.Theme, parts ui.MenuParts, items []Menu
 				Margin(t.Space(1), 0)
 			continue
 		}
-		row := parts.Item().Padding(t.Space(1.5), t.Space(2)).Radius(Radius(t, RadiusSm))
+		// shadcn's menu item is px-2 py-1: keep the rows compact, mygo's
+		// own item already carries some inset.
+		row := parts.Item().Padding(t.Space(1), t.Space(2)).Radius(Radius(t, RadiusSm))
 		switch {
 		case item.Disabled:
 			row = row.Disabled(true).TextColor(t.TextMuted)

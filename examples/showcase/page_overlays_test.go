@@ -35,10 +35,25 @@ func TestTheOverlaysPageOpensItsOverlays(t *testing.T) {
 		t.Fatal("the popover did not open")
 	}
 
-	// The dialog opens on a click on its trigger.
-	if err := tt.Click("打开对话框"); err != nil {
-		t.Fatal(err)
+	// The dialog opens on a click on its trigger. Its label sits in a
+	// card below the fold, so press the button's box directly.
+	var dialog ui.AccessInfo
+	for i := 0; i < 12; i++ {
+		found, ok := tt.Access("打开对话框")
+		if ok && found.Bounds.Y >= 0 && found.Bounds.Y+found.Bounds.H <= 620 {
+			dialog = found
+			break
+		}
+		tt.Scroll(600, 300, 0, 120)
+		tt.Advance(time.Second)
 	}
+	if dialog.Bounds.W == 0 {
+		t.Fatal("the dialog's trigger is not reachable")
+	}
+	x, y := dialog.Bounds.X+dialog.Bounds.W/2, dialog.Bounds.Y+dialog.Bounds.H/2
+	tt.Press(x, y)
+	tt.Advance(time.Second)
+	tt.Release(x, y)
 	tt.Advance(time.Second)
 	if _, ok := tt.Find("确定删除这个项目吗？"); !ok {
 		t.Fatal("the dialog did not open")
