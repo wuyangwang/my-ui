@@ -89,14 +89,11 @@ func TestThemePageSwitchesTheAppearanceAndThePalette(t *testing.T) {
 	if !ok {
 		t.Fatal("the fold of the theme is missing")
 	}
-	if err := tt.Click(label); err != nil {
-		t.Fatal(err)
-	}
+	clickFold(t, tt, label)
+
 	tt.Advance(100 * 1000 * 1000)
 	tt.Advance(100 * 1000 * 1000)
-	if err := tt.Click("外观"); err != nil {
-		t.Fatal(err)
-	}
+	clickFold(t, tt, "外观")
 	// 点击分发的输入只停在队列，下一帧才进视图。
 	tt.Advance(100 * 1000 * 1000)
 	tt.Advance(100 * 1000 * 1000)
@@ -118,14 +115,11 @@ func TestTheSidebarSwitchesPages(t *testing.T) {
 	if !ok {
 		t.Fatal("the fold of the form is missing")
 	}
-	if err := tt.Click(label); err != nil {
-		t.Fatal(err)
-	}
+	clickFold(t, tt, label)
+
 	tt.Advance(100 * 1000 * 1000)
 	tt.Advance(100 * 1000 * 1000)
-	if err := tt.Click("Input"); err != nil {
-		t.Fatal(err)
-	}
+	clickFold(t, tt, "Input")
 	tt.Advance(100 * 1000 * 1000)
 	if s.page != "input" {
 		t.Errorf("the open page is %q, want %q", s.page, "input")

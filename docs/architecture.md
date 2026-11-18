@@ -1,6 +1,6 @@
 # my-ui 架构
 
-> 基线：mygo **v0.8.3**（`go.mod` 锁定）。调研证据见 [research.md](research.md)，按序实施计划见 [roadmap.md](roadmap.md)。
+> 基线：mygo **v0.10.0**（`go.mod` 锁定）。调研证据见 [research.md](research.md)，按序实施计划见 [roadmap.md](roadmap.md)。
 
 ## 1. 分层
 
@@ -72,8 +72,8 @@ mygo 面向 app 的 i18n 由 `mygo dev/build` 处理 `locales/*.json`；mygo 自
 
 ## 6. 发布与版本
 
-- 锁定 mygo **v0.8.3**（`go.mod`）；升级走专门提交，同步 `go.mod` / `README.md` / `AGENTS.md`。
-- 当前版本 my-ui **v0.4.0**（`myui.Version`，tag `v0.4.0`），与 mygo 独立编号；发布用 git tag 标记。element API 有破坏性迁移先例（`mygo migrate-ui`），mygo 升级只走独立 PR 并跑全矩阵验证。
+- 锁定 mygo **v0.10.0**（`go.mod`）；升级走专门提交，同步 `go.mod` / `README.md` / `AGENTS.md`。
+- 当前版本 my-ui **v0.5.0**（`myui.Version`，tag `v0.5.0`），与 mygo 独立编号；发布用 git tag 标记。element API 有破坏性迁移先例（`mygo migrate-ui`），mygo 升级只走独立 PR 并跑全矩阵验证。
 - 纯 Go module，`go get` 发布。
 
 ## 7. 测试与平台
@@ -95,7 +95,7 @@ mygo 面向 app 的 i18n 由 `mygo dev/build` 处理 `locales/*.json`；mygo 自
 
 ## 9. 已记录的框架限制（不可在本库修）
 
-组件审查后确认属 mygo v0.8.3 公开 API 的限制，只记录不列 TODO：
+组件审查后确认属 mygo v0.10.0 公开 API 的限制，只记录不列 TODO：
 
 - Select 的清除按钮嵌在 `RolePopUpButton`（leaf role）内，读屏摸不到；按钮本身可见可点。
 - Slider 双旋钮区间：`SliderBase` 只绑单值。

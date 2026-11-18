@@ -3,7 +3,7 @@
 > v0.4.0 起组件按功能分组到 `controls/`、`forms/`、`overlays/`、`display/` 子包，根包只留主题/tokens 底座；`myui.NewXxx` 调用需按分组改 import。
 
 
-> 基线 mygo **v0.8.3**（证据见 [research.md](research.md)）。本文是按序实施计划：**每一项交付 = 规格书 + 实现 + `ui.Tester` 测试 + `examples/showcase` 示例页/区块**（适用时）。首个 tag 为 `v0.2.0`，开发中不考虑更早版本的历史兼容。
+> 基线 mygo **v0.10.0**（证据见 [research.md](research.md)）。本文是按序实施计划：**每一项交付 = 规格书 + 实现 + `ui.Tester` 测试 + `examples/showcase` 示例页/区块**（适用时）。首个 tag 为 `v0.2.0`，开发中不考虑更早版本的历史兼容。
 
 ## 原则
 
@@ -90,6 +90,16 @@
 | 39 | SortableList | 规格书 [components/sortable-list.md](components/sortable-list.md)；`display/sortable_list.go`：包 mygo `ListState.Reorder`，每行一个拖拽手柄；`sortable_list_test.go`；showcase「SortableList」页 | ✅ 已完成 |
 | 40 | InputOTP | 规格书 [components/input-otp.md](components/input-otp.md)；`forms/input_otp.go`：一格一字符、自动跳格与退格回退；`input_otp_test.go`；showcase「InputOTP」页 | ✅ 已完成 |
 | 41 | Upload | 规格书 [components/upload.md](components/upload.md)；`forms/upload.go`：拖放区 + `DroppedFiles()` 路径回调（不做文件选择器，见限制）；`upload_test.go`；showcase「Upload」页 | ✅ 已完成 |
+
+| 42 | RangeSlider | 双端滑杆，包 mygo RangeSlider + 共享圆角；包 mygo 构造器并加 shadcn 外观；测试与 showcase「RangeSlider」页 | ✅ 已完成 |
+| 43 | StepSlider | 带刻度的滑杆，包 mygo StepSlider；包 mygo 构造器并加 shadcn 外观；测试与 showcase「StepSlider」页 | ✅ 已完成 |
+| 44 | Stepper | 上下步进器，带 Variant/Size/Width；包 mygo 构造器并加 shadcn 外观；测试与 showcase「Stepper」页 | ✅ 已完成 |
+| 45 | Rating | 星级评分，包 mygo Rating；包 mygo 构造器并加 shadcn 外观；测试与 showcase「Rating」页 | ✅ 已完成 |
+| 46 | Meter | 量度计，包 mygo Meter 的状态色；包 mygo 构造器并加 shadcn 外观；测试与 showcase「Meter」页 | ✅ 已完成 |
+| 47 | ColorPicker | 颜色色块，包 mygo ColorPicker 并加字段边框；包 mygo 构造器并加 shadcn 外观；测试与 showcase「ColorPicker」页 | ✅ 已完成 |
+| 48 | Calendar | 月视图日历，包 mygo Calendar + 卡片外观；包 mygo 构造器并加 shadcn 外观；测试与 showcase「Calendar」页 | ✅ 已完成 |
+| 49 | TimeInput | 时间输入，包 mygo TimeInput + 字段外观；包 mygo 构造器并加 shadcn 外观；测试与 showcase「TimeInput」页 | ✅ 已完成 |
+| 50 | EditableText | 就地重命名文本，包 mygo EditableText；包 mygo 构造器并加 shadcn 外观；测试与 showcase「EditableText」页 | ✅ 已完成 |
 
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 

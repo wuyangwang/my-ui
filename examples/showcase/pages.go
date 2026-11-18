@@ -68,6 +68,15 @@ var pages = []page{
 	{key: "sortable-list", label: "SortableList", icon: icons.ListOrdered(), group: "版式", desc: "拖拽手柄排序，顺序由 app 持有。", build: (*showcase).sortableListPage},
 	{key: "input-otp", label: "InputOTP", icon: icons.Hash(), group: "表单", desc: "一格一字符，自动跳到下一格。", build: (*showcase).inputOTPage},
 	{key: "upload", label: "Upload", icon: icons.Upload(), group: "表单", desc: "拖入文件区，把路径交给 app。", build: (*showcase).uploadPage},
+	{key: "range-slider", label: "RangeSlider", icon: icons.MoveHorizontal(), group: "控件", desc: "双端滑杆，包 mygo RangeSlider + 共享圆角", build: (*showcase).rangeSliderPage},
+	{key: "step-slider", label: "StepSlider", icon: icons.Gauge(), group: "控件", desc: "带刻度的滑杆，包 mygo StepSlider", build: (*showcase).stepSliderPage},
+	{key: "stepper", label: "Stepper", icon: icons.ChevronsUpDown(), group: "控件", desc: "上下步进器，带 Variant/Size/Width", build: (*showcase).stepperPage},
+	{key: "rating", label: "Rating", icon: icons.Star(), group: "控件", desc: "星级评分，包 mygo Rating", build: (*showcase).ratingPage},
+	{key: "meter", label: "Meter", icon: icons.Gauge(), group: "控件", desc: "量度计，包 mygo Meter 的状态色", build: (*showcase).meterPage},
+	{key: "color-picker", label: "ColorPicker", icon: icons.Palette(), group: "控件", desc: "颜色色块，包 mygo ColorPicker 并加字段边框", build: (*showcase).colorPickerPage},
+	{key: "calendar", label: "Calendar", icon: icons.CalendarDays(), group: "表单", desc: "月视图日历，包 mygo Calendar + 卡片外观", build: (*showcase).calendarPage},
+	{key: "time-input", label: "TimeInput", icon: icons.Clock(), group: "表单", desc: "时间输入，包 mygo TimeInput + 字段外观", build: (*showcase).timeInputPage},
+	{key: "editable-text", label: "EditableText", icon: icons.Type(), group: "表单", desc: "就地重命名文本，包 mygo EditableText", build: (*showcase).editableTextPage},
 	{key: "theme", label: "外观", icon: icons.Palette(), group: "主题", desc: "明暗、色板与子树预览，下一帧生效。", build: (*showcase).themePage},
 }
 

@@ -32,8 +32,6 @@ var (
 	NewTreeBase = ui.TreeBase
 	// NewTreeItem is ui.TreeItem.
 	NewTreeItem = ui.TreeItem
-	// NewCalendar is ui.Calendar.
-	NewCalendar = ui.Calendar
 	// NewGrid is ui.Grid.
 	NewGrid = ui.Grid
 	// NewGridView is ui.GridView.

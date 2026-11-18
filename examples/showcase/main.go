@@ -76,6 +76,12 @@ type showcase struct {
 	otpValue      string
 	listState     ui.ListState
 	todo          []string
+	low, high     float64
+	stepValue     float64
+	rating        int
+	pickedColor   ui.Color
+	pickedTime    time.Time
+	editableText  string
 }
 
 // theme returns the options the window's frame applies, every frame:
@@ -159,7 +165,7 @@ func (s *showcase) appBar(c *ui.Context, t *ui.Theme) {
 			version := ui.Box(c).Padding(t.Space(1), t.Space(2.5)).
 				Radius(t.Space(2)).Background(t.Surface)
 			version.Children(func() {
-				ui.Text(c, "my-ui v"+myui.Version+" · mygo v0.8.3").
+				ui.Text(c, "my-ui v"+myui.Version+" · mygo v0.10.0").
 					FontSize(myui.TextSize(t, myui.TextXs)).
 					TextColor(t.TextMuted)
 			})

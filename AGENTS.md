@@ -17,7 +17,7 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
   on `mygo.Window`, not in `ui`. No other package — the root `myui`
   included — imports mygo's root.
 - **Pin mygo.** The mygo version my-ui targets is fixed per release —
-  currently `v0.8.3` (mygo's `go` directive is 1.27.3), and the
+  currently `v0.10.0` (mygo's `go` directive is 1.27.3), and the
   `window/` subpackage imports mygo's root on top of `ui`. Upgrades to
   mygo go through a deliberate edit of `go.mod`, `README.md` and this
   file together.

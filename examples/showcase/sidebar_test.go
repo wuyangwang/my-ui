@@ -23,6 +23,24 @@ func inSidebar(tt *ui.Tester, s string) bool {
 	return ok && r.X < sidebarWidth && r.Y > appBarHeight
 }
 
+// clickFold scrolls the sidebar until the fold is visible, then
+// clicks it. With dozens of pages the lower groups sit in the scroll
+// area, out of the tester window at first.
+func clickFold(t *testing.T, tt *ui.Tester, label string) {
+	t.Helper()
+	for i := 0; i < 20; i++ {
+		if r, ok := tt.Find(label); ok && r.Y >= 0 && r.Y+r.H <= 620 {
+			if err := tt.Click(label); err != nil {
+				t.Fatal(err)
+			}
+			return
+		}
+		tt.Scroll(100, 300, 0, 120)
+		tt.Advance(100 * 1000 * 1000)
+	}
+	t.Fatalf("the fold %q is not reachable", label)
+}
+
 // foldLabel is the title of the fold of that name: the name and the
 // count of its pages.
 func foldLabel(tt *ui.Tester, name string) (string, bool) {
@@ -54,9 +72,8 @@ func TestTheSidebarFoldsThePages(t *testing.T) {
 	if !ok {
 		t.Fatal("the fold of the theme is missing")
 	}
-	if err := tt.Click(label); err != nil {
-		t.Fatal(err)
-	}
+	clickFold(t, tt, label)
+
 	tt.Advance(100 * 1000 * 1000)
 	tt.Advance(100 * 1000 * 1000)
 	if !inSidebar(tt, "外观") {
@@ -72,9 +89,8 @@ func TestTheSidebarFoldsThePages(t *testing.T) {
 	if !ok {
 		t.Fatal("the open fold's title is missing")
 	}
-	if err := tt.Click(label); err != nil {
-		t.Fatal(err)
-	}
+	clickFold(t, tt, label)
+
 	tt.Advance(100 * 1000 * 1000)
 	tt.Advance(100 * 1000 * 1000)
 	if inSidebar(tt, "外观") {
