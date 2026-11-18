@@ -148,8 +148,10 @@ func TestForcedLightRelightsTheFrame(t *testing.T) {
 	if pr, pg, pb := pixelAt(tt, 955, 300); pr != r || pg != g || pb != b {
 		t.Errorf("the main page drew (%d, %d, %d), want the light background", pr, pg, pb)
 	}
-	r, g, b = hexRGB(t, "f4f4f5")
+	// The sidebar shares the page's background and is separated by a
+	// hairline, as in shadcn's inset sidebar layout.
+	r, g, b = hexRGB(t, "ffffff")
 	if pr, pg, pb := pixelAt(tt, 95, 560); pr != r || pg != g || pb != b {
-		t.Errorf("the sidebar drew (%d, %d, %d), want the light surface", pr, pg, pb)
+		t.Errorf("the sidebar drew (%d, %d, %d), want the light background", pr, pg, pb)
 	}
 }

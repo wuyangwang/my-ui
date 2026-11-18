@@ -91,6 +91,9 @@ func (s *showcase) view(c *ui.Context) {
 		s.appBar(c, t)
 		ui.Row(c).Grow(1).AlignItems(ui.Stretch).Children(func() {
 			s.sidebar(c, t)
+			// A hairline separates the nav from the page, as in
+			// shadcn's inset sidebar layout.
+			ui.Box(c).Width(1).Background(t.Border)
 			s.main(c, t)
 		})
 	})
@@ -164,15 +167,15 @@ func (s *showcase) appBar(c *ui.Context, t *ui.Theme) {
 // other. A search opens them all and leaves only what it finds, so the
 // sidebar holds a hundred pages as well as a dozen.
 func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
-	ui.Column(c).Width(248).Background(t.Surface).Padding(t.Space(6), t.Space(4)).
-		Gap(t.Space(4)).Children(func() {
-		// A label over the folds, so the sidebar reads as a tree of
-		// components, with the count the filter leaves.
-		ui.Text(c, "组件 · "+strconv.Itoa(len(pages))).
-			FontSize(myui.TextSize(t, myui.TextSm)).Bold().
-			TextColor(t.Text).Padding(t.Space(1), t.Space(2), 0, t.Space(2))
+	// 16rem, the width shadcn's docs sidebar uses; the page gets the
+	// rest. A quiet label heads the scroll region, like a SidebarGroup
+	// label, instead of a row that looks like another nav entry.
+	ui.Column(c).Width(256).Background(t.Background).
+		Padding(t.Space(4), t.Space(3)).Gap(t.Space(2)).Children(func() {
+		ui.Text(c, "组件").FontSize(myui.TextSize(t, myui.TextXs)).Bold().
+			TextColor(t.TextMuted).Padding(t.Space(1), t.Space(3))
 
-		ui.Scroll(c).Grow(1).Children(func() {
+		ui.Scroll(c).Grow(1).Gap(t.Space(3)).Children(func() {
 			found := 0
 			for _, g := range groups() {
 				shown := filterPages(pagesOf(g), s.navQuery)
@@ -196,18 +199,19 @@ func (s *showcase) sidebar(c *ui.Context, t *ui.Theme) {
 	})
 }
 
-// fold is the title of a fold of pages: a button that opens the fold and
-// closes the others.
+// fold is a group label that opens the group. It reads as a label,
+// not as a big nav button: small muted text and a quiet chevron, as
+// shadcn's SidebarGroupLabel and Element Plus's group title do.
 func (s *showcase) fold(c *ui.Context, t *ui.Theme, name string, n int) {
 	label := name + " (" + strconv.Itoa(n) + ")"
-	b := ctrlpkg.NewButton(c.Key("fold "+name), label).Ghost().Block()
-	b.FontSize(myui.TextSize(t, myui.TextSm)).Bold()
+	open := s.foldOpen(name)
+	b := ctrlpkg.NewButton(c.Key("fold "+name), label).Ghost().Block().Xs()
+	b.FontSize(myui.TextSize(t, myui.TextXs))
 	b.Justify(ui.Start)
-	b.Padding(t.Space(3), t.Space(2)).Radius(t.Space(2))
+	b.Padding(t.Space(2), t.Space(3)).Radius(t.Space(1.5))
 	b.TextColor(t.TextMuted)
-	if s.foldOpen(name) {
+	if open {
 		b.Icon(icons.ChevronDown())
-		b.TextColor(t.Text)
 	} else {
 		b.Icon(icons.ChevronRight())
 	}
@@ -232,27 +236,22 @@ func (s *showcase) foldOpen(g string) bool {
 	return pageOf(s.page).group == g
 }
 
-// nav is one sidebar entry: the icon of the page and its name. The open
-// page sits on a white pill of its own, with a bar of accent ink on its
-// left edge.
+// nav is one sidebar entry: a 40 DIP-tall row with the page's icon and
+// label. The active entry takes a tint of the accent and the accent's
+// ink, as Ant Design's selected menu item and shadcn's sidebar button
+// do — no white pill, no left bar, no shadow.
 func (s *showcase) nav(c *ui.Context, t *ui.Theme, p page) {
 	active := s.page == p.key
-	ui.Row(c).AlignItems(ui.Center).Gap(t.Space(0)).Children(func() {
-		if active {
-			ui.Box(c).Width(3).Height(t.Space(6)).Radius(2).Background(t.Accent)
-		} else {
-			ui.Box(c).Width(3).Height(t.Space(6))
-		}
+	ui.Row(c).AlignItems(ui.Center).Padding(0, 0, 0, t.Space(2)).Children(func() {
 		b := ctrlpkg.NewButton(c.Key("nav "+p.key), p.label).Ghost().Block()
-		b.FontSize(myui.TextSize(t, myui.TextMd))
+		b.FontSize(myui.TextSize(t, myui.TextSm))
 		b.Justify(ui.Start)
-		b.Padding(t.Space(2.5), t.Space(2.5)).Radius(t.Space(2))
+		b.Height(t.Space(10)).Padding(0, t.Space(3)).Radius(t.Radius)
 		if p.icon != nil {
 			b.Icon(p.icon)
 		}
 		if active {
-			b.Background(t.Background).TextColor(t.Text).Bold().
-				Shadow(0, 1, 2, 0, t.Text.Alpha(0.10))
+			b.Background(t.Accent.Alpha(0.10)).TextColor(t.Accent).Bold()
 		} else {
 			b.TextColor(t.TextMuted)
 		}
