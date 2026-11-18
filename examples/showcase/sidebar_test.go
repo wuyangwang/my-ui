@@ -29,13 +29,23 @@ func inSidebar(tt *ui.Tester, s string) bool {
 func clickFold(t *testing.T, tt *ui.Tester, label string) {
 	t.Helper()
 	for i := 0; i < 20; i++ {
-		if r, ok := tt.Find(label); ok && r.Y >= 0 && r.Y+r.H <= 620 {
-			if err := tt.Click(label); err != nil {
-				t.Fatal(err)
-			}
+		info, ok := tt.Access(label)
+		r := info.Bounds
+		if ok && r.Y >= 0 && r.Y+r.H <= 1000 {
+			// Press the box: a text node nested in a button can have a
+			// zero label rect even when its button is on screen.
+			x, y := r.X+r.W/2, r.Y+r.H/2
+			tt.Press(x, y)
+			tt.Advance(100 * 1000 * 1000)
+			tt.Release(x, y)
+			tt.Advance(100 * 1000 * 1000)
 			return
 		}
-		tt.Scroll(100, 300, 0, 120)
+		dy := float32(120)
+		if ok && r.Y < 0 {
+			dy = -120
+		}
+		tt.Scroll(100, 300, 0, dy)
 		tt.Advance(100 * 1000 * 1000)
 	}
 	t.Fatalf("the fold %q is not reachable", label)
@@ -56,7 +66,7 @@ func foldLabel(tt *ui.Tester, name string) (string, bool) {
 // a fold's title opens it and closes the other.
 func TestTheSidebarFoldsThePages(t *testing.T) {
 	s := &showcase{page: "button"}
-	tt := ui.NewTester(s.view, 960, 620)
+	tt := ui.NewTester(s.view, 960, 1000)
 	tt.Advance(time.Second)
 
 	// The fold of the page that is open shows its pages.
@@ -102,7 +112,7 @@ func TestTheSidebarFoldsThePages(t *testing.T) {
 // and opens the folds to show it.
 func TestTheSidebarSearchesThePages(t *testing.T) {
 	s := &showcase{page: "button"}
-	tt := ui.NewTester(s.view, 960, 620)
+	tt := ui.NewTester(s.view, 960, 1000)
 	tt.Advance(time.Second)
 
 	// The search field of the sidebar.

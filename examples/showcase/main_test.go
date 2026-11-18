@@ -83,7 +83,7 @@ func TestSidebarSitsBesideThePages(t *testing.T) {
 // button has the rest painted.
 func TestThemePageSwitchesTheAppearanceAndThePalette(t *testing.T) {
 	s := &showcase{page: pages[0].key}
-	tt := ui.NewTester(s.view, 960, 620)
+	tt := ui.NewTester(s.view, 960, 1000)
 	// The theme page is in the fold of the theme: open it first.
 	label, ok := foldLabel(tt, "主题")
 	if !ok {
@@ -109,7 +109,7 @@ func TestThemePageSwitchesTheAppearanceAndThePalette(t *testing.T) {
 // opens, and a click on a page of it opens that page.
 func TestTheSidebarSwitchesPages(t *testing.T) {
 	s := &showcase{page: pages[0].key}
-	tt := ui.NewTester(s.view, 960, 620)
+	tt := ui.NewTester(s.view, 960, 1000)
 	// The Input page is in the fold of the form: open it first.
 	label, ok := foldLabel(tt, "表单")
 	if !ok {

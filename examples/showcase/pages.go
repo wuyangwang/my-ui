@@ -77,6 +77,12 @@ var pages = []page{
 	{key: "calendar", label: "Calendar", icon: icons.CalendarDays(), group: "表单", desc: "月视图日历，包 mygo Calendar + 卡片外观", build: (*showcase).calendarPage},
 	{key: "time-input", label: "TimeInput", icon: icons.Clock(), group: "表单", desc: "时间输入，包 mygo TimeInput + 字段外观", build: (*showcase).timeInputPage},
 	{key: "editable-text", label: "EditableText", icon: icons.Type(), group: "表单", desc: "就地重命名文本，包 mygo EditableText", build: (*showcase).editableTextPage},
+	{key: "accordion", label: "Accordion", icon: icons.ListTree(), group: "版式", desc: "Accordion 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).accordionPage},
+	{key: "collapsible", label: "Collapsible", icon: icons.ChevronsUpDown(), group: "版式", desc: "Collapsible 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).collapsiblePage},
+	{key: "decimal-input", label: "DecimalInput", icon: icons.Hash(), group: "表单", desc: "DecimalInput 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).decimalInputPage},
+	{key: "split-button", label: "SplitButton", icon: icons.ChevronsUpDown(), group: "控件", desc: "SplitButton 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).splitButtonPage},
+	{key: "toggle", label: "Toggle", icon: icons.ToggleRight(), group: "控件", desc: "Toggle 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).togglePage},
+	{key: "color-well", label: "ColorWell", icon: icons.Palette(), group: "控件", desc: "ColorWell 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).colorWellPage},
 	{key: "theme", label: "外观", icon: icons.Palette(), group: "主题", desc: "明暗、色板与子树预览，下一帧生效。", build: (*showcase).themePage},
 }
 

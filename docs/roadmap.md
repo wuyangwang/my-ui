@@ -101,6 +101,13 @@
 | 49 | TimeInput | 时间输入，包 mygo TimeInput + 字段外观；包 mygo 构造器并加 shadcn 外观；测试与 showcase「TimeInput」页 | ✅ 已完成 |
 | 50 | EditableText | 就地重命名文本，包 mygo EditableText；包 mygo 构造器并加 shadcn 外观；测试与 showcase「EditableText」页 | ✅ 已完成 |
 
+| 51 | Accordion | 包 mygo 构造器并加 my-ui 主题外观；规格书 / 测试 / showcase「Accordion」页 | ✅ 已完成 |
+| 52 | Collapsible | 包 mygo 构造器并加 my-ui 主题外观；规格书 / 测试 / showcase「Collapsible」页 | ✅ 已完成 |
+| 53 | DecimalInput | 包 mygo 构造器并加 my-ui 主题外观；规格书 / 测试 / showcase「DecimalInput」页 | ✅ 已完成 |
+| 54 | SplitButton | 包 mygo 构造器并加 my-ui 主题外观；规格书 / 测试 / showcase「SplitButton」页 | ✅ 已完成 |
+| 55 | Toggle | 包 mygo 构造器并加 my-ui 主题外观；规格书 / 测试 / showcase「Toggle」页 | ✅ 已完成 |
+| 56 | ColorWell | 包 mygo 构造器并加 my-ui 主题外观；规格书 / 测试 / showcase「ColorWell」页 | ✅ 已完成 |
+
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 
 ## 二期：导航、展示与桌面细粒度组件（按需排期）

@@ -54,34 +54,39 @@ type showcase struct {
 	readonly      string
 	lastEvent     string
 
-	titleBarEvent string // the last thing the title bar demo's buttons did
-	pageNum       int    // the status page's pager
-	crumb         int    // the more page's breadcrumb
-	amount        float64
-	ratio         float64
-	searchQuery   string
-	hoverOpen     bool
-	menuOpen      bool
-	contextOpen   bool
-	lastAction    string
-	tableState    ui.ListState
-	autoValue     string
-	pickedDate    time.Time
-	slide         int
-	tagClosed     bool
-	cmdOpen       bool
-	cmdQuery      string
-	scroll        ui.ScrollState // the content column's scroll position
-	lastPage      string         // the page the scroll position belongs to
-	otpValue      string
-	listState     ui.ListState
-	todo          []string
-	low, high     float64
-	stepValue     float64
-	rating        int
-	pickedColor   ui.Color
-	pickedTime    time.Time
-	editableText  string
+	titleBarEvent   string // the last thing the title bar demo's buttons did
+	pageNum         int    // the status page's pager
+	crumb           int    // the more page's breadcrumb
+	amount          float64
+	ratio           float64
+	searchQuery     string
+	hoverOpen       bool
+	menuOpen        bool
+	contextOpen     bool
+	lastAction      string
+	tableState      ui.ListState
+	autoValue       string
+	pickedDate      time.Time
+	slide           int
+	tagClosed       bool
+	cmdOpen         bool
+	cmdQuery        string
+	scroll          ui.ScrollState // the content column's scroll position
+	lastPage        string         // the page the scroll position belongs to
+	otpValue        string
+	listState       ui.ListState
+	todo            []string
+	low, high       float64
+	stepValue       float64
+	rating          int
+	pickedColor     ui.Color
+	pickedTime      time.Time
+	editableText    string
+	accordionOpen   bool
+	collapsibleOpen bool
+	decimalValue    string
+	splitAction     string
+	toggleOn        bool
 }
 
 // theme returns the options the window's frame applies, every frame:
