@@ -87,6 +87,10 @@
 | 37 | Menubar | 规格书 [components/menubar.md](components/menubar.md)；`overlays/menubar.go`：多个 mygo `MenuBase` 共用菜单外观；`menubar_test.go`；showcase「Menubar」页 | ✅ 已完成 |
 | 38 | Command Palette | 规格书 [components/command-palette.md](components/command-palette.md)；`overlays/command_palette.go`：`DialogBase` + 输入过滤命令；`command_palette_test.go`；showcase「Command Palette」页 | ✅ 已完成 |
 
+| 39 | SortableList | 规格书 [components/sortable-list.md](components/sortable-list.md)；`display/sortable_list.go`：包 mygo `ListState.Reorder`，每行一个拖拽手柄；`sortable_list_test.go`；showcase「SortableList」页 | ✅ 已完成 |
+| 40 | InputOTP | 规格书 [components/input-otp.md](components/input-otp.md)；`forms/input_otp.go`：一格一字符、自动跳格与退格回退；`input_otp_test.go`；showcase「InputOTP」页 | ✅ 已完成 |
+| 41 | Upload | 规格书 [components/upload.md](components/upload.md)；`forms/upload.go`：拖放区 + `DroppedFiles()` 路径回调（不做文件选择器，见限制）；`upload_test.go`；showcase「Upload」页 | ✅ 已完成 |
+
 > 后续可按需插入：`InputNumber`、`SearchBar`、`Segmented`、`ToggleGroup`、`AutoComplete`、`DatePicker`、`InputOTP`、`Upload`、`Form` 等。
 
 ## 二期：导航、展示与桌面细粒度组件（按需排期）
@@ -97,7 +101,7 @@
 |---|---|---|
 | 展示/布局 | Skeleton ✅、EmptyState ✅、Result ✅、Pagination ✅；Divider/Avatar（mygo 自带，`display/` 重导出 ✓）；Skeleton、HoverCard、Carousel、AspectRatio 等 | ✅ 已完成（Skeleton/EmptyState/Result/Pagination） |
 | 导航/覆盖层 | Breadcrumb ✅、HoverCard ✅、DropdownMenu ✅、ContextMenu ✅、Menubar ✅、Command Palette ✅；Tabs 已做 | ✅ 已完成（六项） |
-| 数据/复杂 | Table ✅；SortableList | ✅ 已完成（Table） |
+| 数据/复杂 | Table ✅、SortableList ✅ | ✅ 已完成（两项） |
 
 ## 三期：AI 二级包（`ai/`）
 

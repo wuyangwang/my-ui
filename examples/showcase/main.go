@@ -73,6 +73,9 @@ type showcase struct {
 	cmdQuery      string
 	scroll        ui.ScrollState // the content column's scroll position
 	lastPage      string         // the page the scroll position belongs to
+	otpValue      string
+	listState     ui.ListState
+	todo          []string
 }
 
 // theme returns the options the window's frame applies, every frame:
@@ -338,7 +341,44 @@ func (s *showcase) openPage(c *ui.Context, t *ui.Theme) func() {
 	return func() { p.build(s, c, t) }
 }
 func main() {
-	s := &showcase{page: pages[0].key, pickedDate: time.Now()}
+	s := &showcase{page: pages[0].key, pickedDate: time.Now(),
+		todo: []string{"设计规格", "实现组件", "补测试", "写文档"}}
+	s.listState.Reorder = func(rows []int, to int) {
+		// mygo hands the rows and the insertion point; move them in the
+		// app's slice, like any other bound state.
+		ids := append([]int(nil), rows...)
+		if len(ids) == 0 {
+			return
+		}
+		picked := make([]string, 0, len(ids))
+		for _, i := range ids {
+			if i >= 0 && i < len(s.todo) {
+				picked = append(picked, s.todo[i])
+			}
+		}
+		rest := []string{}
+		for i := range s.todo {
+			keep := false
+			for _, j := range ids {
+				if i == j {
+					keep = true
+				}
+			}
+			if !keep {
+				rest = append(rest, s.todo[i])
+			}
+		}
+		if to > len(rest) {
+			to = len(rest)
+		}
+		if to < 0 {
+			to = 0
+		}
+		next := append([]string(nil), rest[:to]...)
+		next = append(next, picked...)
+		next = append(next, rest[to:]...)
+		s.todo = next
+	}
 	// The showcase speaks Chinese: the strings the controls hold fixed
 	// follow the language of the app.
 	mygo.App.SetLocale("zh-Hans")

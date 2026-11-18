@@ -22,6 +22,8 @@ var catalog = map[string]map[string]string{
 		"next":           "Next page",
 		"searchCommands": "Search commands…",
 		"noCommands":     "No matching commands",
+		"dropFiles":      "Drop files here",
+		"dropHint":       "Drag and drop only; no file picker",
 	},
 	"zh-Hans": {
 		"clear":          "清除",
@@ -35,6 +37,8 @@ var catalog = map[string]map[string]string{
 		"next":           "下一页",
 		"searchCommands": "搜索命令…",
 		"noCommands":     "没有匹配的命令",
+		"dropFiles":      "把文件拖到这里",
+		"dropHint":       "拖放区只接收文件，不打开文件选择器",
 	},
 	"zh-Hant": {
 		"clear":          "清除",
@@ -48,6 +52,8 @@ var catalog = map[string]map[string]string{
 		"next":           "下一頁",
 		"searchCommands": "搜尋命令…",
 		"noCommands":     "沒有符合的命令",
+		"dropFiles":      "把檔案拖到這裡",
+		"dropHint":       "只接受拖放，不開啟檔案選擇器",
 	},
 }
 

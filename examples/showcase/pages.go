@@ -65,6 +65,9 @@ var pages = []page{
 	{key: "table", label: "Table", icon: icons.Table(), group: "版式", desc: "包 mygo Table，排序与选择由 ListState 管", build: (*showcase).tablePage},
 	{key: "menubar", label: "Menubar", icon: icons.Menu(), group: "浮层", desc: "横排多个下拉菜单，共用菜单面板外观。", build: (*showcase).menubarPage},
 	{key: "command-palette", label: "Command Palette", icon: icons.Search(), group: "浮层", desc: "输入即过滤的命令面板。", build: (*showcase).commandPalettePage},
+	{key: "sortable-list", label: "SortableList", icon: icons.ListOrdered(), group: "版式", desc: "拖拽手柄排序，顺序由 app 持有。", build: (*showcase).sortableListPage},
+	{key: "input-otp", label: "InputOTP", icon: icons.Hash(), group: "表单", desc: "一格一字符，自动跳到下一格。", build: (*showcase).inputOTPage},
+	{key: "upload", label: "Upload", icon: icons.Upload(), group: "表单", desc: "拖入文件区，把路径交给 app。", build: (*showcase).uploadPage},
 	{key: "theme", label: "外观", icon: icons.Palette(), group: "主题", desc: "明暗、色板与子树预览，下一帧生效。", build: (*showcase).themePage},
 }
 
