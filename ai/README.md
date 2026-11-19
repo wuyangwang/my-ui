@@ -1,17 +1,22 @@
 # ai（二级包）
 
-> **状态：规划中，尚无代码。**（不参与 `go build ./...` 的包集合；实现后补充 API 与示例）
+> **状态：已实现**（`ChatList`、`ModelPicker`、`Reasoning`）。规格书见 `docs/components/`，示例见 `examples/showcase/` 的「AI」分组。
 
-AI 应用常见组件。mygo 独有的底层能力：`ui/markdown` 专为 LLM 逐 token 流式回复构建（增量解析、半成品语法按终态显示、文本淡入），`ui.List` 为锚点式虚拟化列表（行高动态、行可增删）。本库把两者的组合包装成可直接用的应用组件。
+AI 应用常见组件。mygo 独有的底层能力：`ui/markdown` 专为 LLM 逐 token 流式回复构建（增量解析、半成品语法按终态显示、文本淡入），`ui.List` 为锚点式虚拟化列表（行高动态、行可增删、`FollowEnd` 贴底跟随）。本库把两者的组合包装成可直接用的应用组件。
 
 ## 组件
 
-- **ChatList**：虚拟化消息气泡布局（含头像、系统/用户角色），流式 `markdown.Stream` / 完结转 `markdown.View`，typing 指示，贴底跟随（`ScrollState` `Y ≥ MaxY → MaxFloat32`）、上滚即停、弹簧回底；底部输入条经 Scaffold 的底部预留机制不遮挡最后一行。
-- **ModelPicker**：分组 `Combobox` + 厂商图标（可选联动 `icons/`）+ 上下文窗/速度/价格徽标 + `ComboboxParts.Chosen` 选中态。
-- **Reasoning**：推理档位（low/medium/high/…）基于 `Segmented`；temperature/top_p 基于 `RangeSlider`/`Stepper`，带语义预设（精确/均衡/创意）。
+| 组件 | 作用 |
+|---|---|
+| `ChatList` | 虚拟化消息气泡：用户靠右、助手靠左、系统居中；流式或完稿 Markdown、头像、typing 指示、贴底跟随。`ListState.Key` 用消息 ID 稳定行 |
+| `ModelPicker` | 可搜索的模型下拉：按厂商分组、厂商图标、上下文窗/速度/价格徽标、选中态跨帧可读 |
+| `Reasoning` | 思考强度（低/中/高，档位可自定义）与 temperature/top_p 滑杆，附精确/均衡/创意三个预设 |
+
+每个组件都有 `bind.Bind(c)` 对应的句柄方法。`ChatList` 同时支持本地固定数据（`NewChatListStatic(c, []ai.ChatMessage{...})`，不必声明变量与 `ListState`）和接口返回数据（app 持有 slice，每帧传当前值，append 后自动生效）。
 
 ## 约定
 
 - 无 `go:embed` 资产；仅依赖 `myui` 根包与 mygo 公开 API，不改 mygo 行为。
-- 中英文文案（如有）计划遵守根包后置的 i18n 文案表与回退链（见 roadmap）。
-- 不持有的状态：消息数据由 app 持有（立即模式），本包只描述如何渲染与滚动。
+- 消息、选中模型、强度与参数都由 app 持有指针；本包不持有状态。
+- 文案走根包 i18n 文案表（新增 `effort*`、`temperature`、`topP`、`preset*`、`searchModels`、`noModels`、`user`、`assistant` 等键）。
+- 颜色、间距、字号与动效时长每帧从 `c.Theme()` 与根包 tokens 取，无包级颜色状态。

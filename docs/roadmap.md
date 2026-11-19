@@ -122,7 +122,15 @@
 
 ## 三期：AI 二级包（`ai/`）
 
-`ChatList`（虚拟化流式气泡、贴底跟随等）、`ModelPicker`、`Reasoning`。依赖一期范式与页面骨架形态，可与二期部分并行；每项含规格书、实现、测试与示例。当前 `ai/` 仅占位。
+`ChatList`（虚拟化流式气泡、贴底跟随等）、`ModelPicker`、`Reasoning`。依赖一期范式与页面骨架形态，可与二期部分并行；每项含规格书、实现、测试与示例。
+
+| 组件 | 规格书 | 实现 | 测试 | 示例 | 状态 |
+|---|---|---|---|---|---|
+| ChatList | [chatlist.md](components/chatlist.md) | `ai/chatlist.go` | `ai/chatlist_test.go` | showcase「ChatList」 | ✅ |
+| ModelPicker | [model-picker.md](components/model-picker.md) | `ai/modelpicker.go` | `ai/modelpicker_test.go` | showcase「ModelPicker」 | ✅ |
+| Reasoning | [reasoning.md](components/reasoning.md) | `ai/reasoning.go` | `ai/reasoning_test.go` | showcase「Reasoning」 | ✅ |
+
+三项都提供 `bind.Bind(c)` 句柄方法。调研 shadcn AI Elements / Vercel AI Elements / assistant-ui 后，Prompt Input、Tool、Task、Sources 等只是普通控件的组合，本库已有等价件，暂不单列。
 
 ## 后置（随需推进）
 

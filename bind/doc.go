@@ -7,6 +7,7 @@
 //		h.Apply(myui.Options{Appearance: myui.AppearanceDark})
 //		h.Button("Save").Primary()
 //		h.Input(&app.name).Outline().Placeholder("Name")
+//		h.ChatList(app.messages, nil, ai.ChatListOptions{})
 //	}
 //
 // Bind the context again on every frame. The handle keeps no state of its

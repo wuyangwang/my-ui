@@ -119,6 +119,9 @@ var pages = []page{
 	{key: "text", label: "Text", icon: icons.Type(), group: "版式", desc: "Text，参考 Lobe MyGo 风格。", build: (*showcase).textPage},
 	{key: "toggle-group", label: "ToggleGroup", icon: icons.ToggleRight(), group: "控件", desc: "ToggleGroup，参考 Lobe MyGo 风格。", build: (*showcase).toggleGroupPage},
 	{key: "steps", label: "Steps", icon: icons.ListOrdered(), group: "导航", desc: "流程步骤条，支持圆点与竖排。", build: (*showcase).stepsPage},
+	{key: "chat-list", label: "ChatList", icon: icons.MessageSquare(), group: "AI", desc: "虚拟化消息流，贴底跟随与流式回复。", build: (*showcase).chatListPage},
+	{key: "model-picker", label: "ModelPicker", icon: icons.CpuAi(), group: "AI", desc: "分组模型下拉，带图标与能力徽标。", build: (*showcase).modelPickerPage},
+	{key: "reasoning", label: "Reasoning", icon: icons.SlidersHorizontal(), group: "AI", desc: "思考强度与温度、top_p 预设。", build: (*showcase).reasoningPage},
 	{key: "theme", label: "外观", icon: icons.Palette(), group: "主题", desc: "明暗、色板与子树预览，下一帧生效。", build: (*showcase).themePage},
 }
 

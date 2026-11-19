@@ -5,7 +5,7 @@
 ## 1. 分层
 
 ```
-L5  secondary       icons/ fonts/ ai/          二级包（icons/fonts 已交付，ai 规划中），按需 import，不 import 不链接
+L5  secondary       icons/ fonts/ ai/          二级包（icons/ai 已交付，fonts 暂缓），按需 import，不 import 不链接
 L3  styled widgets  button.go（已实现）…        变体化预设包装 ui 控件
 L2  theme           theme.go palettes.go shades.go 主题构建、明暗/强调色切换、取色派生
 L1  tokens          tokens.go                   刻度：字号/间距/圆角/动效倍率（从 *ui.Theme 解出）
@@ -51,7 +51,7 @@ mygo 面向 app 的 i18n 由 `mygo dev/build` 处理 `locales/*.json`；mygo 自
 组合官方机制解决顶栏安全区、滚动与底部遮挡：
 
 - 底部预留：滚动内容自动带底部 padding（= 底栏高度 + 边距），滚动条经 `ScrollbarInsets` 内移，默认最后一行不被挡。
-- （后续）与 `ai/` 联动的贴底跟随/回底。
+- `ai/ChatList` 用 `ListState.FollowEnd` 实现贴底跟随/回底，无需额外的 `ScrollState` 联动。
 
 ## 4. 变体化控件（L3）
 
@@ -66,7 +66,7 @@ mygo 面向 app 的 i18n 由 `mygo dev/build` 处理 `locales/*.json`；mygo 自
 |---|---|---|---|
 | `icons` | Lucide + 品牌标 typed `*ui.SVG`，`go generate` 管线 | Lucide ISC；simple-icons CC0 | ✅ 已交付 |
 | `fonts` | 内嵌 OFL 字体，`ui.RegisterFont` 注册字族与常量 | OFL | ✅ 已交付 |
-| `ai` | `ChatList`、`ModelPicker`、`Reasoning` | 无资产 | 规划中 |
+| `ai` | `ChatList`、`ModelPicker`、`Reasoning` | 无资产 | 已实现 |
 
 明确不做：CEF 窗口路径；npm/Bun 发布。
 
