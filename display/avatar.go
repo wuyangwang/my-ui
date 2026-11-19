@@ -171,7 +171,7 @@ func avatarInk(bg ui.Color, t *ui.Theme) ui.Color {
 	if avatarLuma(bg) > 0.4 {
 		return t.Text
 	}
-	return ui.RGB(255, 255, 255)
+	return OnAccent(bg)
 }
 
 func avatarLuma(c ui.Color) float32 {

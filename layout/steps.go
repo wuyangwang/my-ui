@@ -3,6 +3,8 @@ package layout
 import (
 	"strconv"
 
+	. "github.com/wuyangwang/my-ui"
+
 	"github.com/egoist/mygo/ui"
 	"github.com/wuyangwang/my-ui/icons"
 )
@@ -120,7 +122,7 @@ func (s *Steps) build() {
 				marker = ui.Box(s.c).Size(t.Space(2), t.Space(2)).Radius(t.Space(1))
 			} else {
 				marker = ui.Row(s.c).Size(t.Space(7), t.Space(7)).
-					Justify(ui.Center).AlignItems(ui.Center).Radius(t.Space(3.5))
+					Justify(ui.Center).AlignItems(ui.Center).Radius(Radius(t, RadiusMd))
 			}
 			marker = marker.Background(face).TextColor(ink)
 			marker.Children(func() {
@@ -138,9 +140,9 @@ func (s *Steps) build() {
 				}
 			})
 			ui.Column(s.c).Gap(t.Space(0.5)).Children(func() {
-				ui.Text(s.c, item.Title).FontSize(t.Space(3.5)).Bold().TextColor(t.Text)
+				ui.Text(s.c, item.Title).FontSize(TextSize(t, TextSm)).Bold().TextColor(t.Text)
 				if item.Description != "" {
-					ui.Text(s.c, item.Description).FontSize(t.Space(3)).TextColor(t.TextMuted)
+					ui.Text(s.c, item.Description).FontSize(TextSize(t, TextXs)).TextColor(t.TextMuted)
 				}
 			})
 			_ = marker

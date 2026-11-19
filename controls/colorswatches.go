@@ -140,9 +140,7 @@ func checkInk(color ui.Color, t *ui.Theme) ui.Color {
 	if color.A == 0 {
 		return t.Text.Alpha(0.33)
 	}
-	l := (0.2126*float32(color.R) + 0.7152*float32(color.G) + 0.0722*float32(color.B)) / 255
-	if l > 0.6 {
-		return ui.RGB(0, 0, 0).Alpha(0.33)
-	}
-	return ui.RGB(255, 255, 255).Alpha(0.33)
+	// OnAccent derives the readable ink from the swatch itself, so the
+	// check mark follows the chosen color instead of a hardcoded black/white.
+	return OnAccent(color).Alpha(0.33)
 }
