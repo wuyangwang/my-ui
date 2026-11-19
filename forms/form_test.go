@@ -159,6 +159,37 @@ func TestFieldKnowsItWasUsed(t *testing.T) {
 	}
 }
 
+func TestFieldOnFocusedFiresOnceOnGain(t *testing.T) {
+	var value string
+	focused := 0
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		// Validate shares the control with OnFocused; the two must keep
+		// separate focus edges so both can fire.
+		NewField(c, "邮箱", func() ui.Element {
+			return NewInput(c, &value).Outline().Control()
+		}).Validate(&value, Required("请填写邮箱")).OnFocused(func() { focused++ })
+		ui.Button(c, "别处").Label("别处")
+	}
+	tt := ui.NewTester(view, 320, 300)
+	tt.Advance(time.Second)
+	if focused != 0 {
+		t.Fatalf("OnFocused fired %d times before the field was focused", focused)
+	}
+	if err := tt.Click("邮箱"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if focused != 1 {
+		t.Fatalf("OnFocused fired %d times on focus gain, want once", focused)
+	}
+	// Staying focused must not fire it again.
+	tt.Advance(time.Second)
+	if focused != 1 {
+		t.Fatalf("OnFocused fired %d times while staying focused, want once", focused)
+	}
+}
+
 func TestPasswordInputHidesAndShowsTheText(t *testing.T) {
 	var value string
 	view := func(c *ui.Context) {

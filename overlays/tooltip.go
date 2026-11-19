@@ -33,7 +33,7 @@ func tooltipAnchors(s TooltipSide) (at, self ui.Anchor) {
 // Tooltip shows a tip over the anchor, when the pointer rests on it or
 // it has the focus.
 //
-//	ui.NewTooltip(c, myui.NewButton(c, "帮助").Element, "这是帮助文字").Side(myui.TooltipBottom)
+//	overlays.NewTooltip(c, controls.NewButton(c, "帮助").Element, "这是帮助文字").Side(overlays.TooltipBottom)
 //
 // The tip is styled by the library, as shadcn's: the theme turned over, a
 // small text, rounded corners and a shadow. Its text becomes the anchor's

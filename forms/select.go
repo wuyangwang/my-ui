@@ -32,8 +32,8 @@ func (o SelectOption) Text() string {
 
 // Select is a drop-down choosing one of its options:
 //
-//	myui.NewSelect(c, &size, []myui.SelectOption{{Value: "灏?}, {Value: "澶?}}).Outline()
-//	myui.NewSelect(c, &lang, []myui.SelectOption{
+//	forms.NewSelect(c, &size, []forms.SelectOption{{Value: "灏?}, {Value: "澶?}}).Outline()
+//	forms.NewSelect(c, &lang, []forms.SelectOption{
 //		{Label: "绠€浣撲腑鏂?, Value: "zh-Hans"},
 //		{Label: "English", Value: "en"},
 //	}).Placeholder("閫夋嫨璇█").OnChanged(func(v string) { app.lang = v })

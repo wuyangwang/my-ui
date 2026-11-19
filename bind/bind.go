@@ -16,7 +16,7 @@ import (
 // own:
 //
 //	func view(c *ui.Context) {
-//		h := myui.Bind(c)
+//		h := bind.Bind(c)
 //		h.Apply(myui.Options{Appearance: myui.AppearanceDark})
 //		h.Button("Save").Primary()
 //		h.Input(&app.name).Outline().Placeholder("Name")
@@ -27,7 +27,7 @@ import (
 // the theme, the palette and the desktop's own changes reach the
 // components on the next frame, as they should.
 //
-// The handle is sugar over the constructors: myui.NewButton(c, "Save")
+// The handle is sugar over the constructors: controls.NewButton(c, "Save")
 // says the same thing, and both are there to choose from. The handle is
 // a value, so binding it costs nothing.
 type UI struct {

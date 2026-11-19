@@ -30,8 +30,8 @@ var (
 
 // Button is a ui button with a variant's preset look:
 //
-//	myui.NewButton(c, "Save").Primary()
-//	myui.NewButton(c, "Remove").Destructive().Sm()
+//	controls.NewButton(c, "Save").Primary()
+//	controls.NewButton(c, "Remove").Destructive().Sm()
 //
 // The chain applies the preset from the build's theme, so it keeps
 // following palette and appearance changes; call it every frame, ahead
@@ -43,8 +43,8 @@ var (
 // The text of the button is a child of it, as the built-in button's
 // own text is, so an icon can sit beside it:
 //
-//	myui.NewButton(c, "Save").Icon(icons.Save())
-//	myui.NewButton(c, "").Icon(icons.Save()).Label("Save")
+//	controls.NewButton(c, "Save").Icon(icons.Save())
+//	controls.NewButton(c, "").Icon(icons.Save()).Label("Save")
 type Button struct {
 	ui.Element
 	c       *ui.Context
@@ -58,7 +58,7 @@ type Button struct {
 	iconSVG *ui.SVG // the icon to restore when the busy state clears
 }
 
-// NewButton creates a button with the native preset: myui.NewButton(c,
+// NewButton creates a button with the native preset: controls.NewButton(c,
 // "Save"). Clicked() reports the click on it as on ui.Button.
 func NewButton(c *ui.Context, label string) *Button {
 	b := &Button{c: c}

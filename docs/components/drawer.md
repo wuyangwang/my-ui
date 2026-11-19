@@ -28,7 +28,7 @@
 ## 3. 实现到何种程度
 
 **已实现**
-- `overlaypkg.NewDrawer(c, &open, myui.DrawerRight, trigger, build)`：触发器由 app 构建 ✓，点击即打开（同一帧 ✓）；遮罩（黑 40% ✓）吃掉外面的点击 ✓；面板在窗口的边 ✓，取四分之三的room、最多 360 DIP 宽 ✓（shadcn 的 `w-3/4 max-w-sm` ✓），其余留给遮罩 ✓（窗口后面露出来 ✓）；面板：surface 底 + 描边 + 圆角 + 阴影 + `Space(4)` 内衬 ✓；右上角 ✕ 关闭按钮 ✓；Escape 关闭 ✓。
+- `overlaypkg.NewDrawer(c, &open, overlaypkg.DrawerRight, trigger, build)`：触发器由 app 构建 ✓，点击即打开（同一帧 ✓）；遮罩（黑 40% ✓）吃掉外面的点击 ✓；面板在窗口的边 ✓，取四分之三的room、最多 360 DIP 宽 ✓（shadcn 的 `w-3/4 max-w-sm` ✓），其余留给遮罩 ✓（窗口后面露出来 ✓）；面板：surface 底 + 描边 + 圆角 + 阴影 + `Space(4)` 内衬 ✓；右上角 ✕ 关闭按钮 ✓；Escape 关闭 ✓。
 - 边：`DrawerRight`/`DrawerLeft`/`DrawerBottom` ✓。
 - 面板是模态的：焦点在里面、Tab 在里面转 ✓（框架的 `Modal()` ✓）。
 
@@ -65,7 +65,7 @@ func (d *Drawer) SetOpen(open bool) *Drawer
 用法：
 
 ```go
-overlaypkg.NewDrawer(c, &app.open, myui.DrawerRight, func() ui.Element {
+overlaypkg.NewDrawer(c, &app.open, overlaypkg.DrawerRight, func() ui.Element {
 	return ctrlpkg.NewButton(c, "设置").Element
 }, func(panel ui.Element) {
 	ui.Text(c, "设置").Bold()

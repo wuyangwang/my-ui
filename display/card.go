@@ -8,7 +8,7 @@ import (
 // Card is a panel of the page: a heading, a description, content and an
 // optional footer, on a surface with a border.
 //
-//	myui.NewCard(c, "概览").Description("今天的情况").
+//	display.NewCard(c, "概览").Description("今天的情况").
 //		Content(func() { ... }).Footer(func() { ... })
 //
 // The card is styled by the library, as shadcn's: a surface with a

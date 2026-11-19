@@ -1,8 +1,6 @@
 package myui
 
 import (
-	"time"
-
 	"github.com/egoist/mygo/ui"
 )
 
@@ -22,13 +20,12 @@ func StateTransition() ui.ElementTransition {
 	}
 }
 
-// overlayFade is how long an overlay panel takes to come in.
-const overlayFade = 160 * time.Millisecond
-
 // OverlayEnter fades a panel in when it first appears. It uses the
 // element's own animation, so the desktop's Reduce Motion takes the value
 // straight to its target. The Local flag makes the first build start at 0
 // and ask for another frame; the second and later builds animate to 1.
+// The duration comes from the motion tokens, so overlays move at the same
+// pace as every other transition in the library.
 func OverlayEnter(c *ui.Context, panel ui.Element, key any) {
 	entered := ui.Local(panel, key, func() bool { return false })
 	if !*entered {
@@ -36,6 +33,6 @@ func OverlayEnter(c *ui.Context, panel ui.Element, key any) {
 		*entered = true
 		c.Invalidate()
 	}
-	op := panel.AnimateTo("overlay-in", 1, ui.Animation{Duration: overlayFade, NonMotion: true})
+	op := panel.AnimateTo("overlay-in", 1, ui.Animation{Duration: MotionNormal, NonMotion: true})
 	panel.Opacity(op)
 }

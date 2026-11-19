@@ -124,7 +124,7 @@ func (f *Field) Error(s string) *Field {
 // field has been left, and after that whenever the value changes; a
 // field that has not been left shows nothing, as a form does.
 //
-//	myui.NewField(c, "邮箱", func() ui.Element { ... }).
+//	forms.NewField(c, "邮箱", func() ui.Element { ... }).
 //		Validate(&app.email, myui.Required("请填写邮箱"), myui.Email("邮箱格式不对"))
 //
 // The field keeps the states a form keeps: whether it has been left
@@ -205,12 +205,21 @@ func (f *Field) ValidateOn(when ValidateOn, value *string, rules ...Rule) *Field
 // OnFocused calls fn when the control gains the focus in this frame, and
 // returns the field for chaining. MyGo has no focus-gained event; the
 // field computes the edge from Focused() across frames.
+//
+// The edge keeps its own Local state: Validate has one for its OnFocus
+// timing, and the two must not advance each other's edge, or neither
+// fires. The state is written every call, so a field that is focused and
+// stays so calls fn once, not on every frame.
 func (f *Field) OnFocused(fn func()) *Field {
-	if fn != nil {
-		if was := ui.Local(f.control, "field-focused", func() bool { return false }); f.control.Focused() && !*was {
-			fn()
-		}
+	if !f.hasCtrl {
+		return f
 	}
+	was := ui.Local(f.control, "field-onfocused", func() bool { return false })
+	now := f.control.Focused()
+	if fn != nil && now && !*was {
+		fn()
+	}
+	*was = now
 	return f
 }
 

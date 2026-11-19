@@ -16,7 +16,15 @@ type HoverCard struct {
 // and build fills the panel; both run every frame. A few frames of
 // grace let the pointer travel from the trigger into the panel without
 // closing it — a frame count, never a timer.
-func NewHoverCard(c *ui.Context, open *bool, anchor func() ui.Element, build func(panel ui.Element)) *HoverCard {
+//
+// An optional key scopes the host: pass a different one for each HoverCard
+// under the same parent, or the two share an identity and the later one
+// overwrites the earlier. With no key the host uses its position in the
+// parent.
+func NewHoverCard(c *ui.Context, open *bool, anchor func() ui.Element, build func(panel ui.Element), key ...string) *HoverCard {
+	if len(key) > 0 && key[0] != "" {
+		c = c.Key(key[0])
+	}
 	if open == nil {
 		open = new(bool)
 	}
@@ -29,7 +37,7 @@ func NewHoverCard(c *ui.Context, open *bool, anchor func() ui.Element, build fun
 		var trigger ui.Element
 		// The trigger is built before the overlay, so its click lands
 		// in this frame and the panel gets the layer as its parent.
-		host := ui.Row(c.Key("hover card")).Children(func() {
+		host := ui.Row(c).Children(func() {
 			if anchor != nil {
 				trigger = anchor()
 			} else {

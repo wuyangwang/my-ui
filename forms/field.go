@@ -465,4 +465,6 @@ func FrameFontSize(t *ui.Theme, size Size) float32 {
 	}
 }
 
+// Context returns the frame's context, so a builder that composes a field
+// can pass it on to the controls it puts in the field.
 func (f *Frame[T]) Context() *ui.Context { return f.c }

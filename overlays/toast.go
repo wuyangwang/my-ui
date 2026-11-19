@@ -9,13 +9,10 @@ import (
 	"github.com/wuyangwang/my-ui/icons"
 )
 
-// toastFade is how long a toast takes to fade as its time runs out.
-const toastFade = 200 * time.Millisecond
-
 // ToastViewport holds the toasts of the window: where the toasts the app
 // shows come out.
 //
-//	myui.NewToastViewport(c)
+//	overlays.NewToastViewport(c)
 //
 // The viewport is styled by the library, as shadcn's: the toasts stack
 // in the bottom right corner of the window, as cards. It takes the place
@@ -104,12 +101,13 @@ func toastCard(c *ui.Context, t ui.Toast, fadeIn bool) {
 		MaxWidth(th.Space(80)).
 		Transition(StateTransition())
 	// The toast fades in as it appears, then fades as its time runs out.
+	// Both fades take the normal motion token, as every transition here.
 	opacity := float32(1)
 	if fadeIn {
-		opacity = card.AnimateTo("toast-in", 1, ui.Animation{Duration: toastFade, NonMotion: true})
+		opacity = card.AnimateTo("toast-in", 1, ui.Animation{Duration: MotionNormal, NonMotion: true})
 	}
-	if left := parts.Left(); left > 0 && left < toastFade {
-		opacity *= float32(left) / float32(toastFade)
+	if left := parts.Left(); left > 0 && left < MotionNormal {
+		opacity *= float32(left) / float32(MotionNormal)
 		c.AnimationFrame()
 	}
 	if opacity < 1 {
@@ -138,9 +136,9 @@ func toastCard(c *ui.Context, t ui.Toast, fadeIn bool) {
 // Toast is a message that shows near the corner of the window, for a
 // few seconds, as the outcome of what the user just did.
 //
-//	myui.NewToast(c, "已保存").Success().Show()
+//	overlays.NewToast(c, "已保存").Success().Show()
 //
-// The window needs a viewport for the toasts: myui.NewToastViewport(c),
+// The window needs a viewport for the toasts: overlays.NewToastViewport(c),
 // once in the view.
 type Toast struct {
 	c *ui.Context
@@ -160,28 +158,25 @@ func (t *Toast) Description(s string) *Toast {
 
 // Variant tells what kind of toast it is, which picks its icon and its
 // color: Success, Info, Warning or Destructive, which is an error. It is
-// the shared word for the toast's kind, as Type is on other components.
-func (t *Toast) Variant(v Variant) *Toast { return t.Type(v) }
-
-// Type tells what kind of toast it is: the same as Variant.
-func (t *Toast) Type(v Variant) *Toast {
+// the shared word for the toast's kind, as on the other components.
+func (t *Toast) Variant(v Variant) *Toast {
 	if kind := toastType(v); kind != "" {
 		t.t.Type = kind
 	}
 	return t
 }
 
-// Success is Type(myui.Success).
-func (t *Toast) Success() *Toast { return t.Type(Success) }
+// Success is Variant(Success).
+func (t *Toast) Success() *Toast { return t.Variant(Success) }
 
-// Info is Type(myui.Info).
-func (t *Toast) Info() *Toast { return t.Type(Info) }
+// Info is Variant(Info).
+func (t *Toast) Info() *Toast { return t.Variant(Info) }
 
-// Warning is Type(myui.Warning).
-func (t *Toast) Warning() *Toast { return t.Type(Warning) }
+// Warning is Variant(Warning).
+func (t *Toast) Warning() *Toast { return t.Variant(Warning) }
 
-// Destructive is Type(myui.Destructive): a toast of an error.
-func (t *Toast) Destructive() *Toast { return t.Type(Destructive) }
+// Destructive is Variant(Destructive): a toast of an error.
+func (t *Toast) Destructive() *Toast { return t.Variant(Destructive) }
 
 // Timeout sets how long the toast shows: four seconds by default, until
 // it is closed when negative.

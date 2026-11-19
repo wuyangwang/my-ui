@@ -80,17 +80,23 @@ type TitleBarOptions struct {
 	// Look picks the style of the window controls, Windows's or the
 	// Mac's. The zero look follows the platform the library builds on.
 	Look TitleBarLook
+	// CloseColor, MinimizeColor and MaximizeColor override the macOS
+	// traffic-light colors. A zero color uses the platform's own hue.
+	// They are read every frame, so an override follows the theme.
+	CloseColor    ui.Color
+	MinimizeColor ui.Color
+	MaximizeColor ui.Color
 }
 
 // TitleBar is a custom window title bar:
 //
-//	myui.NewTitleBar(c, myui.TitleBarOptions{Name: "MyGo App", Icon: icons.Component()})
+//	controls.NewTitleBar(c, controls.TitleBarOptions{Name: "MyGo App", Icon: icons.Component()})
 //
 // Only a name and an icon are needed: the brand mark is drawn for the
 // app. The window's actions are wired separately — most apps want
 // window.New below, which does it for them:
 //
-//	myui.NewTitleBar(c, myui.TitleBarOptions{Name: "MyGo App",
+//	controls.NewTitleBar(c, controls.TitleBarOptions{Name: "MyGo App",
 //		OnMinimize: win.Minimize, OnMaximize: win.ToggleMaximize,
 //		OnClose:    win.Close})
 //
@@ -274,31 +280,49 @@ func (tb *TitleBar) control(name string, height float32, svg *ui.SVG, danger, ma
 	}
 }
 
-// The colors of the traffic lights, as macOS paints them.
-var (
-	lightClose    = ui.Hex("#ff5f57")
-	lightMinimize = ui.Hex("#febc2e")
-	lightMaximize = ui.Hex("#28c840")
-)
+// trafficLightColors resolves the macOS traffic-light colors for one
+// frame from the theme and the options. The platform's hues are the
+// default; the app may override each one in TitleBarOptions. inactive is
+// the gray an inactive window paints them, derived from the theme. This
+// is a per-frame function, not package-level state, so appearance and
+// override changes are picked up on the next frame.
+func trafficLightColors(t *ui.Theme, o TitleBarOptions) (close, minimize, maximize, inactive ui.Color) {
+	close, minimize, maximize = o.CloseColor, o.MinimizeColor, o.MaximizeColor
+	if close == ui.Transparent {
+		close = ui.Hex("#ff5f57")
+	}
+	if minimize == ui.Transparent {
+		minimize = ui.Hex("#febc2e")
+	}
+	if maximize == ui.Transparent {
+		maximize = ui.Hex("#28c840")
+	}
+	inactive = inactiveGray(t)
+	return
+}
 
 // lights builds the Mac's traffic lights: close, minimize and
 // maximize, each a colored dot that shows its glyph on hover, and
 // reads gray when the window is not active.
 func (tb *TitleBar) lights(height float32) {
 	c := tb.c
+	t := c.Theme()
+	closeColor, minimizeColor, maximizeColor, inactive := trafficLightColors(t, tb.o)
 	row := ui.Row(c).Gap(titleBarLightGap).AlignItems(ui.Center)
 	row.Children(func() {
-		tb.light(Message(c, "close"), lightClose, lightGlyphClose, false, height, tb.o.OnClose)
-		tb.light(Message(c, "minimize"), lightMinimize, lightGlyphMinus, false, height, tb.o.OnMinimize)
-		tb.light(Message(c, "maximize"), lightMaximize, lightGlyphFullscreen, true, height, tb.o.OnMaximize)
+		tb.light(Message(c, "close"), closeColor, inactive, lightGlyphClose, false, height, tb.o.OnClose)
+		tb.light(Message(c, "minimize"), minimizeColor, inactive, lightGlyphMinus, false, height, tb.o.OnMinimize)
+		tb.light(Message(c, "maximize"), maximizeColor, inactive, lightGlyphFullscreen, true, height, tb.o.OnMaximize)
 	})
 }
 
 // light builds one traffic light: a round button the size of the dot,
-// painted by the dot's own color, darkened on hover. glyph draws the
-// glyph the hover shows; mark sets the window's maximize button; the
-// app's onClick minimizes, maximizes or closes the window.
-func (tb *TitleBar) light(name string, base ui.Color, glyph func(p *ui.Painter, r ui.Rect), mark bool, height float32, onClick func()) {
+// painted by the dot's own color, darkened on hover. inactive is the gray
+// an inactive window paints it, from the theme. glyph draws the glyph the
+// hover shows, in an ink derived from the dot's color; mark sets the
+// window's maximize button; the app's onClick minimizes, maximizes or
+// closes the window.
+func (tb *TitleBar) light(name string, base, inactive ui.Color, glyph func(p *ui.Painter, r ui.Rect, ink ui.Color), mark bool, height float32, onClick func()) {
 	c := tb.c
 	t := c.Theme()
 	b := NewButton(c, "")
@@ -306,23 +330,20 @@ func (tb *TitleBar) light(name string, base ui.Color, glyph func(p *ui.Painter, 
 		Radius(titleBarLightSize / 2).Padding(0)
 	b.Label(name)
 	b.FontSize(TextSize(t, TextXs))
-	// The dot: its own color, a step toward black on hover, and gray
-	// on an inactive window. The glyph shows while the pointer is on
-	// it, in a dark ink, as macOS's do.
+	// The dot: its own color, a step toward black on hover, and the
+	// theme's inactive gray on an inactive window. The glyph shows
+	// while the pointer is on it, in a dark ink of the dot's own hue.
 	fill := base
 	if !c.WindowActive() {
-		if t.Dark {
-			fill = ui.Hex("#4f4f4f")
-		} else {
-			fill = ui.Hex("#d8d8d8")
-		}
+		fill = inactive
 	} else if b.Hovered() || b.Pressed() {
 		fill = base.MixOklab(ui.RGB(0, 0, 0), 0.12)
 	}
 	b.Background(fill)
 	if (b.Hovered() || b.Pressed()) && c.WindowActive() {
+		ink := lightInk(base)
 		b.Draw(func(p *ui.Painter, r ui.Rect) {
-			glyph(p, r)
+			glyph(p, r, ink)
 		})
 	}
 	if mark {
@@ -333,33 +354,46 @@ func (tb *TitleBar) light(name string, base ui.Color, glyph func(p *ui.Painter, 
 	}
 }
 
+// lightInk is the dark ink of a glyph on a traffic light: the dot's own
+// hue mixed heavily with black, as macOS's glyphs are.
+func lightInk(base ui.Color) ui.Color { return base.Mix(ui.RGB(0, 0, 0), 0.72) }
+
+// inactiveGray is the neutral gray an inactive window's traffic lights
+// read. It comes from the theme's ink and paper, but is forced to one
+// value in all three channels, so it stays gray under a tinted accent.
+func inactiveGray(t *ui.Theme) ui.Color {
+	mixed := t.Text.Mix(t.Background, 0.68)
+	v := (uint32(mixed.R) + uint32(mixed.G) + uint32(mixed.B)) / 3
+	return ui.RGB(uint8(v), uint8(v), uint8(v))
+}
+
 // The glyphs a hover shows on a traffic light, in a dark ink of the
 // light's own hue, as macOS's are.
 
 // lightGlyphClose draws the × a close light shows on hover.
-func lightGlyphClose(p *ui.Painter, r ui.Rect) {
+func lightGlyphClose(p *ui.Painter, r ui.Rect, ink ui.Color) {
 	cx, cy, d := r.X+r.W/2, r.Y+r.H/2, r.W/5
 	var path ui.Path
 	path.MoveTo(cx-d, cy-d).LineTo(cx+d, cy+d)
 	path.MoveTo(cx+d, cy-d).LineTo(cx-d, cy+d)
-	p.StrokePath(&path, 1, ui.RGB(74, 20, 20))
+	p.StrokePath(&path, 1, ink)
 }
 
 // lightGlyphMinus draws the – a minimize light shows on hover.
-func lightGlyphMinus(p *ui.Painter, r ui.Rect) {
+func lightGlyphMinus(p *ui.Painter, r ui.Rect, ink ui.Color) {
 	cx, cy, d := r.X+r.W/2, r.Y+r.H/2, r.W/4.5
 	var path ui.Path
 	path.MoveTo(cx-d, cy).LineTo(cx+d, cy)
-	p.StrokePath(&path, 1, ui.RGB(96, 60, 4))
+	p.StrokePath(&path, 1, ink)
 }
 
 // lightGlyphFullscreen draws the two triangles a maximize light shows
 // on hover: the fullscreen glyph, one triangle pointing out to each
 // side.
-func lightGlyphFullscreen(p *ui.Painter, r ui.Rect) {
+func lightGlyphFullscreen(p *ui.Painter, r ui.Rect, ink ui.Color) {
 	cx, cy, d := r.X+r.W/2, r.Y+r.H/2, r.W/5
 	var path ui.Path
 	path.MoveTo(cx-d*1.4, cy).LineTo(cx-d*1.4, cy-d*0.75).LineTo(cx-d*0.55, cy).LineTo(cx-d*1.4, cy)
 	path.MoveTo(cx+d*1.4, cy).LineTo(cx+d*1.4, cy+d*0.75).LineTo(cx+d*0.55, cy).LineTo(cx+d*1.4, cy)
-	p.FillPath(&path, ui.RGB(4, 72, 14))
+	p.FillPath(&path, ink)
 }

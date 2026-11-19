@@ -9,8 +9,8 @@ import (
 
 // Icon is an SVG icon with variant and size presets:
 //
-//	myui.NewIcon(c, icons.Save()).Md()
-//	myui.NewIcon(c, icons.Loading()).Primary().Spin()
+//	controls.NewIcon(c, icons.Save()).Md()
+//	controls.NewIcon(c, icons.Loading()).Primary().Spin()
 //
 // The icon draws in the color of the text around it, so a variant
 // paints that color and the rest keeps it. The chain applies the

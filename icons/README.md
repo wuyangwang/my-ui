@@ -15,7 +15,7 @@ import (
 ui.Icon(c, icons.Save()).FontSize(20)
 ```
 
-在根包用 `myui.NewIcon(c, icons.Save()).Md()` 可以得到带尺寸档、语义色与无障碍名的图标。
+在 `controls/` 包用 `controls.NewIcon(c, icons.Save()).Md()` 可以得到带尺寸档、语义色与无障碍名的图标。
 
 ## 三个包
 

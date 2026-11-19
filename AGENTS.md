@@ -30,6 +30,15 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
   field the framework leaves empty (`Inverse`, `InverseText`) reads as
   transparent: take the framework's own fallback (`myui.InverseColors`),
   not the bare field, or the thing shows as an empty box.
+  The one exception is **platform semantic colors**: macOS traffic lights
+  and Windows' close-danger are hues the platform defines, not the app's
+  theme. They stay platform hues, but are resolved by a **per-frame
+  function of the theme and the options** (see
+  `trafficLightColors` in `controls/titlebar.go`) and may be overridden
+  through the component's options (`TitleBarOptions.CloseColor`, etc.).
+  Put them in a function, never a package-level `var` or a literal at the
+  call site; all theme-dependent states (inactive ink, hover mix, glyph
+  ink) still derive from `c.Theme()` on that frame.
 - **Follow ui's binding convention** ("the input is the returned value"):
   components take state as pointers, return their output, and end where
   the next statement can read the edit. No channels as state, no manual

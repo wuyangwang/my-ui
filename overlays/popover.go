@@ -7,8 +7,8 @@ import (
 
 // Popover shows a panel over its anchor, while the app's flag is true.
 //
-//	myui.NewPopover(c, &app.open, func() ui.Element {
-//		return myui.NewButton(c, "更多").Element
+//	overlays.NewPopover(c, &app.open, func() ui.Element {
+//		return controls.NewButton(c, "更多").Element
 //	}, func(panel ui.Element) {
 //		ui.Text(c, "面板里的内容")
 //	}).Title("更多操作")

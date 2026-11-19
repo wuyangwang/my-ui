@@ -29,8 +29,8 @@ type ResultOptions struct {
 	Title string
 	// Description holds the details.
 	Description string
-	// Extra builds the controls under the description.
-	Extra func()
+	// Action builds the controls under the description.
+	Action func()
 }
 
 // NewResult builds a centered outcome page: a status icon in a tinted
@@ -52,8 +52,8 @@ func NewResult(c *ui.Context, o ResultOptions) ui.Element {
 		if o.Description != "" {
 			ui.Text(c, o.Description).FontSize(TextSize(t, TextSm)).TextColor(t.TextMuted)
 		}
-		if o.Extra != nil {
-			ui.Row(c).Gap(t.Space(2)).Children(o.Extra)
+		if o.Action != nil {
+			ui.Row(c).Gap(t.Space(2)).Children(o.Action)
 		}
 	})
 }

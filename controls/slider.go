@@ -8,7 +8,7 @@ import (
 
 // Slider is a knob on a track, that picks a number between two.
 //
-//	myui.NewSlider(c, &app.volume, 0, 100)
+//	controls.NewSlider(c, &app.volume, 0, 100)
 //
 // The track and the knob are styled by the library, as shadcn's: a
 // thin line with the accent up to the knob, and a knob on it. The
@@ -34,8 +34,9 @@ func NewSlider(c *ui.Context, value *float64, lo, hi float64) *Slider {
 	return s
 }
 
-// build makes the base and its painter. A preset builds again so the
-// slider follows the theme and the chosen orientation.
+// build makes the base and its painter. The presets only restyle this
+// element: building a second SliderBase in the same frame would read the
+// frame's click twice.
 func (s *Slider) build() {
 	t := s.c.Theme()
 	knob := t.Space(4)
@@ -97,10 +98,15 @@ func (s *Slider) draw(p *ui.Painter, r ui.Rect) {
 	p.Fill(k, onColor, knob/2)
 }
 
-// Vertical turns the slider upright and returns it, for chaining.
+// Vertical turns the slider upright and returns it, for chaining. It
+// restyles the base built this frame; the painter reads the orientation
+// from the slider, so the frame's click is read only once.
 func (s *Slider) Vertical() *Slider {
 	s.vertical = true
-	s.build()
+	t := s.c.Theme()
+	knob := t.Space(4)
+	s.Element = s.Element.Vertical().Width(t.Space(6)).MinWidth(0).
+		Height(t.Space(40)).PaddingX(0).PaddingY(knob / 2)
 	return s
 }
 
@@ -169,7 +175,6 @@ func (s *Slider) Disabled(disabled bool) *Slider {
 // for chaining. The filled part and the knob take the danger color.
 func (s *Slider) Invalid(on bool) *Slider {
 	s.invalid = on
-	s.build()
 	s.Element = s.Element.Invalid(on)
 	return s
 }

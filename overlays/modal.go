@@ -8,10 +8,10 @@ import (
 // Modal shows a dialog over a dimmed backdrop, while the app's flag is
 // true.
 //
-//	myui.NewModal(c, &app.open, trigger, func(panel ui.Element) {
+//	overlays.NewModal(c, &app.open, trigger, func(panel ui.Element) {
 //		ui.Text(c, "确定删除这个项目吗？")
 //	}).Title("删除项目").Description("此操作不能撤销").
-//		Footer(func() { myui.NewButton(c, "取消").Ghost() })
+//		Footer(func() { controls.NewButton(c, "取消").Ghost() })
 //
 // The trigger is built by the app, and a click on it opens the dialog; a
 // click on the backdrop closes the dialog, and Escape closes it too.

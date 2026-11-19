@@ -48,8 +48,8 @@
 // Every component takes the frame's context and returns itself, so a
 // preset may be chained onto it:
 //
-//	myui.NewButton(c, "Save").Primary().Sm()
-//	myui.NewInput(c, &app.email).Outline().Clearable()
+//	controls.NewButton(c, "Save").Primary().Sm()
+//	forms.NewInput(c, &app.email).Outline().Clearable()
 //
 // # The shared presets
 //
@@ -76,9 +76,9 @@
 // The constructors take the context of the frame. The handle binds it
 // once per window, so a view need not pass it again:
 //
-//	myui.NewButton(c, "Save").Primary()
+//	controls.NewButton(c, "Save").Primary()
 //
-//	h := myui.Bind(c)
+//	h := bind.Bind(c)
 //	h.Button("Save").Primary()
 //
 // # The subpackages

@@ -13,7 +13,7 @@ const switchKnobTime = 140 * time.Millisecond
 
 // Switch is a knob that is on or off.
 //
-//	myui.NewSwitch(c, &app.dark)
+//	controls.NewSwitch(c, &app.dark)
 //
 // The switch is styled by the library, as shadcn's: a pill with a knob
 // in it, the accent when it is on. The knob travels when the switch
@@ -50,8 +50,9 @@ func (s *Switch) dims() (w, h float32) {
 	}
 }
 
-// build makes the base and its painter. A preset calls it again, so the
-// switch follows the theme and the chosen size.
+// build makes the base and its painter. The presets only restyle this
+// element: rebuilding the base in a fluent setter would read the frame's
+// click twice.
 func (s *Switch) build() {
 	c := s.c
 	on := s.on
@@ -95,10 +96,12 @@ func switchPos(on bool) float32 {
 }
 
 // Size applies the shared size s to the switch and returns it, for
-// chaining.
+// chaining. It restyles the element built this frame rather than making a
+// new SwitchBase, so the frame's click is still read once.
 func (s *Switch) Size(size Size) *Switch {
 	s.size = size
-	s.build()
+	w, h := s.dims()
+	s.Element = s.Element.Size(w, h).Radius(h / 2)
 	return s
 }
 
@@ -115,10 +118,11 @@ func (s *Switch) Md() *Switch { return s.Size(SizeMd) }
 func (s *Switch) Lg() *Switch { return s.Size(SizeLg) }
 
 // Loading shows a spinner in the knob and stops clicks, for the time a
-// change is being saved. It returns the switch for chaining.
+// change is being saved. It returns the switch for chaining. The painter
+// reads the flag from the switch, so no rebuild is needed.
 func (s *Switch) Loading(on bool) *Switch {
 	s.loading = on
-	s.build()
+	s.Element = s.Element.Disabled(on)
 	return s
 }
 
@@ -149,7 +153,6 @@ func (s *Switch) Disabled(disabled bool) *Switch {
 // for chaining. The on-color becomes the danger color.
 func (s *Switch) Invalid(on bool) *Switch {
 	s.invalid = on
-	s.build()
 	s.Element = s.Element.Invalid(on)
 	return s
 }

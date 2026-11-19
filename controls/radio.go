@@ -8,7 +8,7 @@ import (
 // Radio is a circle that is selected or not, with a label: one of the
 // choices of a group.
 //
-//	myui.NewRadio(c, &app.size, "large", "大")
+//	controls.NewRadio(c, &app.size, "large", "大")
 //
 // The circle is styled by the library, as shadcn's: a ring, and a dot
 // in it when it is selected. The choices of a group share one value:

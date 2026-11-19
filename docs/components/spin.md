@@ -18,11 +18,12 @@
 - `display/` 子包。
 
 ## 5. API 契约
-```go
-func NewSpin(c *ui.Context) *Spin
-func (s *Spin) Size(sz Size) *Spin
-func (s *Spin) Variant(v Variant) *Spin
-```
+
+| 方法 | 作用 |
+|---|---|
+| `NewSpin(c *ui.Context) *Spin` | 创建加载指示器，默认文字档尺寸、强调色 |
+| `Size(sz Size) *Spin` | 尺寸档：`SizeXs/Sm/Md/Lg`（默认 `IconSizeMd` 档） |
+| `Variant(v Variant) *Spin` | 语义色：语义变体取主题色，默认强调色 |
 
 ## 6. 状态
 - [x] 规格书 / 实现 / 测试 / showcase

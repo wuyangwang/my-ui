@@ -16,12 +16,20 @@ type InputOTP struct {
 // NewInputOTP builds digits boxes editing *value. A cell takes one
 // character; entering one moves the focus to the next, and Backspace in
 // an empty cell moves back.
-func NewInputOTP(c *ui.Context, value *string, digits int) *InputOTP {
+//
+// An optional key scopes the host: pass a different one for each InputOTP
+// under the same parent, or the two share an identity and the later one
+// overwrites the earlier. With no key the host uses its position in the
+// parent.
+func NewInputOTP(c *ui.Context, value *string, digits int, key ...string) *InputOTP {
+	if len(key) > 0 && key[0] != "" {
+		c = c.Key(key[0])
+	}
 	if digits < 1 {
 		digits = 1
 	}
 	t := c.Theme()
-	host := ui.Row(c.Key("input otp")).Gap(t.Space(2)).AlignItems(ui.Center)
+	host := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
 	cells := ui.Local(host, "cells", func() []string { return make([]string, digits) })
 	next := ui.Local(host, "next", func() int { return 0 })
 	if len(*cells) != digits {

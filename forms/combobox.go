@@ -11,7 +11,7 @@ import (
 // ComboBox is a drop-down whose trigger is a text field: what is typed
 // narrows the options down, and a choice takes the place of the text.
 //
-//	myui.NewComboBox(c, &query, []myui.SelectOption{
+//	forms.NewComboBox(c, &query, []forms.SelectOption{
 //		{Label: "简体中文", Value: "zh-Hans"},
 //		{Label: "English", Value: "en"},
 //	}).Outline().Placeholder("搜索语言…")

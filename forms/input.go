@@ -6,8 +6,8 @@ import (
 
 // Input is a text input with variant, size and events:
 //
-//	myui.NewInput(c, &value).Outline().Placeholder("Email")
-//	myui.NewInput(c, &value).Clearable().OnChanged(func(v string) { ... })
+//	forms.NewInput(c, &value).Outline().Placeholder("Email")
+//	forms.NewInput(c, &value).Clearable().OnChanged(func(v string) { ... })
 //
 // The input is a field: a frame with the text in it, and the prefix,
 // the suffix and the clear button beside it. The frame carries the look

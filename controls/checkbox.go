@@ -8,7 +8,7 @@ import (
 
 // Checkbox is a box that is checked or not, with a label.
 //
-//	myui.NewCheckbox(c, &app.sync, "同步")
+//	controls.NewCheckbox(c, &app.sync, "同步")
 //
 // The box is styled by the library, as shadcn's: a square with a
 // border, and the accent with a check in it when it is checked. The

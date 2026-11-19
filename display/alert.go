@@ -10,7 +10,7 @@ import (
 // Alert is a message that stands in the page: a card with a title, a
 // description and an icon.
 //
-//	myui.NewAlert(c, "注意").Description("这条信息需要留意").Warning()
+//	display.NewAlert(c, "注意").Description("这条信息需要留意").Warning()
 //
 // The alert is styled by the library, as shadcn's: a bordered card with
 // the icon at its left, the title and the description beside it. The

@@ -22,10 +22,10 @@ const (
 // Drawer shows a panel over the edge of the window, while the app's flag
 // is true.
 //
-//	myui.NewDrawer(c, &app.open, myui.DrawerRight, trigger, func(panel ui.Element) {
+//	overlays.NewDrawer(c, &app.open, overlays.DrawerRight, trigger, func(panel ui.Element) {
 //		ui.Text(c, "面板里的内容")
 //	}).Title("设置").Description("在这里调整偏好").
-//		Footer(func() { myui.NewButton(c, "完成").Primary() })
+//		Footer(func() { controls.NewButton(c, "完成").Primary() })
 //
 // The trigger is built by the app, and a click on it opens the panel; a
 // click on the scrim closes the panel, and Escape closes it too.

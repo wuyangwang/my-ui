@@ -29,6 +29,9 @@ type Tag struct {
 	o       TagOptions
 	variant Variant
 	size    Size
+	row     ui.Element
+	icon    ui.Element
+	label   ui.Element
 }
 
 // NewTag builds a tag. A nil Closed makes the close icon read-only.
@@ -38,38 +41,32 @@ func NewTag(c *ui.Context, o TagOptions) *Tag {
 	return t
 }
 
-// Variant applies the shared semantic color.
+// Variant applies the shared semantic color. It restyles the elements
+// built this frame; rebuilding the row would fire the close button twice.
 func (t *Tag) Variant(v Variant) *Tag {
 	t.variant = v
-	t.build()
+	t.applyLook()
 	return t
 }
 
-// Size picks the text scale.
+// Size picks the text scale. As Variant, it only restyles this frame's
+// elements, so the close button's click is read once.
 func (t *Tag) Size(sz Size) *Tag {
 	t.size = sz
-	t.build()
+	t.applyLook()
 	return t
 }
 
 func (t *Tag) build() {
 	th := t.c.Theme()
-	fill, border, ink := th.Surface, th.Border, th.Text
-	if role, ok := SemanticOf(t.variant); ok {
-		col := SemanticColor(th, role)
-		fill, border, ink = col.Alpha(0.12), ui.Transparent, col
-	} else if t.variant == Destructive {
-		fill, border, ink = th.Danger.Alpha(0.12), ui.Transparent, th.Danger
-	}
-	row := ui.Row(t.c).AlignItems(ui.Center).Gap(th.Space(1)).
-		Padding(th.Space(0.5), th.Space(2)).Radius(th.Radius/2).
-		Background(fill).Border(1, border)
-	row.Children(func() {
+	t.row = ui.Row(t.c).AlignItems(ui.Center).Gap(th.Space(1)).
+		Padding(th.Space(0.5), th.Space(2)).Radius(th.Radius / 2)
+	t.row.Children(func() {
 		if t.o.Icon != nil {
-			ui.Icon(t.c, t.o.Icon).Size(IconSizeXs, IconSizeXs).TextColor(ink)
+			t.icon = ui.Icon(t.c, t.o.Icon).Size(IconSizeXs, IconSizeXs)
 		}
 		if t.o.Label != "" {
-			ui.Text(t.c, t.o.Label).FontSize(t.fontSize(th)).TextColor(ink)
+			t.label = ui.Text(t.c, t.o.Label)
 		}
 		if t.o.Closed != nil || t.o.OnClose != nil {
 			ctrlpkg.NewIconAction(t.c, ctrlpkg.IconActionOptions{
@@ -86,7 +83,29 @@ func (t *Tag) build() {
 			})
 		}
 	})
-	t.Element = row
+	t.Element = t.row
+	t.applyLook()
+}
+
+// applyLook paints the shared colors and scale on the elements of this
+// frame. It never rebuilds the row, so the close control keeps its click.
+func (t *Tag) applyLook() {
+	th := t.c.Theme()
+	fill, border, ink := th.Surface, th.Border, th.Text
+	if role, ok := SemanticOf(t.variant); ok {
+		col := SemanticColor(th, role)
+		fill, border, ink = col.Alpha(0.12), ui.Transparent, col
+	} else if t.variant == Destructive {
+		fill, border, ink = th.Danger.Alpha(0.12), ui.Transparent, th.Danger
+	}
+	t.row = t.row.Background(fill).Border(1, border)
+	if t.icon.Valid() {
+		t.icon = t.icon.TextColor(ink)
+	}
+	if t.label.Valid() {
+		t.label = t.label.TextColor(ink).FontSize(t.fontSize(th))
+	}
+	t.Element = t.row
 }
 
 func (t *Tag) fontSize(th *ui.Theme) float32 {

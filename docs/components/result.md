@@ -13,8 +13,8 @@
 - 状态文案由 app 传入，库只提供图标与语义色，不内置固定文案。
 
 ## 3. 实现到何种程度
-- `ResultStatus`（Success/Warning/Info/Error）；`ResultOptions{Status, Title, Description, Extra}`；`NewResult(c, o)`。
-- 图标在主题色圆形底上，标题 `Text2Xl` 粗体，描述弱墨，`Extra` 动作槽。
+- `ResultStatus`（Success/Warning/Info/Error）；`ResultOptions{Status, Title, Description, Action}`；`NewResult(c, o)`。
+- 图标在主题色圆形底上，标题 `Text2Xl` 粗体，描述弱墨，`Action` 动作槽。
 
 ## 4. 项目结构
 - `display/` 子包。
@@ -26,7 +26,7 @@ const (ResultSuccess ResultStatus = iota; ResultWarning; ResultInfo; ResultError
 type ResultOptions struct {
     Status ResultStatus
     Title, Description string
-    Extra func()
+    Action func()
 }
 func NewResult(c *ui.Context, o ResultOptions) ui.Element
 ```

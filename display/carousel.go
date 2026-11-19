@@ -18,30 +18,44 @@ type Carousel struct {
 	index   *int
 	count   int
 	buildIt func(i int)
-	arrows  bool
-	dots    bool
+	host    ui.Element
+	flags   *carouselFlags
+}
+
+// carouselFlags is the show/hide state of the controls. It lives on the
+// host element through ui.Local, so it survives the per-frame rebuild of
+// the component: a fluent setter writes it without building the buttons
+// a second time in the same frame.
+type carouselFlags struct {
+	arrows bool
+	dots   bool
 }
 
 // NewCarousel builds count slides; build draws the one at index i.
 // A nil index is treated as a read-only zero.
 func NewCarousel(c *ui.Context, index *int, count int, build func(i int)) *Carousel {
+	host := ui.Column(c).Gap(c.Theme().Space(3))
+	flags := ui.Local(host, "carousel-flags", func() carouselFlags {
+		return carouselFlags{arrows: true, dots: true}
+	})
 	carousel := &Carousel{c: c, index: index, count: count, buildIt: build,
-		arrows: true, dots: true}
+		host: host, flags: flags}
 	carousel.build()
 	return carousel
 }
 
-// Arrows shows or hides the previous/next controls.
+// Arrows shows or hides the previous/next controls. The choice takes
+// effect on the next frame's build: rebuilding here would read this
+// frame's clicks a second time and let one click move more than a slide.
 func (c *Carousel) Arrows(on bool) *Carousel {
-	c.arrows = on
-	c.build()
+	c.flags.arrows = on
 	return c
 }
 
-// Dots shows or hides the indicator row.
+// Dots shows or hides the indicator row. As Arrows, it takes effect on
+// the next frame so a click is never consumed twice.
 func (c *Carousel) Dots(on bool) *Carousel {
-	c.dots = on
-	c.build()
+	c.flags.dots = on
 	return c
 }
 
@@ -67,9 +81,9 @@ func (c *Carousel) build() {
 		*c.index = i
 	}
 	t := c.c.Theme()
-	c.Element = ui.Column(c.c).Gap(t.Space(3)).Children(func() {
+	c.host.Children(func() {
 		ui.Row(c.c).AlignItems(ui.Center).Gap(t.Space(2)).Children(func() {
-			if c.arrows {
+			if c.flags.arrows {
 				prev := ctrlpkg.NewIconAction(c.c, ctrlpkg.IconActionOptions{
 					SVG: icons.ChevronLeft(), Label: Message(c.c, "previous"),
 					IconSize: IconSizeSm, OnClick: func() { goTo(cur - 1) },
@@ -81,7 +95,7 @@ func (c *Carousel) build() {
 			if c.buildIt != nil {
 				ui.Box(c.c).Grow(1).Children(func() { c.buildIt(cur) })
 			}
-			if c.arrows {
+			if c.flags.arrows {
 				next := ctrlpkg.NewIconAction(c.c, ctrlpkg.IconActionOptions{
 					SVG: icons.ChevronRight(), Label: Message(c.c, "next"),
 					IconSize: IconSizeSm, OnClick: func() { goTo(cur + 1) },
@@ -91,7 +105,7 @@ func (c *Carousel) build() {
 				}
 			}
 		})
-		if c.dots {
+		if c.flags.dots {
 			ui.Row(c.c).AlignItems(ui.Center).Justify(ui.Center).
 				Gap(t.Space(1)).Children(func() {
 				for i := 0; i < count; i++ {
@@ -111,4 +125,5 @@ func (c *Carousel) build() {
 			})
 		}
 	})
+	c.Element = c.host
 }

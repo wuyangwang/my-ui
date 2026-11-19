@@ -32,30 +32,36 @@ func NewTable(c *ui.Context, state *ui.ListState, columns []ui.TableColumn, n in
 // Variant paints the table's face with the shared look.
 func (t *Table) Variant(v Variant) *Table {
 	t.variant = v
-	t.build()
+	t.applyLook()
 	return t
 }
 
 // Size picks the text scale.
 func (t *Table) Size(sz Size) *Table {
 	t.size = sz
-	t.build()
+	t.applyLook()
 	return t
 }
 
 // Width pins the table's width in DIPs; zero fills the parent.
 func (t *Table) Width(w float32) *Table {
 	t.width = w
-	t.build()
+	t.applyLook()
 	return t
 }
 
 func (t *Table) build() {
+	t.Element = ui.Table(t.c, t.state, t.columns, t.n, t.cell)
+	t.applyLook()
+}
+
+// applyLook paints the shared look on the element built this frame. It
+// never rebuilds the table widget: a preset that did would read the
+// frame's clicks a second time.
+func (t *Table) applyLook() {
 	th := t.c.Theme()
-	el := ui.Table(t.c, t.state, t.columns, t.n, t.cell).
-		Transition(StateTransition()).Border(1, th.Border).
-		Radius(th.Radius).Background(th.Background)
-	el = el.FontSize(t.fontSize(th))
+	el := t.Element.Transition(StateTransition()).Border(1, th.Border).
+		Radius(th.Radius).Background(th.Background).FontSize(t.fontSize(th))
 	if t.width > 0 {
 		el = el.Width(t.width)
 	} else {

@@ -9,7 +9,7 @@ import (
 // PasswordInput is a text field that hides what it holds, with a button
 // that shows it:
 //
-//	myui.NewPasswordInput(c, &password).Outline().Placeholder("密码")
+//	forms.NewPasswordInput(c, &password).Outline().Placeholder("密码")
 //
 // MyGo's Password() hides a text input in the frames that call it: an
 // input that stops calling it shows its text again. The button therefore

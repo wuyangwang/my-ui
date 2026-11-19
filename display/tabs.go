@@ -26,7 +26,7 @@ const (
 // Tabs are the tabs of a page: one of them is selected, and the app
 // sees which.
 //
-//	myui.NewTabs(c, &selected, myui.Tab{Label: "概览", Content: func() {
+//	display.NewTabs(c, &selected, display.Tab{Label: "概览", Content: func() {
 //		ui.Text(c, "今天的情况")
 //	}})
 //

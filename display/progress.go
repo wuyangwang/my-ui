@@ -9,8 +9,8 @@ import (
 
 // Progress is a bar that shows how far along something is.
 //
-//	myui.NewProgress(c, 0.4)
-//	myui.NewProgress(c, -1).Label("加载中")  // unknown length
+//	display.NewProgress(c, 0.4)
+//	display.NewProgress(c, -1).Label("加载中")  // unknown length
 //
 // The bar is styled by the library, as shadcn's: a thin rounded line,
 // the accent up to where the work is. It carries the progressbar role,

@@ -7,8 +7,8 @@ import (
 
 // Kbd is a key cap: the key a shortcut needs.
 //
-//	myui.NewKbd(c, "Ctrl", "K")
-//	myui.NewKbd(c, "Cmd", "Shift", "P").Separator("+")
+//	display.NewKbd(c, "Ctrl", "K")
+//	display.NewKbd(c, "Cmd", "Shift", "P").Separator("+")
 //
 // The key cap is styled by the library, as shadcn's: a small box with a
 // border, in the monospaced face. Separator("+") renders "+" as a plain

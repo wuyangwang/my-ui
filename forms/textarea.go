@@ -4,8 +4,8 @@ import "github.com/egoist/mygo/ui"
 
 // TextArea is a multi-line text field with variant, size and events:
 //
-//	myui.NewTextArea(c, &draft).Outline().Placeholder("Notes")
-//	myui.NewTextArea(c, &draft).Lines(3, 8).OnChanged(func(v string) { ... })
+//	forms.NewTextArea(c, &draft).Outline().Placeholder("Notes")
+//	forms.NewTextArea(c, &draft).Lines(3, 8).OnChanged(func(v string) { ... })
 //
 // The text area is a field, as an Input is: a frame with the text in
 // it, and the prefix, the suffix and the clear button beside it. The

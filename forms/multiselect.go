@@ -9,7 +9,7 @@ import (
 // each with a button that takes it out, and the options below narrow
 // down with what is typed.
 //
-//	myui.NewMultiSelect(c, &app.langs, []myui.SelectOption{
+//	forms.NewMultiSelect(c, &app.langs, []forms.SelectOption{
 //		{Label: "简体中文", Value: "zh-Hans"},
 //		{Label: "English", Value: "en"},
 //	}).Outline().Label("语言")

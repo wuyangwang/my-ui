@@ -11,8 +11,8 @@ import (
 
 // Badge is a short label in a pill with variant and size presets:
 //
-//	myui.NewBadge(c, "New").Primary()
-//	myui.NewBadge(c, "99+").Secondary().Sm()
+//	display.NewBadge(c, "New").Primary()
+//	display.NewBadge(c, "99+").Secondary().Sm()
 //
 // The chain applies presets from the current theme every frame, so it
 // follows palette and appearance changes. Call it each frame before any

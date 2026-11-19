@@ -20,10 +20,17 @@ type Menubar struct {
 	ui.Element
 }
 
-// NewMenubar builds one menu button per menu, in a row.
-func NewMenubar(c *ui.Context, menus []MenubarMenu) *Menubar {
+// NewMenubar builds one menu button per menu, in a row. An optional key
+// scopes the row: pass a different one for each Menubar under the same
+// parent, or the two share an identity and the later one overwrites the
+// earlier. With no key the row uses its position in the parent, which is
+// enough for a single menubar.
+func NewMenubar(c *ui.Context, menus []MenubarMenu, key ...string) *Menubar {
+	if len(key) > 0 && key[0] != "" {
+		c = c.Key(key[0])
+	}
 	t := c.Theme()
-	row := ui.Row(c.Key("menubar")).AlignItems(ui.Center).Gap(t.Space(1))
+	row := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(1))
 	row.Children(func() {
 		for _, menu := range menus {
 			open := menu.Open
@@ -32,7 +39,9 @@ func NewMenubar(c *ui.Context, menus []MenubarMenu) *Menubar {
 				// keep it on the row, keyed by the menu's label.
 				open = ui.Local(row, "open "+menu.Label, func() bool { return false })
 			}
-			parts := ui.MenuBase(c, open)
+			// Key each menu by its label so a menu keeps its identity
+			// even if the row's menus are reordered.
+			parts := ui.MenuBase(c.Key("menubar "+menu.Label), open)
 			parts.Trigger.Padding(t.Space(2), t.Space(3)).
 				Radius(Radius(t, RadiusSm)).Children(func() {
 				ui.Text(c, menu.Label).FontSize(TextSize(t, TextSm))
