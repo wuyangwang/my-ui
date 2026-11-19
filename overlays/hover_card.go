@@ -1,45 +1,74 @@
 package overlays
 
 import (
-	. "github.com/wuyangwang/my-ui"
-
 	"github.com/egoist/mygo/ui"
+	. "github.com/wuyangwang/my-ui"
 )
 
-// HoverCard opens a panel while the pointer is on its anchor or on the
-// panel itself. The open flag belongs to the app, like Popover's.
-type HoverCard struct {
-	ui.Element
+// HoverCardOptions configures a HoverCard at construction time. The open
+// flag is the app's. The library wraps Body in panel.Children, so callers
+// never have to know that the panel's parent is the overlay layer.
+type HoverCardOptions struct {
+	// Open is the app's flag. A nil flag makes the card keep its own
+	// stable state, but distinct cards under one parent should still set
+	// Key so they do not share an identity.
+	Open *bool
+	// Trigger builds the hover target. It runs before the overlay.
+	Trigger func() ui.Element
+	// Body fills the panel. The library builds it inside panel.Children.
+	Body func()
+	// OnOpenChange runs when the card opens or closes. It is kept across
+	// frames, so attaching it late does not lose a change.
+	OnOpenChange func(open bool)
+	// Key scopes the card when several share a parent and no Open flag.
+	Key string
 }
 
-// NewHoverCard builds a hover card. anchor builds the trigger element
-// and build fills the panel; both run every frame. A few frames of
-// grace let the pointer travel from the trigger into the panel without
-// closing it — a frame count, never a timer.
+// hoverState is what a HoverCard keeps in its Local between frames.
+type hoverState struct {
+	open openState
+}
+
+// HoverCard opens a panel while the pointer is on its anchor or on the
+// panel itself. A few frames of grace let the pointer travel from the
+// trigger into the panel without closing it — a frame count, never a
+// timer.
+type HoverCard struct {
+	ui.Element
+	st   *hoverState
+	open *bool
+}
+
+// NewHoverCard builds a hover card. Trigger builds the target and Body
+// fills the panel; both run every frame.
 //
-// An optional key scopes the host: pass a different one for each HoverCard
-// under the same parent, or the two share an identity and the later one
-// overwrites the earlier. With no key the host uses its position in the
-// parent.
-func NewHoverCard(c *ui.Context, open *bool, anchor func() ui.Element, build func(panel ui.Element), key ...string) *HoverCard {
-	if len(key) > 0 && key[0] != "" {
-		c = c.Key(key[0])
+//	overlays.NewHoverCard(c, overlays.HoverCardOptions{
+//		Open:    &app.cardOpen,
+//		Trigger: func() ui.Element { return controls.NewButton(c, "悬停我").Element },
+//		Body:    func() { ui.Text(c, "卡片内容") },
+//	})
+func NewHoverCard(c *ui.Context, o HoverCardOptions) *HoverCard {
+	st := stateFor(c, o.Open, "hovercard:"+o.Key, func() hoverState {
+		return hoverState{}
+	})
+	if o.OnOpenChange != nil {
+		st.open.onChange = o.OnOpenChange
 	}
-	if open == nil {
-		open = new(bool)
-	}
+	st.open.flush()
+	open := st.open.openPtr(o.Open)
+
 	t := c.Theme()
 	var away *int
 	var hostHover, panelHover bool
 
-	h := &HoverCard{}
+	h := &HoverCard{st: st, open: open}
 	h.Element = ui.Column(c).Children(func() {
 		var trigger ui.Element
-		// The trigger is built before the overlay, so its click lands
+		// The trigger is built before the overlay, so its input lands
 		// in this frame and the panel gets the layer as its parent.
 		host := ui.Row(c).Children(func() {
-			if anchor != nil {
-				trigger = anchor()
+			if o.Trigger != nil {
+				trigger = o.Trigger()
 			} else {
 				trigger = ui.Box(c)
 			}
@@ -51,8 +80,8 @@ func NewHoverCard(c *ui.Context, open *bool, anchor func() ui.Element, build fun
 			p = p.Background(t.Background).Border(1, t.Border).
 				Radius(Radius(t, RadiusMd)).Padding(t.Space(3), t.Space(4)).
 				Shadow(0, 4, 16, -4, t.Text.Alpha(0.18))
-			if build != nil {
-				build(p)
+			if o.Body != nil {
+				p.Children(o.Body)
 			}
 			panelHover = p.Hovered()
 		})
@@ -61,14 +90,29 @@ func NewHoverCard(c *ui.Context, open *bool, anchor func() ui.Element, build fun
 
 	if away != nil {
 		if hostHover || panelHover {
+			if !*open {
+				*open = true
+				st.open.record(true)
+			}
 			*away = 0
-			*open = true
 		} else {
 			*away++
-			if *away > 3 {
+			if *away > 3 && *open {
 				*open = false
+				st.open.record(false)
 			}
 		}
 	}
+	return h
+}
+
+// Open reports whether the card shows.
+func (h *HoverCard) Open() bool { return h.open != nil && *h.open }
+
+// OnOpenChange registers fn for open changes and returns the card. A
+// change that happened before this call is delivered at once.
+func (h *HoverCard) OnOpenChange(fn func(bool)) *HoverCard {
+	h.st.open.onChange = fn
+	h.st.open.flush()
 	return h
 }

@@ -82,3 +82,39 @@ func (u UI) ButtonGroup(build func()) ui.Element {
 func (u UI) TitleBar(o ctrlpkg.TitleBarOptions) *ctrlpkg.TitleBar {
 	return ctrlpkg.NewTitleBar(u.c, o)
 }
+
+// ToggleGroup wraps toggle buttons in a group; build makes the toggles.
+func (u UI) ToggleGroup(fn func()) *ctrlpkg.ToggleGroup {
+	return ctrlpkg.NewToggleGroup(u.c, fn)
+}
+
+// HotkeyInput builds a field editing *value that records a key shortcut.
+func (u UI) HotkeyInput(value *string) *ctrlpkg.HotkeyInput {
+	return ctrlpkg.NewHotkeyInput(u.c, value)
+}
+
+// CopyButton builds a button that copies content to the clipboard.
+func (u UI) CopyButton(content string) *ctrlpkg.CopyButton {
+	return ctrlpkg.NewCopyButton(u.c, content)
+}
+
+// Segmented builds a segmented control selecting one of labels into *selected.
+func (u UI) Segmented(selected *int, labels ...string) *ctrlpkg.Segmented {
+	return ctrlpkg.NewSegmented(u.c, selected, labels...)
+}
+
+// ColorSwatches builds a row of swatches choosing one color into *value.
+func (u UI) ColorSwatches(value *ui.Color, swatches ...ctrlpkg.ColorSwatch) *ctrlpkg.ColorSwatches {
+	return ctrlpkg.NewColorSwatches(u.c, value, swatches...)
+}
+
+// ActionIconGroup builds a row of icon-only actions writing the clicked
+// item's key into *chosen.
+func (u UI) ActionIconGroup(chosen *string, items []ctrlpkg.ActionIconGroupItem) *ctrlpkg.ActionIconGroup {
+	return ctrlpkg.NewActionIconGroup(u.c, chosen, items)
+}
+
+// ActionIcon builds an icon-only button with title for assistive technology.
+func (u UI) ActionIcon(svg *ui.SVG, title string) *ctrlpkg.ActionIcon {
+	return ctrlpkg.NewActionIcon(u.c, svg, title)
+}

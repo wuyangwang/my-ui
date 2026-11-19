@@ -1,109 +1,256 @@
 package forms
 
 import (
-	. "github.com/wuyangwang/my-ui"
 	"strings"
 
 	"github.com/egoist/mygo/ui"
+	. "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"github.com/wuyangwang/my-ui/icons"
 )
 
+// ComboOptions configures a ComboBox at construction. The selected value
+// and the typed query are separate: Value is the app-owned choice, Text is
+// the (usually internal) text of the trigger.
+type ComboOptions struct {
+	// Value is the app-owned selected value. It is written when an option
+	// is chosen and cleared to "" when the clear button is pressed.
+	Value *string
+	// Text is the trigger's text and the query that filters the options.
+	// When nil the combo keeps its own text in a per-frame slot.
+	Text *string
+	// Options are the choices shown in the popup.
+	Options []SelectOption
+	// Clearable shows a clear icon in place of the chevron while a value
+	// is selected.
+	Clearable bool
+	// EmptyText is shown when nothing matches the query. When empty the
+	// library's localized "no results" string is used.
+	EmptyText string
+	// Placeholder is shown while the trigger's text is empty.
+	Placeholder string
+	// Label names the combo for assistive technology.
+	Label string
+	// Filter replaces the default case-insensitive label match.
+	Filter func(SelectOption, string) bool
+	// OnChanged is called with the new value on a choice or a clear. It may
+	// also be attached later with the fluent OnChanged method.
+	OnChanged func(value string)
+}
+
 // ComboBox is a drop-down whose trigger is a text field: what is typed
-// narrows the options down, and a choice takes the place of the text.
+// narrows the options down, and a choice sets the app's selected value.
+// The typed query and the selected value are different state — Value in
+// ComboOptions is the choice; Text is the query.
 //
-//	forms.NewComboBox(c, &query, []forms.SelectOption{
-//		{Label: "简体中文", Value: "zh-Hans"},
-//		{Label: "English", Value: "en"},
+//	forms.NewComboBox(c, forms.ComboOptions{
+//		Value:     &app.lang,
+//		Options:   []forms.SelectOption{{Label: "English", Value: "en"}},
+//		Clearable: true,
 //	}).Outline().Placeholder("搜索语言…")
-//
-// The text is the app's: the app holds what the user typed, and the
-// choice is reported by Chosen and OnChanged.
 type ComboBox struct {
-	ui.Element // the text field, which is the trigger
-	parts      ui.ComboboxParts
+	ui.Element // the text input, the control a Field describes
 	c          *ui.Context
+	parts      ui.ComboboxParts
+	root       ui.Element // the frame around the input and the trailing glyph
+	glyph      ui.Element // the chevron, or the clear button
+	value      *string
 	text       *string
 	options    []SelectOption
+	clearable  bool
 	size       Size
 	variant    Variant
 	shape      Shape
+	width      float32
 	invalid    bool
-	chosen     *string // the last choice, kept across frames
-	filterRef  *func(SelectOption, string) bool
+	disabled   bool
+	chosen     *string
+	pending    *pendingChoice
 	emptyRef   *string
+	filterRef  *func(SelectOption, string) bool
+	onChanged  *func(string)
 }
 
-// NewComboBox creates a drop-down whose trigger is a text field, with
-// the native preset. The text is the app's; the choice is reported by
-// Chosen.
-func NewComboBox(c *ui.Context, text *string, options []SelectOption) *ComboBox {
-	b := &ComboBox{c: c, text: text, options: options}
-	p := ui.ComboboxBase(c, text)
-	b.parts = p
-	b.Element = p.Input
-	// A field fills the room it is given; Width(w) takes it over when
-	// the app wants a fixed size. The floor keeps it from collapsing.
-	b.Element = b.Element.FillWidth().MinWidth(c.Theme().Space(30))
-	// The choice MyGo reports lives for one frame. Keep it on the input
-	// so that Chosen() stays readable in the frames after the choice.
-	b.chosen = ui.Local(b.Element, "combo-chosen", func() string { return "" })
-	b.emptyRef = ui.Local(b.Element, "combo-empty", func() string { return "" })
-	b.filterRef = ui.Local(b.Element, "combo-filter", func() func(SelectOption, string) bool { return nil })
+// pendingChoice is a choice waiting for a registered callback. It lives
+// in a per-frame slot, so a callback attached after construction — even
+// on a later frame — still receives the choice.
+type pendingChoice struct {
+	v  string
+	ok bool
+}
 
-	// The popup holds the options the text matches.
-	p.Popup(func(panel ui.Element) {
+// NewComboBox creates a searchable drop-down configured by o. If o.Value
+// is nil the selected value is kept in a private slot, so Chosen() stays
+// readable; the app should normally pass its own pointer.
+func NewComboBox(c *ui.Context, o ComboOptions) *ComboBox {
+	b := &ComboBox{
+		c: c, options: o.Options, clearable: o.Clearable,
+		value: o.Value,
+	}
+
+	// The frame has to exist before the input, because the input's text
+	// pointer — when it is internal — lives on that frame.
+	root := ui.Row(c).AlignItems(ui.Center)
+	b.root = root
+	if b.value == nil {
+		b.value = ui.Local(root, "combo-value", func() string { return "" })
+	}
+	text := o.Text
+	if text == nil {
+		text = ui.Local(root, "combo-text", func() string { return "" })
+	}
+	b.text = text
+
+	root.Children(func() {
+		b.parts = ui.ComboboxBase(c, text)
+		b.parts.Input = b.parts.Input.Grow(1)
+		b.glyph = ui.Row(c).AlignItems(ui.Center)
+	})
+	b.Element = b.parts.Input
+
+	b.chosen = ui.Local(root, "combo-chosen", func() string { return "" })
+	b.pending = ui.Local(root, "combo-pending", func() pendingChoice { return pendingChoice{} })
+	b.emptyRef = ui.Local(root, "combo-empty", func() string { return comboEmptyText(c, o.EmptyText) })
+	b.filterRef = ui.Local(root, "combo-filter", func() func(SelectOption, string) bool { return o.Filter })
+	b.onChanged = ui.Local(root, "combo-onchanged", func() func(string) { return o.OnChanged })
+	if o.EmptyText != "" {
+		*b.emptyRef = o.EmptyText
+	}
+
+	// The popup holds the options the query matches.
+	b.parts.Popup(func(panel ui.Element) {
 		t := c.Theme()
 		panel.Background(t.Background).Border(1, t.Border).Radius(Radius(t, RadiusMd)).
 			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
-		filter := strings.TrimSpace(*text)
+		query := strings.TrimSpace(*text)
 		group := ""
 		matched := 0
 		panel.Children(func() {
-			for _, o := range options {
+			for _, o := range b.options {
 				o := o
-				if filter != "" && !b.matches(o, filter) {
+				if query != "" && !b.matches(o, query) {
 					continue
 				}
 				matched++
-				// The name of a group shows above its options.
 				if o.Group != "" && o.Group != group {
 					group = o.Group
 					ui.Text(c, group).FontSize(TextSize(t, TextXs)).TextColor(t.TextMuted).
 						Padding(t.Space(1), t.Space(2))
 				}
-				item := p.Item(o.Value)
+				item := b.parts.Item(o.Value)
 				item.Children(func() {
 					ui.Text(c, o.Text())
-					if o.Value == *b.chosen {
+					if o.Value == *b.value {
 						ui.Icon(c, icons.Check()).Size(IconSizeSm, IconSizeSm).TextColor(t.Accent)
 					}
 				})
+				if o.Disabled {
+					item.Disabled(true).TextColor(t.TextMuted)
+				}
 			}
-			if matched == 0 && b.emptyRef != nil && *b.emptyRef != "" {
+			if matched == 0 && *b.emptyRef != "" {
 				ui.Text(c, *b.emptyRef).TextColor(t.TextMuted).
 					FontSize(TextSize(t, TextSm)).Padding(t.Space(2))
 			}
 		})
 	})
+
+	// The trailing glyph: a clear button replaces the chevron while a
+	// value is selected, as in Select. One glyph at a time, in one slot.
+	b.glyph.Children(func() {
+		if !b.clearable || *b.value == "" || b.disabled {
+			b.chevron()
+			return
+		}
+		ctrlpkg.NewIconAction(c, ctrlpkg.IconActionOptions{
+			SVG:      icons.X(),
+			Label:    Message(c, "clear"),
+			Size:     16,
+			IconSize: IconSizeXs,
+			OnClick:  b.clear,
+		})
+	})
+
 	// MyGo reports the choice for the frame that follows Popup: take it
-	// now, while it is available, and keep it. A choice takes the place
-	// of what was typed — the label is written back into the text the
-	// app holds, so the input echoes what was chosen, as MyGo's own
-	// Combobox does.
-	if v, ok := p.Chosen(); ok {
+	// now, while it is available, and keep it. The choice becomes the
+	// app's selected value and the query becomes the option's label.
+	if v, ok := b.parts.Chosen(); ok {
 		*b.chosen = v
-		for _, o := range options {
+		*b.value = v
+		for _, o := range b.options {
 			if o.Value == v {
 				*text = o.Text()
 				break
 			}
 		}
+		b.pending.v, b.pending.ok = v, true
 	}
+	b.fire()
+
+	if o.Placeholder != "" {
+		b.Placeholder(o.Placeholder)
+	}
+	if o.Label != "" {
+		b.Label(o.Label)
+	}
+	b.root = b.root.Transition(StateTransition())
+	b.apply()
 	return b
 }
 
-// matches tells whether an option matches what was typed. A filter set
-// with Filter replaces the default case-insensitive label match.
+// chevron draws the arrow that opens the popup. It turns to point up
+// while the popup is open, through mygo's animation so Reduce Motion is
+// respected.
+func (b *ComboBox) chevron() {
+	c := b.c
+	turn := float32(0)
+	if b.parts.Open() {
+		turn = 180
+	}
+	arrow := ui.Icon(c, icons.ChevronDown()).Size(IconSizeSm, IconSizeSm).
+		TextColor(c.Theme().TextMuted)
+	arrow = arrow.Rotate(arrow.AnimateTo("combo-arrow", turn, ui.Animation{Duration: MotionNormal}))
+}
+
+// clear empties both the selected value and the query, and reports the
+// empty value through the registered callback.
+func (b *ComboBox) clear() {
+	*b.value = ""
+	*b.text = ""
+	*b.chosen = ""
+	b.pending.v, b.pending.ok = "", true
+	b.fire()
+}
+
+// fire calls the registered callback with a pending choice, if any. A
+// callback registered after the choice — even on a later frame — receives
+// it, because the pending slot lives until it is consumed.
+func (b *ComboBox) fire() {
+	if b.pending == nil || !b.pending.ok || b.onChanged == nil || *b.onChanged == nil {
+		return
+	}
+	fn := *b.onChanged
+	b.pending.ok = false
+	fn(b.pending.v)
+}
+
+// comboEmptyText is the library's default text when nothing matches. It
+// goes through the root package's i18n so an app can translate it; until
+// a catalog entry exists, Message returns the key itself and the English
+// fallback is shown rather than a bare key.
+func comboEmptyText(c *ui.Context, supplied string) string {
+	if supplied != "" {
+		return supplied
+	}
+	const key = "noResults"
+	if s := Message(c, key); s != key {
+		return s
+	}
+	return "No results found"
+}
+
+// matches tells whether an option matches the query. A filter set with
+// Filter or in ComboOptions replaces the default label match.
 func (b *ComboBox) matches(o SelectOption, query string) bool {
 	if b.filterRef != nil && *b.filterRef != nil {
 		return (*b.filterRef)(o, query)
@@ -112,8 +259,6 @@ func (b *ComboBox) matches(o SelectOption, query string) bool {
 }
 
 // Variant applies the look of v and returns the combo box, for chaining.
-// The zero variant is Native, which keeps the built-in look of the text
-// field.
 func (b *ComboBox) Variant(v Variant) *ComboBox {
 	b.variant = v
 	b.apply()
@@ -179,45 +324,48 @@ func (b *ComboBox) Shape(s Shape) *ComboBox {
 	return b
 }
 
-// Width sets the width of the combo box in DIPs and returns it, for
-// chaining.
+// Width pins the frame's width in DIPs and returns the combo box. Zero
+// fills the parent; a positive width keeps a floor so the field cannot
+// collapse.
 func (b *ComboBox) Width(w float32) *ComboBox {
-	b.Element = b.Element.Width(w)
+	b.width = w
+	b.apply()
 	return b
 }
 
-// Placeholder shows s in the empty field and returns the combo box, for
-// chaining.
+// Placeholder shows s while the trigger's text is empty, and returns the
+// combo box for chaining.
 func (b *ComboBox) Placeholder(s string) *ComboBox {
-	b.Element = b.Element.Placeholder(s)
-	return b
-}
-
-// Label names the combo box for assistive technology and returns it,
-// for chaining.
-func (b *ComboBox) Label(s string) *ComboBox {
-	b.Element = b.Element.Label(s)
-	return b
-}
-
-// OnChanged calls fn with the value of the new choice when one was
-// made, and returns the combo box, for chaining.
-//
-// MyGo's combobox reports the choice for the frame that follows it:
-// the field holds it then, and not after.
-func (b *ComboBox) OnChanged(fn func(value string)) *ComboBox {
-	if fn != nil {
-		if v, ok := b.parts.Chosen(); ok {
-			fn(v)
-		}
+	if s != "" {
+		b.Element = b.Element.Placeholder(s)
 	}
 	return b
 }
 
-// Chosen returns the value of the last choice, readable in any frame —
-// not just the one the choice was made in. MyGo's own Chosen() is only
-// valid during the build and expires with the frame; the combo box copies
-// it into a persistent slot in the constructor and reads only that here.
+// Label names the combo box for assistive technology and returns it, for
+// chaining.
+func (b *ComboBox) Label(s string) *ComboBox {
+	if s != "" {
+		b.Element = b.Element.Label(s)
+	}
+	return b
+}
+
+// OnChanged registers fn as the callback for a choice or a clear, and
+// returns the combo box for chaining. It may be called at any point — a
+// choice that happened before the callback was attached is kept in a
+// per-frame slot and delivered here.
+func (b *ComboBox) OnChanged(fn func(value string)) *ComboBox {
+	if b.onChanged != nil {
+		*b.onChanged = fn
+	}
+	b.fire()
+	return b
+}
+
+// Chosen returns the value of the last choice, readable in any frame. It
+// is emptied by a clear. MyGo's own Chosen() expires with the frame; the
+// combo copies it into a persistent slot in the constructor.
 func (b *ComboBox) Chosen() string {
 	if b.chosen != nil {
 		return *b.chosen
@@ -225,7 +373,25 @@ func (b *ComboBox) Chosen() string {
 	return ""
 }
 
-// Changed reports whether a choice was made in this frame.
+// Selected returns the app-owned selected value, readable in any frame.
+// It is the value in ComboOptions.Value, not the typed query.
+func (b *ComboBox) Selected() string {
+	if b.value != nil {
+		return *b.value
+	}
+	return ""
+}
+
+// Text returns the trigger's text — the query the options are filtered
+// by. It is the app's Text pointer, or the combo's internal one.
+func (b *ComboBox) Text() string {
+	if b.text != nil {
+		return *b.text
+	}
+	return ""
+}
+
+// Changed reports whether the trigger changed in this frame.
 func (b *ComboBox) Changed() bool { return b.Element.Changed() }
 
 // Open reports whether the popup shows.
@@ -240,12 +406,13 @@ func (b *ComboBox) SetOpen(on bool) *ComboBox {
 
 // Disabled takes the combo box out of use and returns it, for chaining.
 func (b *ComboBox) Disabled(on bool) *ComboBox {
+	b.disabled = on
 	b.Element = b.Element.Disabled(on)
 	return b
 }
 
 // Invalid marks the combo box as not holding a good value and returns it,
-// for chaining. The trigger takes the danger border.
+// for chaining. The frame takes the danger border.
 func (b *ComboBox) Invalid(on bool) *ComboBox {
 	b.invalid = on
 	b.Element = b.Element.Invalid(on)
@@ -272,27 +439,35 @@ func (b *ComboBox) Filter(fn func(o SelectOption, query string) bool) *ComboBox 
 	return b
 }
 
-// Control returns the element a field describes: the text field that is
+// Control returns the element a field describes: the text input that is
 // the trigger, so a Field can focus it and name its error.
 func (b *ComboBox) Control() ui.Element { return b.Element }
 
-// apply paints the look of the variant and the size on the field.
+// apply paints the shared look of the variant, size and shape on the
+// frame; colors and metrics come from c.Theme() on this frame.
 func (b *ComboBox) apply() {
 	t := b.c.Theme()
 	l := FrameLookOf(b.variant, t)
+	border := l.Border
+	if b.invalid {
+		border = t.Danger
+	}
 	if !l.Native {
 		v, h := FramePadding(t, b.size)
-		border := l.Border
-		if b.invalid {
-			border = t.Danger
-		}
-		b.Element = b.Element.Background(l.Bg).Border(l.Width, border).Radius(Radius(t, RadiusMd)).Padding(v, h)
+		b.root = b.root.Background(l.Bg).Border(l.Width, border).Radius(Radius(t, RadiusMd)).Padding(v, h)
+		// The frame owns the border; the input has none of its own.
+		b.Element = b.Element.Background(ui.Transparent).Border(0, ui.Transparent).Padding(0)
 	}
 	switch b.shape {
 	case ShapeRound, ShapeCircle:
-		b.Element = b.Element.Radius(1000)
+		b.root = b.root.Radius(1000)
 	default:
-		b.Element = b.Element.Radius(Radius(t, RadiusMd))
+		b.root = b.root.Radius(Radius(t, RadiusMd))
 	}
 	b.Element = b.Element.FontSize(FrameFontSize(t, b.size))
+	if b.width > 0 {
+		b.root = b.root.Width(b.width)
+	} else {
+		b.root = b.root.FillWidth().MinWidth(t.Space(30))
+	}
 }

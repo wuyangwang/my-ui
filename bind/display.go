@@ -85,3 +85,63 @@ func (u UI) Result(o displaypkg.ResultOptions) ui.Element {
 func (u UI) Pagination(current *int, total int) *displaypkg.Pagination {
 	return displaypkg.NewPagination(u.c, current, total)
 }
+
+// Text builds a styled label showing s; opts apply the shared presets.
+func (u UI) Text(s string, opts ...displaypkg.TextOptions) *displaypkg.Text {
+	return displaypkg.NewText(u.c, s, opts...)
+}
+
+// Image builds an image from src, configured by o.
+func (u UI) Image(src ui.ImageSource, o displaypkg.ImageOptions) ui.Element {
+	return displaypkg.NewImage(u.c, src, o)
+}
+
+// Highlighter builds syntax-highlighted source, configured by o.
+func (u UI) Highlighter(src string, o displaypkg.HighlighterOptions) ui.Element {
+	return displaypkg.NewHighlighter(u.c, src, o)
+}
+
+// Snippet builds a copyable code snippet of src, configured by o.
+func (u UI) Snippet(src string, o displaypkg.SnippetOptions) ui.Element {
+	return displaypkg.NewSnippet(u.c, src, o)
+}
+
+// QRCode builds a QR code encoding value, configured by o.
+func (u UI) QRCode(value string, o displaypkg.QRCodeOptions) ui.Element {
+	return displaypkg.NewQRCode(u.c, value, o)
+}
+
+// Avatar builds a named avatar, configured by o.
+func (u UI) Avatar(name string, o displaypkg.AvatarOptions) *displaypkg.Avatar {
+	return displaypkg.NewAvatar(u.c, name, o)
+}
+
+// AgentAvatar builds an agent's mark, configured by o.
+func (u UI) AgentAvatar(o displaypkg.AgentAvatarOptions) ui.Element {
+	return displaypkg.NewAgentAvatar(u.c, o)
+}
+
+// Divider builds a separating rule; opts apply the shared presets.
+func (u UI) Divider(opts ...displaypkg.DividerOptions) *displaypkg.Divider {
+	return displaypkg.NewDivider(u.c, opts...)
+}
+
+// Block builds a content block, configured by o.
+func (u UI) Block(o displaypkg.BlockOptions) *displaypkg.Block {
+	return displaypkg.NewBlock(u.c, o)
+}
+
+// GroupAvatar builds an overlapping group of avatars, configured by o.
+func (u UI) GroupAvatar(o displaypkg.GroupAvatarOptions) ui.Element {
+	return displaypkg.NewGroupAvatar(u.c, o)
+}
+
+// GuideCard builds an onboarding card, configured by o.
+func (u UI) GuideCard(o displaypkg.GuideCardOptions) ui.Element {
+	return displaypkg.NewGuideCard(u.c, o)
+}
+
+// List builds n rows over state; row makes each one.
+func (u UI) List(state *ui.ListState, n int, row func(i int)) ui.Element {
+	return displaypkg.NewList(u.c, state, n, row)
+}

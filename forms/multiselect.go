@@ -52,6 +52,14 @@ func (m *MultiSelect) build(host ui.Element) {
 	if m.maxRef != nil {
 		max = *m.maxRef
 	}
+	// TokenField appends to *tokens for Enter, a comma, a paste and a
+	// suggestion click alike; it has no limit switch. Clamp here, once the
+	// field's input callbacks have run and before the chips and the
+	// suggestions are built, so no add path can go past the cap. Trimming
+	// the tail never blocks taking a chip away.
+	if max > 0 && len(*m.tokens) > max {
+		*m.tokens = (*m.tokens)[:max]
+	}
 	labels := make([]string, 0, len(m.options))
 	for _, o := range m.options {
 		if max > 0 && len(*m.tokens) >= max {
@@ -203,9 +211,11 @@ func (m *MultiSelect) Invalid(on bool) *MultiSelect {
 }
 
 // Max limits how many choices the field holds, and returns it, for
-// chaining. Once the limit is reached, no further suggestions show. The
-// limit takes effect on the next frame's build: staging it here, instead
-// of rebuilding the token field in this frame, keeps a single click from
+// chaining. Once the limit is reached, no further suggestions show and no
+// add path (Enter, comma, paste or a suggestion click) can exceed it;
+// taking a chip away is still allowed. n <= 0 means no limit. The limit
+// takes effect on the next frame's build: staging it here, instead of
+// rebuilding the token field in this frame, keeps a single click from
 // being consumed by two fields.
 func (m *MultiSelect) Max(n int) *MultiSelect {
 	if m.maxRef != nil {

@@ -54,10 +54,36 @@ type qrState struct {
 	}
 }
 
+// QRCode is a QR code card together with a readable report of whether its
+// value could be encoded. Obtain it with NewQRCodeCard; NewQRCode returns
+// only the card element for callers that need no report.
+type QRCode struct {
+	ui.Element
+	valid bool
+}
+
+// Valid reports whether the value fit one of the encoder's versions. When
+// it is false, the card shows a muted error message instead of a blank
+// square. The encoder handles byte mode, error level L and short values
+// (up to version 5); see docs/components/qr-code.md for the limit.
+func (q *QRCode) Valid() bool { return q != nil && q.valid }
+
 // NewQRCode shows value as a QR code on a card. The encoder handles byte
 // mode, error level L and short values (up to version 5); see
-// docs/components/qr-code.md for the limit.
+// docs/components/qr-code.md for the limit. An overlong value renders a
+// visible error message; use NewQRCodeCard to ask Valid() first.
 func NewQRCode(c *ui.Context, value string, o QRCodeOptions) ui.Element {
+	return newQRCode(c, value, o).Element
+}
+
+// NewQRCodeCard builds the QR code card and returns its handle, so the
+// caller can read Valid() to learn whether the value was encoded. The card
+// itself is the embedded ui.Element.
+func NewQRCodeCard(c *ui.Context, value string, o QRCodeOptions) *QRCode {
+	return newQRCode(c, value, o)
+}
+
+func newQRCode(c *ui.Context, value string, o QRCodeOptions) *QRCode {
 	t := c.Theme()
 	size := o.Size
 	if size <= 0 {
@@ -89,22 +115,33 @@ func NewQRCode(c *ui.Context, value string, o QRCodeOptions) ui.Element {
 	if label == "" {
 		label = value
 	}
-	return root.Children(func() {
-		code := ui.Box(c).Size(size, size).Role(ui.RoleImage).Label(label)
-		if len(st.grid) > 0 {
-			code.Draw(func(p *ui.Painter, r ui.Rect) {
-				d := &st.drawn
-				if d.path == nil || d.r != r || d.scale != p.Scale() {
-					s, unit := p.Scale(), r.W/float32(len(st.grid))
-					snap := func(v float32) float32 { return float32(int(v*s+0.5)) / s }
-					d.r, d.scale = r, s
-					d.path = qrPath(st.grid, st.hole,
-						func(k int) float32 { return snap(r.X + float32(k)*unit) },
-						func(k int) float32 { return snap(r.Y + float32(k)*unit) })
-				}
-				p.FillPath(d.path, ink)
+	q := &QRCode{valid: len(st.grid) > 0}
+	q.Element = root.Children(func() {
+		if !q.valid {
+			// The value fits no supported version. A blank card gives the
+			// user no signal, so show a muted error in the code's place.
+			ui.Box(c).Size(size, size).Role(ui.RoleImage).Label(label).Children(func() {
+				ui.Column(c).FillWidth().FillHeight().AlignItems(ui.Center).
+					Justify(ui.Center).Children(func() {
+					ui.Text(c, Message(c, "qrTooLong")).
+						FontSize(TextSize(t, TextXs)).TextColor(t.TextMuted)
+				})
 			})
+			return
 		}
+		code := ui.Box(c).Size(size, size).Role(ui.RoleImage).Label(label)
+		code.Draw(func(p *ui.Painter, r ui.Rect) {
+			d := &st.drawn
+			if d.path == nil || d.r != r || d.scale != p.Scale() {
+				s, unit := p.Scale(), r.W/float32(len(st.grid))
+				snap := func(v float32) float32 { return float32(int(v*s+0.5)) / s }
+				d.r, d.scale = r, s
+				d.path = qrPath(st.grid, st.hole,
+					func(k int) float32 { return snap(r.X + float32(k)*unit) },
+					func(k int) float32 { return snap(r.Y + float32(k)*unit) })
+			}
+			p.FillPath(d.path, ink)
+		})
 		if icon {
 			d := size * 0.22
 			ui.Box(c).Size(d, d).Absolute().
@@ -128,6 +165,7 @@ func NewQRCode(c *ui.Context, value string, o QRCodeOptions) ui.Element {
 			})
 		}
 	})
+	return q
 }
 
 func qrPath(grid [][]bool, hole int, atX, atY func(int) float32) *ui.Path {

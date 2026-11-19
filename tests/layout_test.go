@@ -48,10 +48,13 @@ func TestComboBoxInACardChoosesAfterSearching(t *testing.T) {
 	view := func(c *ui.Context) {
 		Apply(c, Options{Appearance: AppearanceLight})
 		ui.Column(c).Gap(c.Theme().Space(4)).Children(func() {
-			formspkg.NewComboBox(c.Key("cb"), &text, []formspkg.SelectOption{
-				{Label: "简体中文", Value: "zh-Hans"},
-				{Label: "English", Value: "en"},
-				{Label: "日本語", Value: "ja"},
+			formspkg.NewComboBox(c.Key("cb"), formspkg.ComboOptions{
+				Text: &text,
+				Options: []formspkg.SelectOption{
+					{Label: "简体中文", Value: "zh-Hans"},
+					{Label: "English", Value: "en"},
+					{Label: "日本語", Value: "ja"},
+				},
 			}).Outline().Label("语言").OnChanged(func(v string) { chosen = v })
 		})
 	}

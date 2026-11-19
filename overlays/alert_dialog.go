@@ -8,65 +8,91 @@ import (
 	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 )
 
-// AlertDialogOptions is the content of an alert dialog: a title, a
-// message, the button labels in the order they show, and a callback for
-// the result. The app owns the open flag, passed to NewAlertDialog
-// separately, and the result value, which OnResult reports.
-type AlertDialogOptions struct {
-	// Title is the bold heading of the alert and the name assistive
-	// technology reads for its panel.
-	Title string
-	// Message is the muted line under the title, also used as the
-	// panel's accessible description.
-	Message string
-	// Buttons holds the labels of the action buttons, from left to
-	// right. The last one is the default: it gets the destructive
-	// preset and the focus, so Enter clicks it.
-	Buttons []string
-	// OnResult receives the index of the button clicked in this frame,
-	// or ui.AlertDismissed when Escape closed the alert. It is not
-	// called when the alert has no result yet. It runs on the main
-	// thread, in the frame of the click.
-	OnResult func(i int)
+// DialogAction is one button of an AlertDialog. Each action owns its own
+// behavior, so the app never maps a returned index back to a label.
+type DialogAction struct {
+	// Label is the text on the button.
+	Label string
+	// Kind picks the button's preset: Outline for a quiet action and
+	// Destructive for the dangerous one, for example. The zero value
+	// keeps the old default — Outline, except the last action, which is
+	// Destructive and focused.
+	Kind Variant
+	// OnClick runs when the button is pressed, on the main thread in the
+	// frame of the click, before the alert closes.
+	OnClick func()
 }
 
-// NewAlertDialog shows an alert over the window while open is true. It
-// follows mygo's ui.AlertDialog contract — the open flag is the app's, a
-// button click reports its index and closes the alert, Escape reports
-// ui.AlertDismissed, and nothing is reported while the alert is idle —
-// but gives the panel shadcn's look instead of mygo's built-in one.
+// AlertDialogOptions configures an AlertDialog at construction time. The
+// open flag is the app's. Every field is read again each frame from the
+// options the view passes.
+type AlertDialogOptions struct {
+	// Open is the app's flag; the alert belongs to the app.
+	Open *bool
+	// Title is the bold heading and the panel's accessible name.
+	Title string
+	// Message is the muted line under the title and the panel's
+	// accessible description.
+	Message string
+	// Actions are the buttons, in the order they show. Each carries its
+	// own label and behavior.
+	Actions []DialogAction
+	// OnDismiss runs when Escape closes the alert. It is kept across
+	// frames, so attaching it late does not lose the dismissal.
+	OnDismiss func()
+}
+
+// alertState is what an AlertDialog keeps in its Local between frames.
+type alertState struct {
+	open    openState
+	title   string
+	message string
+}
+
+// AlertDialog shows a short, blocking alert over the window while the
+// app's flag is true.
 //
-// The reason for rebuilding it is that ui.AlertDialog returns an int, not
-// an Element, and draws its own buttons: there is nothing public to
-// restyle. This constructor uses ui.DialogBase, whose panel is an Element,
-// and paints the buttons with myui's presets. The last button is
-// destructive by default, as in the spec; the others are outlined.
-//
-//	open := false
-//	overlays.NewAlertDialog(c, &open, overlays.AlertDialogOptions{
+//	overlays.NewAlertDialog(c, overlays.AlertDialogOptions{
+//		Open:    &app.confirmOpen,
 //		Title:   "删除项目？",
 //		Message: "此操作不能撤销。",
-//		Buttons: []string{"取消", "删除"},
-//		OnResult: func(i int) {
-//			if i == 1 {
-//				app.delete()
-//			}
+//		Actions: []overlays.DialogAction{
+//			{Label: "取消"},
+//			{Label: "删除", Kind: myui.Destructive, OnClick: app.delete},
 //		},
+//		OnDismiss: func() { app.result = "cancelled" },
 //	})
 //
-// Opening the alert is the app's job: set *open to true in a trigger's
-// click handler. An alert that must be answered can set *open back to
-// true inside OnResult when i is ui.AlertDismissed.
-//
-// The panel, its colors and its metrics are rebuilt from c.Theme() every
-// frame, so theme and appearance changes take effect on the next frame.
-// There are no timers or goroutines: the panel's fade-in uses the
-// framework's own animation, and state changes use StateTransition.
-func NewAlertDialog(c *ui.Context, open *bool, o AlertDialogOptions) ui.Element {
-	if c == nil || open == nil {
-		return ui.Element{}
+// mygo's own ui.AlertDialog returns an int and draws its buttons in the
+// overlay, so there is no public handle to restyle. This component uses
+// ui.DialogBase instead: the panel is an Element the library can paint
+// with shadcn's look, and each action carries its own click behavior.
+type AlertDialog struct {
+	ui.Element
+	st   *alertState
+	open *bool
+}
+
+// NewAlertDialog shows an alert over the window while o.Open is true.
+func NewAlertDialog(c *ui.Context, o AlertDialogOptions) *AlertDialog {
+	if c == nil {
+		return nil
 	}
-	result := -1
+	st := stateFor(c, o.Open, "alert-dialog", func() alertState {
+		return alertState{}
+	})
+	if o.Title != "" {
+		st.title = o.Title
+	}
+	if o.Message != "" {
+		st.message = o.Message
+	}
+	if o.OnDismiss != nil {
+		st.open.onDismiss = o.OnDismiss
+	}
+	st.open.flush()
+
+	open := st.open.openPtr(o.Open)
 	panel := ui.DialogBase(c, open, func(backdrop, panel ui.Element) {
 		t := c.Theme()
 		backdrop.Background(ui.RGBA(0, 0, 0, 0.5))
@@ -75,44 +101,59 @@ func NewAlertDialog(c *ui.Context, open *bool, o AlertDialogOptions) ui.Element 
 			MaxWidth(t.Space(128)).
 			Shadow(0, 10, 30, 0, ui.RGBA(0, 0, 0, 0.3)).
 			Transition(StateTransition()).
-			Role(ui.RoleAlertDialog).Label(o.Title).Description(o.Message)
+			Role(ui.RoleAlertDialog).Label(st.title).Description(st.message)
 		OverlayEnter(c, panel, "alert-dialog-enter")
 		panel.Children(func() {
 			ui.Column(c).Gap(t.Space(2)).Children(func() {
-				if o.Title != "" {
-					ui.Text(c, o.Title).FontSize(TextSize(t, TextLg)).Bold()
+				if st.title != "" {
+					ui.Text(c, st.title).FontSize(TextSize(t, TextLg)).Bold()
 				}
-				if o.Message != "" {
-					ui.Text(c, o.Message).FontSize(TextSize(t, TextSm)).
+				if st.message != "" {
+					ui.Text(c, st.message).FontSize(TextSize(t, TextSm)).
 						TextColor(t.TextMuted)
 				}
 				ui.Row(c).Wrap().Justify(ui.End).Gap(t.Space(2)).
 					Margin(t.Space(2), 0, 0, 0).Children(func() {
-					for i, label := range o.Buttons {
-						i := i
-						b := ctrlpkg.NewButton(c, label)
-						if i == len(o.Buttons)-1 {
-							b.Destructive()
+					for i, action := range o.Actions {
+						kind := action.Kind
+						if kind == Default {
+							if i == len(o.Actions)-1 {
+								kind = Destructive
+							} else {
+								kind = Outline
+							}
+						}
+						b := ctrlpkg.NewButton(c, action.Label).Variant(kind)
+						if i == len(o.Actions)-1 {
 							b.Element = b.Element.AutoFocus()
-						} else {
-							b.Outline()
 						}
 						if b.Clicked() {
-							result = i
+							*open = false
+							if action.OnClick != nil {
+								action.OnClick()
+							}
 						}
 					}
 				})
 			})
 		})
 	})
-	if panel.Dismissed() && result == -1 {
-		result = ui.AlertDismissed
+	if panel.Dismissed() {
+		st.open.recordDismiss()
 	}
-	if result != -1 {
-		*open = false
-		if o.OnResult != nil {
-			o.OnResult(result)
-		}
-	}
-	return panel
+	return &AlertDialog{Element: panel, st: st, open: open}
+}
+
+// Open reports whether the alert shows.
+func (a *AlertDialog) Open() bool { return a.open != nil && *a.open }
+
+// Dismissed reports whether Escape dismissed the alert in this frame.
+func (a *AlertDialog) Dismissed() bool { return a.Element.Dismissed() }
+
+// OnDismiss registers fn for dismissals and returns the alert. A dismissal
+// that happened before this call is delivered at once.
+func (a *AlertDialog) OnDismiss(fn func()) *AlertDialog {
+	a.st.open.onDismiss = fn
+	a.st.open.flush()
+	return a
 }

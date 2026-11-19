@@ -115,10 +115,12 @@ func TestPopoverOpensOverItsAnchor(t *testing.T) {
 		Apply(c, Options{Appearance: AppearanceLight})
 		ui.Column(c).Children(func() {
 			ui.Box(c).Height(60)
-			overlaypkg.NewPopover(c, &open, func() ui.Element {
-				return ctrlpkg.NewButton(c, "更多").Element
-			}, func(panel ui.Element) {
-				ui.Text(c, "面板里的内容")
+			overlaypkg.NewPopover(c, overlaypkg.PopoverOptions{
+				Open: &open,
+				Trigger: func() ui.Element {
+					return ctrlpkg.NewButton(c, "更多").Element
+				},
+				Body: func() { ui.Text(c, "面板里的内容") },
 			})
 		})
 	}
@@ -146,10 +148,12 @@ func TestModalOpensOverTheWindow(t *testing.T) {
 	open := false
 	view := func(c *ui.Context) {
 		Apply(c, Options{Appearance: AppearanceLight})
-		overlaypkg.NewModal(c, &open, func() ui.Element {
-			return ctrlpkg.NewButton(c, "打开对话框").Element
-		}, func(panel ui.Element) {
-			ui.Text(c, "确定删除这个项目吗？")
+		overlaypkg.NewModal(c, overlaypkg.ModalOptions{
+			Open: &open,
+			Trigger: func() ui.Element {
+				return ctrlpkg.NewButton(c, "打开对话框").Element
+			},
+			Body: func() { ui.Text(c, "确定删除这个项目吗？") },
 		})
 	}
 	tt := ui.NewTester(view, 320, 240)
@@ -176,10 +180,12 @@ func TestModalClosesWithItsButton(t *testing.T) {
 	open := false
 	view := func(c *ui.Context) {
 		Apply(c, Options{Appearance: AppearanceLight})
-		overlaypkg.NewModal(c, &open, func() ui.Element {
-			return ctrlpkg.NewButton(c, "打开对话框").Element
-		}, func(panel ui.Element) {
-			ui.Text(c, "确定删除这个项目吗？")
+		overlaypkg.NewModal(c, overlaypkg.ModalOptions{
+			Open: &open,
+			Trigger: func() ui.Element {
+				return ctrlpkg.NewButton(c, "打开对话框").Element
+			},
+			Body: func() { ui.Text(c, "确定删除这个项目吗？") },
 		})
 	}
 	tt := ui.NewTester(view, 320, 240)
@@ -209,10 +215,12 @@ func TestModalClosesWithEscape(t *testing.T) {
 	open := false
 	view := func(c *ui.Context) {
 		Apply(c, Options{Appearance: AppearanceLight})
-		overlaypkg.NewModal(c, &open, func() ui.Element {
-			return ctrlpkg.NewButton(c, "打开对话框").Element
-		}, func(panel ui.Element) {
-			ui.Text(c, "确定删除这个项目吗？")
+		overlaypkg.NewModal(c, overlaypkg.ModalOptions{
+			Open: &open,
+			Trigger: func() ui.Element {
+				return ctrlpkg.NewButton(c, "打开对话框").Element
+			},
+			Body: func() { ui.Text(c, "确定删除这个项目吗？") },
 		})
 	}
 	tt := ui.NewTester(view, 320, 240)
@@ -238,10 +246,12 @@ func TestPopoverClosesWhenThePointerClicksOutside(t *testing.T) {
 		Apply(c, Options{Appearance: AppearanceLight})
 		ui.Column(c).Children(func() {
 			ui.Box(c).Height(60)
-			overlaypkg.NewPopover(c, &open, func() ui.Element {
-				return ctrlpkg.NewButton(c, "更多").Element
-			}, func(panel ui.Element) {
-				ui.Text(c, "面板里的内容")
+			overlaypkg.NewPopover(c, overlaypkg.PopoverOptions{
+				Open: &open,
+				Trigger: func() ui.Element {
+					return ctrlpkg.NewButton(c, "更多").Element
+				},
+				Body: func() { ui.Text(c, "面板里的内容") },
 			})
 		})
 	}
@@ -268,16 +278,20 @@ func TestModalCentersItsButtons(t *testing.T) {
 	open := false
 	view := func(c *ui.Context) {
 		Apply(c, Options{Appearance: AppearanceLight})
-		overlaypkg.NewModal(c, &open, func() ui.Element {
-			return ctrlpkg.NewButton(c, "打开").Element
-		}, func(panel ui.Element) {
-			ui.Column(c).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, "确定吗？")
-				ui.Row(c).Gap(c.Theme().Space(2)).Children(func() {
-					ctrlpkg.NewButton(c, "取消")
-					ctrlpkg.NewButton(c, "删除")
+		overlaypkg.NewModal(c, overlaypkg.ModalOptions{
+			Open: &open,
+			Trigger: func() ui.Element {
+				return ctrlpkg.NewButton(c, "打开").Element
+			},
+			Body: func() {
+				ui.Column(c).AlignItems(ui.Center).Children(func() {
+					ui.Text(c, "确定吗？")
+					ui.Row(c).Gap(c.Theme().Space(2)).Children(func() {
+						ctrlpkg.NewButton(c, "取消")
+						ctrlpkg.NewButton(c, "删除")
+					})
 				})
-			})
+			},
 		})
 	}
 	tt := ui.NewTester(view, 320, 240)

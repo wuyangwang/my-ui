@@ -7,82 +7,42 @@ import (
 	"github.com/wuyangwang/my-ui/icons"
 )
 
-// Parts are the slots a shadcn-style overlay panel is built from:
+// panelParts is the structured content of a shadcn-style overlay panel:
 // a header with a title and a description, a body the app fills, and a
-// footer for the actions. The slots are built into the panel during the
-// overlay's build callback and filled by the fluent methods, which the
-// app calls in the same frame, right after the constructor — so the
-// handles are always from the current frame.
-type Parts struct {
-	c                          *ui.Context
-	title, desc, footer, close ui.Element
+// footer for the actions. The library builds all of it inside
+// panel.Children, so no content ever lands in the window's corner.
+type panelParts struct {
+	Title, Description string
+	Body, Footer       func()
+	ShowClose          bool
 }
 
-// buildSlots makes the slots inside the panel. build fills the body with
-// whatever the app gave the overlay constructor; close is the corner
-// button, which sets *open to false when clicked. It returns the parts.
-func BuildSlots(c *ui.Context, build func(panel ui.Element), panel ui.Element, open *bool) *Parts {
-	d := &Parts{c: c}
+// buildPanelParts fills panel with the structured parts. close runs when
+// the corner close button is pressed: it sets the app's flag and records
+// the change for OnOpenChange.
+func buildPanelParts(c *ui.Context, panel ui.Element, p panelParts, close func()) {
 	th := c.Theme()
 	panel.Children(func() {
-		d.title = ui.Row(c)
-		d.desc = ui.Row(c)
-		body := ui.Column(c)
-		body.Children(func() {
-			if build != nil {
-				build(panel)
-			}
-		})
-		d.footer = ui.Row(c).Justify(ui.End).Gap(th.Space(2))
-		// The corner close icon, as shadcn's dialog and sheet.
-		close := ctrlpkg.NewIconAction(c, ctrlpkg.IconActionOptions{
-			SVG:      icons.X(),
-			Label:    Message(c, "close"),
-			IconSize: IconSizeSm,
-			OnClick: func() {
-				if open != nil {
-					*open = false
-				}
-			},
-		}).Absolute().Top(th.Space(4)).Right(th.Space(4))
-		d.close = close
+		if p.Title != "" {
+			ui.Text(c, p.Title).FontSize(TextSize(th, TextLg)).Bold()
+		}
+		if p.Description != "" {
+			ui.Text(c, p.Description).FontSize(TextSize(th, TextSm)).
+				TextColor(th.TextMuted)
+		}
+		if p.Body != nil {
+			ui.Column(c).Children(p.Body)
+		}
+		if p.Footer != nil {
+			ui.Row(c).Justify(ui.End).Gap(th.Space(2)).Children(p.Footer)
+		}
+		if p.ShowClose {
+			ctrlpkg.NewIconAction(c, ctrlpkg.IconActionOptions{
+				SVG:      icons.X(),
+				Label:    Message(c, "close"),
+				IconSize: IconSizeSm,
+				OnClick:  close,
+			}).Absolute().Top(th.Space(4)).Right(th.Space(4))
+		}
 	})
-	return d
-}
-
-// Title puts the bold heading in the panel and returns the parts.
-func (d *Parts) Title(s string) *Parts {
-	if d.title.Valid() {
-		d.title.Children(func() {
-			ui.Text(d.c, s).FontSize(TextSize(d.c.Theme(), TextLg)).Bold()
-		})
-	}
-	return d
-}
-
-// Description puts the muted line under the title and returns the parts.
-func (d *Parts) Description(s string) *Parts {
-	if d.desc.Valid() {
-		d.desc.Children(func() {
-			ui.Text(d.c, s).FontSize(TextSize(d.c.Theme(), TextSm)).
-				TextColor(d.c.Theme().TextMuted)
-		})
-	}
-	return d
-}
-
-// Footer builds the right-aligned action row at the foot of the panel.
-func (d *Parts) Footer(build func()) *Parts {
-	if d.footer.Valid() && build != nil {
-		d.footer.Children(build)
-	}
-	return d
-}
-
-// ShowClose shows or hides the corner close button.
-func (d *Parts) ShowClose(on bool) *Parts {
-	if d.close.Valid() {
-		d.close.Hidden(!on)
-	}
-	return d
 }

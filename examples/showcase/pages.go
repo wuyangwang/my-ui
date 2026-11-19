@@ -83,7 +83,7 @@ var pages = []page{
 	{key: "split-button", label: "SplitButton", icon: icons.ChevronsUpDown(), group: "控件", desc: "SplitButton 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).splitButtonPage},
 	{key: "toggle", label: "Toggle", icon: icons.ToggleRight(), group: "控件", desc: "Toggle 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).togglePage},
 	{key: "color-well", label: "ColorWell", icon: icons.Palette(), group: "控件", desc: "ColorWell 组件，包 mygo 并加 my-ui 外观。", build: (*showcase).colorWellPage},
-	{key: "alert-dialog", label: "AlertDialog", icon: icons.TriangleAlert(), group: "反馈", desc: "破坏性操作确认，结果走 OnResult。", build: (*showcase).alertDialogPage},
+	{key: "alert-dialog", label: "AlertDialog", icon: icons.TriangleAlert(), group: "反馈", desc: "破坏性操作确认，每个动作自带标签与回调。", build: (*showcase).alertDialogPage},
 	{key: "list", label: "List", icon: icons.List(), group: "版式", desc: "mygo 虚拟化列表 + my-ui 容器外观。", build: (*showcase).listPage},
 	{key: "outline", label: "Outline", icon: icons.ListTree(), group: "版式", desc: "大数据量层级视图，支持展开与选中。", build: (*showcase).outlinePage},
 	{key: "markdown", label: "Markdown", icon: icons.FileText(), group: "版式", desc: "完稿与流式 Markdown，主题映射。", build: (*showcase).markdownPage},

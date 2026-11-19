@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/egoist/mygo/ui"
 	myui "github.com/wuyangwang/my-ui"
 	ctrlpkg "github.com/wuyangwang/my-ui/controls"
@@ -17,8 +15,8 @@ type alertDialogDemo struct {
 }
 
 // alertDialogPage demonstrates an alert whose buttons are myui presets:
-// the last one is destructive and focused, and the result comes back
-// through OnResult.
+// each action carries its own label and behavior, so no index-to-label
+// mapping is left in the app.
 func (s *showcase) alertDialogPage(c *ui.Context, t *ui.Theme) {
 	holder := ui.Box(c.Key("alert-dialog-demo")).Hidden(true)
 	st := ui.Local(holder, "alert-dialog-demo", func() alertDialogDemo {
@@ -27,26 +25,21 @@ func (s *showcase) alertDialogPage(c *ui.Context, t *ui.Theme) {
 	if st == nil {
 		return
 	}
-	s.sectionNote(c, t, "AlertDialog", "包 mygo 的警告框契约；按钮走 myui 预设，最后一个为 Destructive，索引由 OnResult 交回", func() {
+	s.sectionNote(c, t, "AlertDialog", "包 mygo 的警告框契约；按钮走 myui 预设，每个动作自带标签与回调", func() {
 		s.card(c, t, func() {
 			trigger := ctrlpkg.NewButton(c, "删除项目").Destructive()
 			if trigger.Clicked() {
 				st.open = true
 			}
-			buttons := []string{"取消", "确认删除"}
-			overlaypkg.NewAlertDialog(c, &st.open, overlaypkg.AlertDialogOptions{
+			overlaypkg.NewAlertDialog(c, overlaypkg.AlertDialogOptions{
+				Open:    &st.open,
 				Title:   "删除这个项目？",
 				Message: "删除后无法恢复，请确认继续。",
-				Buttons: buttons,
-				OnResult: func(i int) {
-					if i == ui.AlertDismissed {
-						st.result = "已取消（Escape）"
-						return
-					}
-					if i >= 0 && i < len(buttons) {
-						st.result = fmt.Sprintf("按钮 %d：%s", i, buttons[i])
-					}
+				Actions: []overlaypkg.DialogAction{
+					{Label: "取消", OnClick: func() { st.result = "已取消" }},
+					{Label: "确认删除", Kind: myui.Destructive, OnClick: func() { st.result = "已删除" }},
 				},
+				OnDismiss: func() { st.result = "已取消（Escape）" },
 			})
 			ui.Row(c).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, "结果："+st.result).FontSize(myui.TextSize(t, myui.TextSm)).

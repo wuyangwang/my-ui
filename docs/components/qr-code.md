@@ -18,6 +18,7 @@ display.NewQRCode(c, "https://lobehub.com", display.QRCodeOptions{
 ## 行为
 
 - 编码为 QR Model 2、字节模式、纠错级别 L、版本 1–5（单块）。模块按最优的 8 种掩码之一绘制。
+- 值超出容量时不再静默空白：`Valid()` 返回 `false`，卡片用当帧主题的 `TextMuted` 显示错误文字（i18n 键 `qrTooLong`）。
 - `Color`/`Background` 为零时取当帧主题的正文墨色与背景；圆角取 `Radius(t, RadiusXl)`。
 - `Icon` 在中央留洞并画 logo；洞的大小约为边长的 22%。
 - `Status` 覆盖加载（旋转图标）或过期（文字与刷新按钮）状态；刷新调用 `OnRefresh`。
@@ -36,9 +37,12 @@ display.NewQRCode(c, "https://lobehub.com", display.QRCodeOptions{
 | `QRCodeOptions.Status` | `QRStatus` | `QRActive`/`QRLoading`/`QRExpired` |
 | `QRCodeOptions.OnRefresh` | `func()` | 过期时的刷新按钮回调 |
 | `QRCodeOptions.Label` | `string` | 无障碍名称，默认 `value` |
+| `NewQRCodeCard(c, value, o)` | `*QRCode` | 构造并返回带有效性报告的句柄（嵌入 `ui.Element`） |
+| `(*QRCode).Valid()` | `bool` | 值是否编码成功；`false` 时卡片显示错误提示 |
 
 ## 限制
 
 - 不支持 Lobe 的纠错级别 L/M/Q/H 切换：本实现固定为级别 L，图标留洞会削弱纠错能力而非自动提升到 H。
-- 只支持版本 1–5（约 100 字节以内的 UTF-8 值）；更长的值返回空矩阵，卡片显示为空。
+- 只支持版本 1–5（约 100 字节以内的 UTF-8 值）。超过上限时 `qrEncode` 返回空矩阵，`Valid()` 为 `false`，卡片不再空白，而是用主题静色显示「内容过长，无法生成二维码」（i18n 键 `qrTooLong`，en/zh-Hans/zh-Hant 三语齐全）。
+- `NewQRCode` 保持返回 `ui.Element`（`bind/` 依赖此签名）；需要读 `Valid()` 时用 `NewQRCodeCard`。
 - 加载状态只显示静态图标，不做旋转动画（无计时器）。

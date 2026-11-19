@@ -1,11 +1,11 @@
 package overlays
 
 import (
-	. "github.com/wuyangwang/my-ui"
-	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"time"
 
 	"github.com/egoist/mygo/ui"
+	. "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"github.com/wuyangwang/my-ui/icons"
 )
 
@@ -17,7 +17,8 @@ import (
 // The viewport is styled by the library, as shadcn's: the toasts stack
 // in the bottom right corner of the window, as cards. It takes the place
 // of the theme's own look of the toasts, so call it once in the view,
-// wherever.
+// wherever. NewNotifier.Build installs the same viewport for apps that
+// use the Notifier API.
 type ToastViewport struct {
 	ui.Element
 }
@@ -39,7 +40,6 @@ type ViewportOption func(*viewportConfig)
 
 type viewportConfig struct {
 	position ToastPosition
-	fadeIn   bool
 }
 
 // ViewportPosition sets the corner the toasts stack at.
@@ -47,51 +47,51 @@ func ViewportPosition(p ToastPosition) ViewportOption {
 	return func(cfg *viewportConfig) { cfg.position = p }
 }
 
-// ViewportFadeIn fades a toast in when it appears. On by default.
-func ViewportFadeIn(on bool) ViewportOption {
-	return func(cfg *viewportConfig) { cfg.fadeIn = on }
-}
-
 // NewToastViewport builds the window's toasts with the library's look.
 // Call it once in the view, wherever. Without options the toasts stack in
 // the bottom right corner, as in shadcn's.
 func NewToastViewport(c *ui.Context, opts ...ViewportOption) *ToastViewport {
-	cfg := &viewportConfig{fadeIn: true}
+	var cfg viewportConfig
 	for _, o := range opts {
 		if o != nil {
-			o(cfg)
+			o(&cfg)
 		}
 	}
 	v := &ToastViewport{}
 	v.Element = ui.ToastViewportBase(c, func(viewport ui.Element, toasts []ui.Toast) {
-		th := c.Theme()
-		// The viewport column runs top-to-bottom; justify picks the
-		// vertical edge and AlignItems the horizontal one.
-		switch cfg.position {
-		case ToastTopRight, ToastTopLeft, ToastTopCenter:
-			viewport.Justify(ui.Start)
-		default:
-			viewport.Justify(ui.End)
-		}
-		switch cfg.position {
-		case ToastBottomLeft, ToastTopLeft:
-			viewport.AlignItems(ui.Start)
-		case ToastBottomCenter, ToastTopCenter:
-			viewport.AlignItems(ui.Center)
-		default:
-			viewport.AlignItems(ui.End)
-		}
-		viewport.Padding(th.Space(4)).Gap(th.Space(2))
-		for _, t := range toasts {
-			toastCard(c, t, cfg.fadeIn)
-		}
+		buildToastViewport(c, viewport, toasts, cfg)
 	})
 	return v
 }
 
+// buildToastViewport styles the viewport and builds the toasts in it.
+func buildToastViewport(c *ui.Context, viewport ui.Element, toasts []ui.Toast, cfg viewportConfig) {
+	th := c.Theme()
+	// The viewport column runs top-to-bottom; justify picks the
+	// vertical edge and AlignItems the horizontal one.
+	switch cfg.position {
+	case ToastTopRight, ToastTopLeft, ToastTopCenter:
+		viewport.Justify(ui.Start)
+	default:
+		viewport.Justify(ui.End)
+	}
+	switch cfg.position {
+	case ToastBottomLeft, ToastTopLeft:
+		viewport.AlignItems(ui.Start)
+	case ToastBottomCenter, ToastTopCenter:
+		viewport.AlignItems(ui.Center)
+	default:
+		viewport.AlignItems(ui.End)
+	}
+	viewport.Padding(th.Space(4)).Gap(th.Space(2))
+	for _, t := range toasts {
+		toastCard(c, t)
+	}
+}
+
 // toastCard builds one toast as a card: the icon of its kind, the title
 // and the description, the action and the close button.
-func toastCard(c *ui.Context, t ui.Toast, fadeIn bool) {
+func toastCard(c *ui.Context, t ui.Toast) {
 	th := c.Theme()
 	parts := ui.ToastBase(c, t)
 	card := parts.Root.Row().AlignItems(ui.Center).Gap(th.Space(3)).
@@ -100,12 +100,16 @@ func toastCard(c *ui.Context, t ui.Toast, fadeIn bool) {
 		Shadow(0, 8, 24, 0, ui.RGBA(0, 0, 0, 0.18)).
 		MaxWidth(th.Space(80)).
 		Transition(StateTransition())
-	// The toast fades in as it appears, then fades as its time runs out.
-	// Both fades take the normal motion token, as every transition here.
-	opacity := float32(1)
-	if fadeIn {
-		opacity = card.AnimateTo("toast-in", 1, ui.Animation{Duration: MotionNormal, NonMotion: true})
+	// A new toast fades in over the normal motion token. A Jump seeds
+	// the channel at zero on the toast's first frame; AnimateTo then
+	// carries it to one, and keeps going while Reduce Motion asks for a
+	// fade. The last stretch fades out as the toast's time runs out.
+	first := ui.Local(card, "toast-in-first", func() bool { return true })
+	if *first {
+		card.Jump("toast-in", 0)
+		*first = false
 	}
+	opacity := card.AnimateTo("toast-in", 1, ui.Animation{Duration: MotionNormal, NonMotion: true})
 	if left := parts.Left(); left > 0 && left < MotionNormal {
 		opacity *= float32(left) / float32(MotionNormal)
 		c.AnimationFrame()
@@ -115,7 +119,8 @@ func toastCard(c *ui.Context, t ui.Toast, fadeIn bool) {
 	}
 	card.Children(func() {
 		if svg := toastIcon(t.Type); svg != nil {
-			ctrlpkg.NewIcon(c, svg).Variant(toastVariant(t.Type)).Size(SizeSm)
+			ctrlpkg.NewIcon(c, svg).Size(SizeSm).
+				TextColor(toastSemanticColor(th, t.Type))
 		}
 		ui.Column(c).Grow(1).Gap(th.Space(1)).Children(func() {
 			ui.Text(c, t.Title).Bold()
@@ -133,13 +138,81 @@ func toastCard(c *ui.Context, t ui.Toast, fadeIn bool) {
 	})
 }
 
+// ToastOptions is one toast shown through a Notifier. The kind picks the
+// icon and its semantic color; the rest maps to mygo's toast fields.
+type ToastOptions struct {
+	// Title is the message, also announced to screen readers.
+	Title string
+	// Description is the secondary line under the title.
+	Description string
+	// Kind picks the icon and color: Success, Info, Warning or
+	// Destructive (an error). The zero value has no icon.
+	Kind Variant
+	// Duration is how long the toast shows: four seconds by default,
+	// until closed when negative.
+	Duration time.Duration
+	// ActionLabel puts a button in the toast, as Undo after deleting.
+	ActionLabel string
+	// OnAction runs when the action button is pressed and closes the
+	// toast.
+	OnAction func()
+	// OnClose runs as the toast closes: by time, the user, its action or
+	// Notifier.Close.
+	OnClose func()
+}
+
+// Notifier shows toasts through a stable handle. Keep one on the app's
+// state and call Show from a click handler: the handler captures the
+// notifier, not the per-view context. Build installs the styled viewport
+// once in the root view.
+//
+//	s.notifier = overlays.NewNotifier(c)
+//	s.notifier.Build()
+//	// later, in a click handler:
+//	s.notifier.Show(overlays.ToastOptions{Title: "已保存", Kind: myui.Success})
+type Notifier struct {
+	c *ui.Context
+}
+
+// NewNotifier creates a handle that shows toasts on the window of c.
+// Context is the window's stable handle, so keeping it here is safe.
+func NewNotifier(c *ui.Context) *Notifier {
+	return &Notifier{c: c}
+}
+
+// Show adds the toast o and returns its ID, to pass to Close. mygo's
+// AddToast announces the title and description to screen readers.
+func (n *Notifier) Show(o ToastOptions) string {
+	return n.c.AddToast(ui.Toast{
+		Title:       o.Title,
+		Description: o.Description,
+		Type:        toastType(o.Kind),
+		Timeout:     o.Duration,
+		Action:      o.ActionLabel,
+		OnAction:    o.OnAction,
+		OnClose:     o.OnClose,
+	})
+}
+
+// Close closes the toast with id, or every toast when id is empty.
+func (n *Notifier) Close(id string) {
+	n.c.CloseToast(id)
+}
+
+// Build installs the styled viewport. Call it in the root view, once per
+// frame as the view is built, so the toasts the app shows have a place to
+// appear. It replaces the theme's own look of toasts.
+func (n *Notifier) Build() {
+	ui.ToastViewportBase(n.c, func(viewport ui.Element, toasts []ui.Toast) {
+		buildToastViewport(n.c, viewport, toasts, viewportConfig{})
+	})
+}
+
 // Toast is a message that shows near the corner of the window, for a
-// few seconds, as the outcome of what the user just did.
+// few seconds, as the outcome of what the user just did. It is the
+// fluent form; Notifier is the handle apps should keep for click handlers.
 //
 //	overlays.NewToast(c, "已保存").Success().Show()
-//
-// The window needs a viewport for the toasts: overlays.NewToastViewport(c),
-// once in the view.
 type Toast struct {
 	c *ui.Context
 	t ui.Toast
@@ -157,8 +230,7 @@ func (t *Toast) Description(s string) *Toast {
 }
 
 // Variant tells what kind of toast it is, which picks its icon and its
-// color: Success, Info, Warning or Destructive, which is an error. It is
-// the shared word for the toast's kind, as on the other components.
+// color: Success, Info, Warning or Destructive, which is an error.
 func (t *Toast) Variant(v Variant) *Toast {
 	if kind := toastType(v); kind != "" {
 		t.t.Type = kind
@@ -229,19 +301,21 @@ func toastType(v Variant) string {
 	return ""
 }
 
-// toastVariant is the variant a kind of toast takes its color from.
-func toastVariant(kind string) Variant {
+// toastSemanticColor is the theme's color of a toast kind. Success,
+// info and warning come from the semantic tokens; an error uses the
+// theme's danger color. All are read from the theme of this frame.
+func toastSemanticColor(th *ui.Theme, kind string) ui.Color {
 	switch kind {
 	case "success":
-		return Success
+		return SemanticColor(th, SemanticSuccess)
 	case "info":
-		return Info
+		return SemanticColor(th, SemanticInfo)
 	case "warning":
-		return Warning
+		return SemanticColor(th, SemanticWarning)
 	case "error":
-		return Destructive
+		return th.Danger
 	}
-	return Default
+	return th.TextMuted
 }
 
 // toastIcon is the icon of a kind of toast.

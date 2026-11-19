@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/egoist/mygo/ui"
 	displaypkg "github.com/wuyangwang/my-ui/display"
 )
@@ -30,6 +33,15 @@ func (s *showcase) qrCodePage(c *ui.Context, t *ui.Theme) {
 					OnRefresh: func() { s.lastAction = "QR refreshed" },
 				})
 			})
+		})
+	})
+	s.sectionNote(c, t, "过长的值", "超出版本 1–5 容量时显示错误，不再空白", func() {
+		s.card(c, t, func() {
+			long := "https://example.com/" + strings.Repeat("a", 160)
+			// NewQRCodeCard 多返回一个 Valid()，app 可据此决定是否换一个短值。
+			q := displaypkg.NewQRCodeCard(c, long, displaypkg.QRCodeOptions{Size: 120})
+			ui.Text(c, "可编码："+fmt.Sprint(q.Valid())).FontSize(c.Theme().FontSize).
+				TextColor(t.TextMuted)
 		})
 	})
 }

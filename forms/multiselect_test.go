@@ -124,3 +124,50 @@ func TestMultiSelectMaxAddsOncePerClick(t *testing.T) {
 		t.Errorf("one add click reported %d changes, want 1", changes)
 	}
 }
+
+// TestMultiSelectMaxEnforcesTheLimit checks that Max(2) really caps the
+// field: a third item typed and submitted with Enter, and a comma-separated
+// batch, are both refused, while the two chosen tokens stay put.
+func TestMultiSelectMaxEnforcesTheLimit(t *testing.T) {
+	var tokens []string
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		NewMultiSelect(c, &tokens, []SelectOption{
+			{Label: "Alpha", Value: "a"},
+			{Label: "Beta", Value: "b"},
+			{Label: "Gamma", Value: "g"},
+		}).Outline().Label("选择").Max(2)
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	tt.Advance(time.Second)
+
+	add := func(text string) {
+		if err := tt.Click("选择"); err != nil {
+			t.Fatal(err)
+		}
+		tt.Type(text)
+		tt.Advance(time.Second)
+		tt.KeyDown(ui.KeyEnter)
+		tt.KeyUp(ui.KeyEnter)
+		tt.Advance(time.Second)
+		tt.Advance(time.Second)
+	}
+
+	add("Alpha")
+	add("Beta")
+	if len(tokens) != 2 || tokens[0] != "Alpha" || tokens[1] != "Beta" {
+		t.Fatalf("after two adds the field holds %v, want [Alpha Beta]", tokens)
+	}
+	add("Gamma")
+	add("Delta,Epsilon") // the comma path must be capped too
+	if len(tokens) != 2 {
+		t.Fatalf("Max(2) left %v, want the two original tokens", tokens)
+	}
+	for _, v := range tokens {
+		if v != "Alpha" && v != "Beta" {
+			t.Errorf("a value past the limit was added: %v", tokens)
+			break
+		}
+	}
+}

@@ -1,24 +1,37 @@
 package overlays
 
 import (
-	. "github.com/wuyangwang/my-ui"
-	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 	"testing"
 	"time"
 
 	"github.com/egoist/mygo/ui"
+	. "github.com/wuyangwang/my-ui"
+	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 )
+
+func drawerFixture(open *bool, onOpenChange func(bool)) func(*ui.Context) {
+	return func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		NewDrawer(c, DrawerOptions{
+			Open:         open,
+			Side:         DrawerRight,
+			OnOpenChange: onOpenChange,
+			Trigger: func() ui.Element {
+				return ctrlpkg.NewButton(c, "设置").Element
+			},
+			Body: func() {
+				ui.Column(c).Gap(c.Theme().Space(3)).Children(func() {
+					ui.Text(c, "面板里的内容")
+					ctrlpkg.NewButton(c, "面板里的按钮").Outline()
+				})
+			},
+		})
+	}
+}
 
 func TestDrawerOpensOverTheEdgeOfTheWindow(t *testing.T) {
 	open := false
-	view := func(c *ui.Context) {
-		Apply(c, Options{Appearance: AppearanceLight})
-		NewDrawer(c, &open, DrawerRight, func() ui.Element {
-			return ctrlpkg.NewButton(c, "设置").Element
-		}, func(panel ui.Element) {
-			ui.Text(c, "面板里的内容")
-		})
-	}
+	view := drawerFixture(&open, nil)
 	tt := ui.NewTester(view, 640, 400)
 	tt.Advance(time.Second)
 	if _, ok := tt.Find("面板里的内容"); ok {
@@ -42,15 +55,7 @@ func TestDrawerOpensOverTheEdgeOfTheWindow(t *testing.T) {
 
 func TestDrawerClosesWithItsButton(t *testing.T) {
 	open := false
-	view := func(c *ui.Context) {
-		Apply(c, Options{Appearance: AppearanceLight})
-		NewDrawer(c, &open, DrawerRight, func() ui.Element {
-			return ctrlpkg.NewButton(c, "设置").Element
-		}, func(panel ui.Element) {
-			ui.Text(c, "面板里的内容")
-		})
-	}
-	tt := ui.NewTester(view, 320, 240)
+	tt := ui.NewTester(drawerFixture(&open, nil), 320, 240)
 	tt.Advance(time.Second)
 	if err := tt.Click("设置"); err != nil {
 		t.Fatal(err)
@@ -73,15 +78,7 @@ func TestDrawerClosesWithItsButton(t *testing.T) {
 
 func TestDrawerClosesWhenThePointerClicksOutside(t *testing.T) {
 	open := false
-	view := func(c *ui.Context) {
-		Apply(c, Options{Appearance: AppearanceLight})
-		NewDrawer(c, &open, DrawerRight, func() ui.Element {
-			return ctrlpkg.NewButton(c, "设置").Element
-		}, func(panel ui.Element) {
-			ui.Text(c, "面板里的内容")
-		})
-	}
-	tt := ui.NewTester(view, 320, 240)
+	tt := ui.NewTester(drawerFixture(&open, nil), 320, 240)
 	tt.Advance(time.Second)
 	if err := tt.Click("设置"); err != nil {
 		t.Fatal(err)
@@ -95,5 +92,48 @@ func TestDrawerClosesWhenThePointerClicksOutside(t *testing.T) {
 	tt.Advance(time.Second)
 	if _, ok := tt.Find("面板里的内容"); ok {
 		t.Error("the panel is still on screen after a click outside it")
+	}
+}
+
+// TestDrawerFluentTitleAndFooterShowWhenOpened is the regression for the
+// old early return: Title and Footer set while closed must show up when
+// the drawer opens, not silently do nothing.
+func TestDrawerFluentTitleAndFooterShowWhenOpened(t *testing.T) {
+	open := false
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		NewDrawer(c, DrawerOptions{
+			Open: &open,
+			Trigger: func() ui.Element {
+				return ctrlpkg.NewButton(c, "设置").Element
+			},
+			Body: func() { ui.Text(c, "面板里的内容") },
+		}).Title("抽屉标题").Footer(func() { ui.Text(c, "抽屉页脚") })
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	if err := tt.Click("设置"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if _, ok := tt.Find("抽屉标题"); !ok {
+		t.Error("the fluent title did not show when the drawer opened")
+	}
+	if _, ok := tt.Find("抽屉页脚"); !ok {
+		t.Error("the fluent footer did not show when the drawer opened")
+	}
+}
+
+func TestDrawerReportsOpenChanges(t *testing.T) {
+	open := false
+	var changes []bool
+	tt := ui.NewTester(drawerFixture(&open, func(v bool) { changes = append(changes, v) }), 320, 240)
+	tt.Advance(time.Second)
+	if err := tt.Click("设置"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	if len(changes) == 0 || !changes[len(changes)-1] {
+		t.Errorf("OnOpenChange got %v, want a final true", changes)
 	}
 }

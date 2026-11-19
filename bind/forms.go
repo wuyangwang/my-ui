@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
+	myui "github.com/wuyangwang/my-ui"
 	formspkg "github.com/wuyangwang/my-ui/forms"
 )
 
@@ -42,9 +43,15 @@ func (u UI) AutoComplete(value *string, suggestions []string) *formspkg.AutoComp
 	return formspkg.NewAutoComplete(u.c, value, suggestions)
 }
 
-// Field builds a labelled container for a control made by build.
-func (u UI) Field(label string, build func() ui.Element) *formspkg.Field {
-	return formspkg.NewField(u.c, label, build)
+// Field builds a labelled field around the control made by build. It is
+// the string-valued shim of forms.NewField[string]: a Go method cannot
+// have type parameters, so this method only covers fields whose value is
+// a *string. For a field of another value type call forms.NewField[T]
+// directly. The value is given once — as value, or as o.Value — and the
+// rules and timing travel in o; there is no second Validate call, and
+// build may return the widget itself (the field finds its Control()).
+func (u UI) Field(label string, value *string, build func() any, o formspkg.FieldOptions[string]) *formspkg.Field[string] {
+	return formspkg.NewField[string](u.c, label, value, build, o)
 }
 
 // DecimalInput builds a number field editing *value with string bounds.
@@ -82,7 +89,24 @@ func (u UI) DatePicker(date *time.Time) *formspkg.DatePicker {
 	return formspkg.NewDatePicker(u.c, date)
 }
 
+// OTP builds a one-time-code field configured by o, editing *value.
+func (u UI) OTP(value *string, o formspkg.OTPOptions) *formspkg.InputOTP {
+	return formspkg.NewOTP(u.c, value, o)
+}
+
+// Form builds a themed form; fn builds its fields.
+func (u UI) Form(fn func()) ui.Element {
+	return formspkg.NewForm(u.c, fn)
+}
+
+// FormWith builds a themed form with a shared Variant preset; fn builds its
+// fields.
+func (u UI) FormWith(variant myui.Variant, fn func()) ui.Element {
+	return formspkg.NewFormWith(u.c, variant, fn)
+}
+
 // Frame is not offered as a method: forms.NewFrame[T] is generic, and Go
 // methods cannot have type parameters. The T is the widget whose fluent
 // chain the frame returns, so a concrete instance would not be useful.
 // Call forms.NewFrame[T] directly when building a custom field wrapper.
+// The same goes for forms.NewImageSelect[T]; call it directly.

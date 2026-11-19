@@ -35,8 +35,9 @@ func TestComboBoxChosenPersistsAcrossFrames(t *testing.T) {
 	var seen []string
 	view := func(c *ui.Context) {
 		Apply(c, Options{})
-		box := formspkg.NewComboBox(c, &text, []formspkg.SelectOption{
-			{Label: "Alpha", Value: "a"}, {Label: "Beta", Value: "b"},
+		box := formspkg.NewComboBox(c, formspkg.ComboOptions{
+			Text:    &text,
+			Options: []formspkg.SelectOption{{Label: "Alpha", Value: "a"}, {Label: "Beta", Value: "b"}},
 		}).Label("选择")
 		// Read Chosen every frame, as an app does. It must not go blank
 		// on a frame with no input after a choice was made.

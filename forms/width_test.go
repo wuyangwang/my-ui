@@ -43,7 +43,7 @@ func TestFieldsFillByDefaultAndWidthOverrides(t *testing.T) {
 			return f.Element
 		}},
 		{"combobox", func(c *ui.Context, fixed bool) ui.Element {
-			f := NewComboBox(c, new(string), []SelectOption{{Value: "a", Label: "A"}})
+			f := NewComboBox(c, ComboOptions{Options: []SelectOption{{Value: "a", Label: "A"}}})
 			if fixed {
 				f.Width(170)
 			}

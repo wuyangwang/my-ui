@@ -11,12 +11,14 @@ import (
 func TestHoverCardOpensOnHoverAndClosesAfterTheGrace(t *testing.T) {
 	open := false
 	view := func(c *ui.Context) {
-		NewHoverCard(c, &open, func() ui.Element {
-			return ctrlpkg.NewButton(c, "悬停我").Element
-		}, func(panel ui.Element) {
-			// The panel's parent is the overlay layer, so its content
-			// goes into the panel's children.
-			panel.Children(func() { ui.Text(c, "卡片内容") })
+		NewHoverCard(c, HoverCardOptions{
+			Open: &open,
+			Trigger: func() ui.Element {
+				return ctrlpkg.NewButton(c, "悬停我").Element
+			},
+			// The library wraps Body in panel.Children, so the content
+			// lands in the overlay's panel without any help from us.
+			Body: func() { ui.Text(c, "卡片内容") },
 		})
 	}
 	tt := ui.NewTester(view, 320, 240)
@@ -43,5 +45,32 @@ func TestHoverCardOpensOnHoverAndClosesAfterTheGrace(t *testing.T) {
 	}
 	if open {
 		t.Error("the card stayed open after the pointer left")
+	}
+}
+
+func TestHoverCardReportsOpenChanges(t *testing.T) {
+	open := false
+	var changes []bool
+	view := func(c *ui.Context) {
+		card := NewHoverCard(c, HoverCardOptions{
+			Open: &open,
+			Trigger: func() ui.Element {
+				return ctrlpkg.NewButton(c, "悬停我").Element
+			},
+			Body: func() { ui.Text(c, "卡片内容") },
+		})
+		card.OnOpenChange(func(v bool) { changes = append(changes, v) })
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	anchor, ok := tt.Access("悬停我")
+	if !ok {
+		t.Fatal("the trigger is missing")
+	}
+	tt.Move(anchor.Bounds.X+anchor.Bounds.W/2, anchor.Bounds.Y+anchor.Bounds.H/2)
+	tt.Advance(time.Second)
+	tt.Advance(time.Second)
+	if len(changes) == 0 || !changes[len(changes)-1] {
+		t.Errorf("OnOpenChange got %v, want a final true", changes)
 	}
 }

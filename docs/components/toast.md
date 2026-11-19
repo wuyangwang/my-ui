@@ -8,75 +8,95 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| [shadcn/ui Toast](https://ui.shadcn.com/docs/components/toast)（源码 `ui/toast.tsx`，底层 sonner） | `ToastProvider`（视口：`position="bottom-right"`、`duration`、`closeButton`）· `Toast`（卡片）· `ToastTitle`/`ToastDescription`/`ToastAction`/`ToastClose` · 类型（success/error/warning/info） | 视口在**右下角** ✓（框架的视口是底部居中，我们自己摆 ✓）；卡片 + 标题/描述/动作/关闭 ✓；类型给图标与颜色 ✓ |
-| mygo 的 `ui.ToastViewportBase(c, fn)` / `ui.ToastBase(c, t)` / `c.AddToast` / `c.CloseToast` | 视口由 app 建 ✓（我们的视口**取代**主题自带的观感 ✓）；toast 的字段（`Title`/`Description`/`Type`/`Timeout`/`Action`/`OnAction`/`OnClose`/`Data`）✓；最多三条 ✓；指针停在上面时时间停住 ✓；框架自带淡入淡出 ✗（自定义视口后没有 ✗） | 字段一一对应 ✓；我们的视口自己画 ✓；淡出自己补 ✓ |
-| [Element Plus el-message](https://element-plus.org/en-US/component/message.html) | `type`（info/success/warning/error）、`duration`、`showClose`、`icon`、`customClass`、`offset` | 类型给图标与颜色 ✓；停留时间 ✓；关闭按钮 ✓ |
+| [shadcn/ui Toast](https://ui.shadcn.com/docs/components/toast)（底层 sonner） | `ToastProvider`（`position`/`duration`/`closeButton`）· `Toast`（卡片）· `ToastTitle`/`ToastDescription`/`ToastAction`/`ToastClose` · 四类 type | 视口 ✓（默认右下角，可改）✓；卡片 + 标题/描述/动作/关闭 ✓；类型给图标与语义色 ✓ |
+| mygo 的 `ui.ToastViewportBase` / `ui.ToastBase` / `c.AddToast` / `c.CloseToast` | 视口由 app 建并取代主题观感 ✓；字段一一对应 ✓；最多三条 ✓；指针停在上面时时间停住 ✓；`AddToast` 自己念出标题与描述 ✓ | 字段对应 ✓；`Notifier.Show` 直接走 `AddToast` ✓ |
+| [Element Plus el-message](https://element-plus.org/en-US/component/message.html) | `type`、`duration`、`showClose`、`icon`、`offset` | 类型 ✓；停留时间 ✓；关闭按钮 ✓ |
 
-## 2. 能否实现（mygo v0.8.3 公开 API）
+## 2. 能否实现（mygo v0.10.0 公开 API）
 
 | 能力 | 公开 API | 结论 |
 |---|---|---|
-| 显示一条通知 | `Context.AddToast(ui.Toast) string` ✓ | ✅ |
-| 关掉一条 | `Context.CloseToast(id)` ✓ | ✅ |
-| 自己画视口 | `ui.ToastViewportBase(c, fn func(viewport Element, toasts []Toast)) Element` ✓ | ✅ |
-| 自己画一条 | `ui.ToastBase(c, t) ToastParts`（`Root`/`ActionButton()`/`CloseButton()`/`Left()`）✓ | ✅ |
-| 停留时间 | `Toast.Timeout` ✓；超时自动关 ✓ | ✅ |
-| 动作按钮 | `Toast.Action` + `OnAction` ✓（框架代为关掉 ✓） | ✅ |
-| 淡入淡出 | 框架的淡入淡出只在自己的观感里 ✗；`ToastParts.Left()` 给出还剩多久 ✓（淡出可做 ✓，淡入做不了 ✗） | ⚠️ 半 |
+| 显示/关闭一条 | `Context.AddToast(ui.Toast) string` / `Context.CloseToast(id)` ✓ | ✅ |
+| 自绘视口/单条 | `ui.ToastViewportBase(c, fn)` / `ui.ToastBase(c, t)` ✓ | ✅ |
+| 停留时间/动作 | `Toast.Timeout` / `Toast.Action`+`OnAction` ✓ | ✅ |
+| 淡入淡出 | `Element.Jump`+`AnimateTo` 给淡入 ✓；`ToastParts.Left()` 给剩余时间，自己算淡出 ✓ | ✅（旧文档说「淡入做不了」已过时） |
+| 稳定句柄 | `Context` 是窗口的稳定句柄，`Notifier` 存它即可 ✓ | ✅ |
 
 ## 3. 实现到何种程度
 
 **已实现**
-- `overlaypkg.NewToastViewport(c)`：窗口的 toast 视口，**每帧在视图里调一次** ✓；它取代主题自带的观感 ✓。toast 停在**右下角** ✓（shadcn 的位置 ✓），卡片：surface 底 + 描边 + 圆角 + 内衬 + 阴影 ✓。
-- `overlaypkg.NewToast(c, "已保存")` → `.Description(...)`/`.Success()`/`.Info()`/`.Warning()`/`.Destructive()`/`.Timeout(...)`/`.Action("撤销", fn)`/`.ID(...)`/`.OnClose(...)` → `.Show()` 返回 id ✓。
-- 每种类型一个图标与颜色（success/info/warning/error）✓；标题加粗、描述弱一些 ✓；动作按钮 ✓；关闭按钮（无障碍名「关闭」）✓；时间将尽时淡出 ✓。
+- `Notifier`（`NewNotifier(c)`）：`Show(ToastOptions) string` 包装 `c.AddToast`，`Close(id)` 包装 `c.CloseToast`，`Build()` 装自绘视口 ✓。
+- app 把 `*Notifier` 存在自己状态里，**点击处理器只捕获 notifier，不捕获每帧的 `*ui.Context`**；`Build()` 在根视图调一次 ✓。
+- `ToastOptions`：`Title`/`Description`/`Kind`/`Duration`/`ActionLabel`/`OnAction`/`OnClose` ✓。
+- **类型→语义色映射**（`toastSemanticColor`）：success/info/warning 走根包 `SemanticColor(t, …)`，error 走 `t.Danger`，每帧从 `c.Theme()` 取 ✓。
+- 淡入：新 toast 首帧 `Jump` 到 0，再 `AnimateTo` 到 1（走 `MotionNormal`、`NonMotion`，尊重 Reduce Motion）✓；剩余时间不足一 token 时淡出 ✓。
+- `ToastViewport` 的位置可由 `ViewportPosition` 改 ✓；保留 `NewToast`/`NewToastViewport` 作为链式小封装 ✓。
 
 **已知限制**
-- 淡入没有 ✗（框架的淡入只在自己的观感里 ✗；`ToastParts` 只给出「还剩多久」，没有「已经过了多久」 ✗）。
-- 视口固定在右下角 ✗（框架的视口是一个铺满窗口的列，位置由 app 摆 ✓，但我们的摆法写死 ✓）。
-- 一次最多三条 ✓（框架的限制 ✓）；堆叠不做动画位移 ✗。
-- toast 的内容只能是标题、描述、动作与关闭 ✗（框架的部件就这些 ✓）。
+- 一次最多三条（框架限制 ✓）；堆叠不做位移动画 ✗。
+- toast 内容只能是标题、描述、动作与关闭（框架部件就这些 ✓）。
 
 ## 4. 项目结构是否合理
 
-- 位置：根包 L3——toast 是「窗口上的一层反馈」✓。
-- 依赖：只用 `mygo/ui` + `icons/` ✓。
+- 位置：`overlays/` 子包——toast 是「窗口上的一层反馈」✓。
+- 依赖：`mygo/ui` + `icons/` + `controls/` ✓。
 
 ## 5. API 契约
 
 ```go
-// NewToastViewport builds the window's toasts with the library's look.
-func NewToastViewport(c *ui.Context) *ToastViewport
+type ToastOptions struct {
+    Title       string        // 标题，读屏念出
+    Description string        // 描述
+    Kind        Variant       // Success/Info/Warning/Destructive
+    Duration    time.Duration // 0=默认 4s；负数=直到关闭
+    ActionLabel string        // 动作按钮文案
+    OnAction    func()        // 动作回调，随后关闭
+    OnClose     func()        // 关闭回调
+}
+type Notifier struct{ /* 持有窗口的稳定 Context */ }
+func NewNotifier(c *ui.Context) *Notifier
+func (n *Notifier) Show(o ToastOptions) string
+func (n *Notifier) Close(id string)
+func (n *Notifier) Build()                 // 根视图每帧调一次
 
-// NewToast creates a toast with a title, to show with Show.
+// 旧链式 API（内部仍用）：
+func NewToastViewport(c *ui.Context, opts ...ViewportOption) *ToastViewport
+func ViewportPosition(p ToastPosition) ViewportOption
 func NewToast(c *ui.Context, title string) *Toast
-
-func (t *Toast) Description(s string) *Toast
-func (t *Toast) Type(v Variant) *Toast
-func (t *Toast) Success() *Toast
-func (t *Toast) Info() *Toast
-func (t *Toast) Warning() *Toast
-func (t *Toast) Destructive() *Toast
-func (t *Toast) Timeout(d time.Duration) *Toast
-func (t *Toast) Action(label string, fn func()) *Toast
-func (t *Toast) ID(s string) *Toast
-func (t *Toast) OnClose(fn func()) *Toast
+func (t *Toast) Description/Variant/Success/Info/Warning/Destructive/Timeout/Action/ID/OnClose ...
 func (t *Toast) Show() string
 ```
+
+| 属性（方法/字段） | 类型 | 作用 |
+|---|---|---|
+| `Title` | `string` | 消息标题，由 `AddToast` 念出 |
+| `Description` | `string` | 标题下的描述 |
+| `Kind` | `Variant` | 决定图标与语义色（success/info/warning/error） |
+| `Duration` | `time.Duration` | 停留时间；0 为 4 秒，负数为不自动关 |
+| `ActionLabel` / `OnAction` | `string` / `func()` | 动作按钮；按下后回调并关闭 |
+| `OnClose` | `func()` | 关闭时回调 |
+| `Show(ToastOptions) string` | 方法 | 显示 toast，返回 id |
+| `Close(id string)` | 方法 | 关掉 id（空串关全部） |
+| `Build()` | 方法 | 在根视图装自绘视口 |
+| `ViewportPosition` | 选项 | 改堆叠角落；默认右下 |
 
 用法：
 
 ```go
-// 视图里，每帧一次：
-overlaypkg.NewToastViewport(c)
+// 视图里：建一次句柄，每帧 Build：
+if s.notifier == nil { s.notifier = overlaypkg.NewNotifier(c) }
+s.notifier.Build()
 
-// 动作里：
-overlaypkg.NewToast(c, "已保存").Description("改动已经写入。").Success().Show()
+// 动作里（只捕获 notifier）：
+s.notifier.Show(overlaypkg.ToastOptions{
+    Title: "已保存", Kind: myui.Success, ActionLabel: "撤销",
+    OnAction: func() { s.undo() },
+})
 ```
 
 ## 6. 状态
 
 - [x] 调研与可行性结论（本文）
 - [x] 实现（`toast.go`）
-- [x] 测试（标题与描述 ✓、关闭按钮 ✓、动作 ✓、超时自走 ✓、视口取代主题观感 ✓）
-- [ ] 淡入、堆叠动画（后置 ✗）
+- [x] 测试（标题/描述 ✓、关闭按钮 ✓、动作 ✓、超时自走 ✓、`Notifier.Show` 不捕获 context ✓、`Notifier.Close` ✓）
+- [ ] 堆叠位移动画（后置 ✗）

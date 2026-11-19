@@ -8,31 +8,38 @@ import (
 	ctrlpkg "github.com/wuyangwang/my-ui/controls"
 )
 
-func alertDialogFixture(open *bool, results *[]int, appearance Appearance) func(*ui.Context) {
+func alertDialogFixture(open *bool, result *string, appearance Appearance) func(*ui.Context) {
 	return func(c *ui.Context) {
 		Apply(c, Options{Appearance: appearance})
-		NewAlertDialog(c, open, AlertDialogOptions{
-			Title:    "删除项目？",
-			Message:  "此操作不能撤销。",
-			Buttons:  []string{"取消", "确认删除"},
-			OnResult: func(i int) { *results = append(*results, i) },
+		NewAlertDialog(c, AlertDialogOptions{
+			Open:    open,
+			Title:   "删除项目？",
+			Message: "此操作不能撤销。",
+			Actions: []DialogAction{
+				{Label: "取消", OnClick: func() { *result = "cancelled" }},
+				{Label: "确认删除", Kind: Destructive, OnClick: func() { *result = "deleted" }},
+			},
+			OnDismiss: func() { *result = "dismissed" },
 		})
 	}
 }
 
-func TestAlertDialogReportsTheClickedButton(t *testing.T) {
-	open, results := false, []int{}
+func TestAlertDialogActionWritesThroughItsOnClick(t *testing.T) {
+	open, result := false, ""
 	view := func(c *ui.Context) {
 		Apply(c, Options{Appearance: AppearanceLight})
 		b := ctrlpkg.NewButton(c, "打开警告")
 		if b.Clicked() {
 			open = true
 		}
-		NewAlertDialog(c, &open, AlertDialogOptions{
-			Title:    "删除项目？",
-			Message:  "此操作不能撤销。",
-			Buttons:  []string{"取消", "确认删除"},
-			OnResult: func(i int) { results = append(results, i) },
+		NewAlertDialog(c, AlertDialogOptions{
+			Open:    &open,
+			Title:   "删除项目？",
+			Message: "此操作不能撤销。",
+			Actions: []DialogAction{
+				{Label: "取消", OnClick: func() { result = "cancelled" }},
+				{Label: "确认删除", Kind: Destructive, OnClick: func() { result = "deleted" }},
+			},
 		})
 	}
 	tt := ui.NewTester(view, 500, 400)
@@ -42,8 +49,8 @@ func TestAlertDialogReportsTheClickedButton(t *testing.T) {
 	if _, ok := tt.Find("删除项目？"); !ok {
 		t.Fatal("the alert's title is not on screen")
 	}
-	if len(results) != 0 {
-		t.Fatalf("an idle alert reported %v", results)
+	if result != "" {
+		t.Fatalf("an idle alert reported %q", result)
 	}
 	if err := tt.Click("确认删除"); err != nil {
 		t.Fatal(err)
@@ -51,27 +58,45 @@ func TestAlertDialogReportsTheClickedButton(t *testing.T) {
 	if open {
 		t.Error("the alert stayed open after its button")
 	}
-	if len(results) != 1 || results[0] != 1 {
-		t.Errorf("the result is %v, want [1]", results)
+	if result != "deleted" {
+		t.Errorf("the result is %q, want %q", result, "deleted")
 	}
 }
 
-func TestAlertDialogEscapeReportsDismissed(t *testing.T) {
-	open, results := true, []int{}
-	tt := ui.NewTester(alertDialogFixture(&open, &results, AppearanceLight), 500, 400)
+func TestAlertDialogEscapeCallsOnDismiss(t *testing.T) {
+	open, result := true, ""
+	tt := ui.NewTester(alertDialogFixture(&open, &result, AppearanceLight), 500, 400)
 	tt.Key(0, ui.KeyEscape)
 	if open {
 		t.Error("Escape left the alert open")
 	}
-	if len(results) != 1 || results[0] != ui.AlertDismissed {
-		t.Errorf("the result is %v, want [%d]", results, ui.AlertDismissed)
+	if result != "dismissed" {
+		t.Errorf("the result is %q, want %q", result, "dismissed")
+	}
+}
+
+func TestAlertDialogLateOnDismissFires(t *testing.T) {
+	open, result := true, ""
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		a := NewAlertDialog(c, AlertDialogOptions{
+			Open:    &open,
+			Title:   "删除项目？",
+			Actions: []DialogAction{{Label: "确认", OnClick: func() { result = "ok" }}},
+		})
+		a.OnDismiss(func() { result = "dismissed" })
+	}
+	tt := ui.NewTester(view, 500, 400)
+	tt.Key(0, ui.KeyEscape)
+	if result != "dismissed" {
+		t.Errorf("late OnDismiss got %q, want %q", result, "dismissed")
 	}
 }
 
 func TestAlertDialogFollowsTheTheme(t *testing.T) {
 	for _, a := range []Appearance{AppearanceLight, AppearanceDark} {
-		open, results := true, []int{}
-		tt := ui.NewTester(alertDialogFixture(&open, &results, a), 500, 400)
+		open, result := true, ""
+		tt := ui.NewTester(alertDialogFixture(&open, &result, a), 500, 400)
 		for _, s := range []string{"删除项目？", "此操作不能撤销。", "取消", "确认删除"} {
 			if _, ok := tt.Find(s); !ok {
 				t.Errorf("%v: %q is not on screen", a, s)

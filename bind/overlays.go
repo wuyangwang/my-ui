@@ -20,6 +20,12 @@ func (u UI) Toast(title string) *overlaypkg.Toast {
 	return overlaypkg.NewToast(u.c, title)
 }
 
+// Notifier is a stable handle for showing toasts from click handlers, so
+// the handler does not capture the view's context.
+func (u UI) Notifier() *overlaypkg.Notifier {
+	return overlaypkg.NewNotifier(u.c)
+}
+
 // SplitButton builds a button plus a menu of related actions.
 func (u UI) SplitButton(label string, onClick func(), items []overlaypkg.MenuItem) *overlaypkg.SplitButton {
 	return overlaypkg.NewSplitButton(u.c, label, onClick, items)
@@ -35,9 +41,20 @@ func (u UI) Menubar(menus []overlaypkg.MenubarMenu) *overlaypkg.Menubar {
 	return overlaypkg.NewMenubar(u.c, menus)
 }
 
-// HoverCard builds a panel shown over anchor while *open is true.
-func (u UI) HoverCard(open *bool, anchor func() ui.Element, build func(panel ui.Element)) *overlaypkg.HoverCard {
-	return overlaypkg.NewHoverCard(u.c, open, anchor, build)
+// Modal shows a dialog over the window, configured by o.
+func (u UI) Modal(o overlaypkg.ModalOptions) *overlaypkg.Modal {
+	return overlaypkg.NewModal(u.c, o)
+}
+
+// Popover shows a panel over its anchor, configured by o.
+func (u UI) Popover(o overlaypkg.PopoverOptions) *overlaypkg.Popover {
+	return overlaypkg.NewPopover(u.c, o)
+}
+
+// HoverCard shows a panel while the pointer is on its anchor, configured
+// by o.
+func (u UI) HoverCard(o overlaypkg.HoverCardOptions) *overlaypkg.HoverCard {
+	return overlaypkg.NewHoverCard(u.c, o)
 }
 
 // DropdownMenu builds a menu shown from trigger while *open is true.
@@ -55,7 +72,14 @@ func (u UI) ContextMenu(open *bool, target ui.Element, items []overlaypkg.MenuIt
 	return overlaypkg.NewContextMenu(u.c, open, target, items)
 }
 
-// Drawer builds a panel sliding in from side over the window.
-func (u UI) Drawer(open *bool, side overlaypkg.DrawerSide, trigger func() ui.Element, build func(panel ui.Element)) *overlaypkg.Drawer {
-	return overlaypkg.NewDrawer(u.c, open, side, trigger, build)
+// Drawer builds a panel sliding in from an edge of the window, configured
+// by o.
+func (u UI) Drawer(o overlaypkg.DrawerOptions) *overlaypkg.Drawer {
+	return overlaypkg.NewDrawer(u.c, o)
+}
+
+// AlertDialog builds a confirmation dialog over the window, configured by
+// o.
+func (u UI) AlertDialog(o overlaypkg.AlertDialogOptions) *overlaypkg.AlertDialog {
+	return overlaypkg.NewAlertDialog(u.c, o)
 }

@@ -13,9 +13,13 @@ func TestFieldShowsItsLabelDescriptionAndError(t *testing.T) {
 	var value string
 	view := func(c *ui.Context) {
 		Apply(c, Options{})
-		NewField(c, "邮箱", func() ui.Element {
-			return NewInput(c, &value).Outline().Control()
-		}).Description("我们只用它发通知").Required(true).Error("邮箱格式不对")
+		NewField(c, "邮箱", &value, func() *Input {
+			return NewInput(c, &value).Outline()
+		}, FieldOptions[string]{
+			Description: "我们只用它发通知",
+			Required:    true,
+			When:        Always,
+		}).ErrorText("邮箱格式不对")
 	}
 	tt := ui.NewTester(view, 320, 300)
 	tt.Advance(time.Second)
@@ -40,9 +44,10 @@ func TestFieldLabelFocusesTheControl(t *testing.T) {
 	var value string
 	view := func(c *ui.Context) {
 		Apply(c, Options{})
-		NewField(c, "邮箱", func() ui.Element {
-			return NewInput(c, &value).Outline().Control()
-		})
+		// build returns the widget itself; the field finds its Control().
+		NewField(c, "邮箱", &value, func() *Input {
+			return NewInput(c, &value).Outline()
+		}, FieldOptions[string]{})
 	}
 	tt := ui.NewTester(view, 320, 300)
 	tt.Advance(time.Second)
@@ -59,9 +64,11 @@ func TestFieldValidatesAfterItIsLeft(t *testing.T) {
 	var value string
 	view := func(c *ui.Context) {
 		Apply(c, Options{})
-		NewField(c, "邮箱", func() ui.Element {
-			return NewInput(c, &value).Outline().Control()
-		}).Validate(&value, Required("请填写邮箱"))
+		NewField(c, "邮箱", &value, func() *Input {
+			return NewInput(c, &value).Outline()
+		}, FieldOptions[string]{
+			Rules: []Rule{Required("请填写邮箱")},
+		})
 		ui.Button(c, "别处").Label("别处")
 	}
 	tt := ui.NewTester(view, 320, 300)
@@ -89,9 +96,11 @@ func TestFieldValidatesTheValueItHolds(t *testing.T) {
 	var value string
 	view := func(c *ui.Context) {
 		Apply(c, Options{})
-		NewField(c, "邮箱", func() ui.Element {
-			return NewInput(c, &value).Outline().Control()
-		}).Validate(&value, Required("请填写邮箱"), Email("邮箱格式不对"))
+		NewField(c, "邮箱", &value, func() *Input {
+			return NewInput(c, &value).Outline()
+		}, FieldOptions[string]{
+			Rules: []Rule{Required("请填写邮箱"), Email("邮箱格式不对")},
+		})
 		ui.Button(c, "别处").Label("别处")
 	}
 	tt := ui.NewTester(view, 320, 300)
@@ -123,14 +132,82 @@ func TestFieldValidatesTheValueItHolds(t *testing.T) {
 	}
 }
 
-func TestFieldKnowsItWasUsed(t *testing.T) {
+func TestFieldValidatesOnChangeWithoutDuplicatedPointer(t *testing.T) {
 	var value string
-	var field *Field
+	var field *Field[string]
 	view := func(c *ui.Context) {
 		Apply(c, Options{})
-		field = NewField(c, "邮箱", func() ui.Element {
-			return NewInput(c, &value).Outline().Control()
-		}).Validate(&value, Required("请填写邮箱"))
+		// One pointer, passed once. The rules reach it through the
+		// options; there is no second Validate(value, ...) call.
+		field = NewField(c, "昵称", &value, func() *Input {
+			return NewInput(c, &value).Outline()
+		}, FieldOptions[string]{
+			When:  OnChange,
+			Rules: []Rule{MinLength(5, "太短")},
+		})
+	}
+	tt := ui.NewTester(view, 320, 300)
+	tt.Advance(time.Second)
+	if field.Valid() {
+		t.Error("an empty value should be invalid")
+	}
+
+	if err := tt.Click("昵称"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Type("abc")
+	tt.Advance(time.Second)
+	if _, ok := tt.Access("太短"); !ok {
+		t.Error("the failing rule did not show on change")
+	}
+	if field.Valid() {
+		t.Error("the field is valid although the rule fails")
+	}
+
+	tt.Type("de")
+	tt.Advance(time.Second)
+	if _, ok := tt.Access("太短"); ok {
+		t.Error("the error stayed although the value holds")
+	}
+	if !field.Valid() {
+		t.Error("the field is invalid although the rule holds")
+	}
+}
+
+func TestFieldValidIsTrueForFilledValueBeforeBlur(t *testing.T) {
+	value := "hi@example.com"
+	var field *Field[string]
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		field = NewField(c, "邮箱", &value, func() *Input {
+			return NewInput(c, &value).Outline()
+		}, FieldOptions[string]{
+			Rules: []Rule{Email("邮箱格式不对")},
+		})
+	}
+	tt := ui.NewTester(view, 320, 300)
+	tt.Advance(time.Second)
+	if field.Touched() {
+		t.Error("the field says it was used before it was left")
+	}
+	if !field.Valid() {
+		t.Error("a filled field holding a valid value should be valid before blur")
+	}
+	if _, ok := tt.Access("邮箱格式不对"); ok {
+		t.Error("the error shows before the field is left")
+	}
+}
+
+func TestFieldKnowsItWasUsed(t *testing.T) {
+	var value string
+	var field *Field[string]
+	view := func(c *ui.Context) {
+		Apply(c, Options{})
+		field = NewField(c, "邮箱", &value, func() *Input {
+			return NewInput(c, &value).Outline()
+		}, FieldOptions[string]{
+			Rules: []Rule{Required("请填写邮箱")},
+		})
 		ui.Button(c, "别处").Label("别处")
 	}
 	tt := ui.NewTester(view, 320, 300)
@@ -164,11 +241,11 @@ func TestFieldOnFocusedFiresOnceOnGain(t *testing.T) {
 	focused := 0
 	view := func(c *ui.Context) {
 		Apply(c, Options{})
-		// Validate shares the control with OnFocused; the two must keep
-		// separate focus edges so both can fire.
-		NewField(c, "邮箱", func() ui.Element {
-			return NewInput(c, &value).Outline().Control()
-		}).Validate(&value, Required("请填写邮箱")).OnFocused(func() { focused++ })
+		NewField(c, "邮箱", &value, func() *Input {
+			return NewInput(c, &value).Outline()
+		}, FieldOptions[string]{
+			Rules: []Rule{Required("请填写邮箱")},
+		}).OnFocused(func() { focused++ })
 		ui.Button(c, "别处").Label("别处")
 	}
 	tt := ui.NewTester(view, 320, 300)

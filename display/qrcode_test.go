@@ -1,6 +1,7 @@
 package display
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -55,5 +56,41 @@ func TestQRCodeComponent(t *testing.T) {
 	}
 	if !tt.HasText("Expired") {
 		t.Fatal("expired overlay missing")
+	}
+}
+
+// TestQRCodeShowsErrorForOverlongValue checks both outcomes: a short value
+// builds a real code, while a value beyond the encoder's limit reports
+// Valid() == false and renders a visible error instead of a blank card.
+func TestQRCodeShowsErrorForOverlongValue(t *testing.T) {
+	overlong := strings.Repeat("x", 200)
+	shortValid, longValid := false, true
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		ui.Row(c).Gap(c.Theme().Space(3)).Children(func() {
+			shortValid = NewQRCodeCard(c, "https://lobehub.com",
+				QRCodeOptions{Size: 80, Label: "short"}).Valid()
+			longValid = NewQRCodeCard(c, overlong,
+				QRCodeOptions{Size: 80, Label: "long"}).Valid()
+		})
+	}
+	tt := ui.NewTester(view, 360, 200)
+	tt.SetLocale("zh-Hans")
+	tt.Advance(time.Second)
+
+	if !shortValid {
+		t.Error("a short value should report Valid() == true")
+	}
+	if longValid {
+		t.Error("an overlong value should report Valid() == false")
+	}
+	if _, ok := tt.Access("short"); !ok {
+		t.Error("the short code did not render")
+	}
+	if _, ok := tt.Access("long"); !ok {
+		t.Error("the overlong card did not render")
+	}
+	if !tt.HasText("内容过长，无法生成二维码") {
+		t.Error("the overlong card has no visible error message")
 	}
 }

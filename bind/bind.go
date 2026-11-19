@@ -66,7 +66,10 @@ func (u UI) Select(value *string, options []formspkg.SelectOption) *formspkg.Sel
 // formspkg.ComboBox creates a drop-down whose trigger is a text field: what is
 // typed narrows the options down.
 func (u UI) ComboBox(text *string, options []formspkg.SelectOption) *formspkg.ComboBox {
-	return formspkg.NewComboBox(u.c, text, options)
+	return formspkg.NewComboBox(u.c, formspkg.ComboOptions{
+		Value:   text,
+		Options: options,
+	})
 }
 
 // formspkg.MultiSelect creates a field of tags: the chosen options show as chips.
@@ -90,16 +93,6 @@ func (u UI) Slider(value *float64, lo, hi float64) *ctrlpkg.Slider {
 // overlaypkg.Tooltip shows a tip with a text over the anchor.
 func (u UI) Tooltip(anchor ui.Element, text string) *overlaypkg.Tooltip {
 	return overlaypkg.NewTooltip(u.c, anchor, text)
-}
-
-// overlaypkg.Popover shows a panel over its anchor while open is true.
-func (u UI) Popover(open *bool, anchor func() ui.Element, build func(panel ui.Element)) *overlaypkg.Popover {
-	return overlaypkg.NewPopover(u.c, open, anchor, build)
-}
-
-// overlaypkg.Modal shows a dialog over the window while open is true.
-func (u UI) Modal(open *bool, trigger func() ui.Element, build func(panel ui.Element)) *overlaypkg.Modal {
-	return overlaypkg.NewModal(u.c, open, trigger, build)
 }
 
 // displaypkg.Badge creates a badge.

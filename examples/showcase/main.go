@@ -24,6 +24,7 @@ import (
 // showcase is the state the window shows.
 type showcase struct {
 	page       string // the key of the open page
+	notifier   *overlaypkg.Notifier
 	appearance myui.Appearance
 	palette    myui.PaletteID
 	navQuery   string // what the sidebar's search holds
@@ -131,8 +132,12 @@ func (s *showcase) view(c *ui.Context) {
 		})
 	})
 	// The toasts of the window: one place for them, whatever page is
-	// open.
-	overlaypkg.NewToastViewport(c)
+	// open. The notifier is the stable handle the pages use to show a
+	// toast from a click handler, without capturing this frame's context.
+	if s.notifier == nil {
+		s.notifier = overlaypkg.NewNotifier(c)
+	}
+	s.notifier.Build()
 }
 
 // appBar is the docs-style strip across the top of the window: the

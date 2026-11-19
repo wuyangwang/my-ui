@@ -109,7 +109,9 @@ mygo build -skip-installer examples/showcase
 
 ## 版本约定
 
-当前版本 **my-ui v0.7.2**（`myui.Version`，git tag `v0.7.2`）。锁定 mygo **v0.10.0**（`go.mod`）；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)。my-ui 与 mygo 各自独立编号，发布用 git tag 标记。
+当前版本 **my-ui v0.8.0**（`myui.Version`，git tag `v0.8.0`）。锁定 mygo **v0.10.0**（`go.mod`）；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)。my-ui 与 mygo 各自独立编号，发布用 git tag 标记。
+
+v0.8.0 是一次破坏性 API 重写：Overlay 家族（Modal/Popover/Drawer/HoverCard）、AlertDialog、Toast、Field/Validate 与 ComboBox 改为 Options 构造器 + 注册式回调；Toggle 补齐变体/图标/尺寸；QRCode 超长显示错误态、Upload 支持应用侧文件选择器、MultiSelect.Max 真正限额；`bind.Bind(c)` 覆盖全部非泛型构造器。迁移说明见各组件规格书的 API 契约与限制。
 
 ## 许可
 

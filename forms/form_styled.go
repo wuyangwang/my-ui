@@ -15,9 +15,9 @@ import (
 // frame the form is built.
 //
 //	forms.NewForm(c, func() {
-//		forms.NewField(c, "邮箱", func() ui.Element {
-//			return NewInput(c, &app.email).Outline().Control()
-//		})
+//		forms.NewField(c, "邮箱", &app.email, func() *forms.Input {
+//			return forms.NewInput(c.Key("email"), &app.email).Outline()
+//		}, forms.FieldOptions[string]{})
 //	})
 func NewForm(c *ui.Context, fn func()) ui.Element {
 	return NewFormWith(c, Native, fn)

@@ -21,7 +21,8 @@
 | 增删选项 | Enter/逗号加入、退格删最后一个、芯片上的按钮删单个 ✓（框架内建 ✓） | ✅ |
 | 变化报告 | `Element.Changed()` ✓ | ✅ |
 | 标签与值不同 | TokenField 的 token 就是显示的字符串 ✗ | ⚠️ 我们的选项本可 label≠value（Select ✓），但芯片显示的就是 token ✗ → **多选的值即标签**（框架限制 ✗） |
-| 折叠标签 / 选择上限 | 无公开 API ✗ | ❌ 后置 |
+| 折叠标签 | 无公开 API ✗ | ❌ 后置 |
+| 选择上限 | TokenField 无开关，但可在构造器里截断 `*tokens` ✓ | ✅ `Max(n)` 强制上限 |
 
 ## 3. 实现到何种程度
 
@@ -30,11 +31,11 @@
 - 变体与尺寸：与 Input 同一套 `Variant`/`Size`/`Shape` ✓（外观画在字段上 ✓）。
 - 事件：`OnChanged(fn func(values []string))` ✓；查询式 `Values()`/`Changed()`。
 - 无障碍名 `Label(string)` ✓、占位文字 `Placeholder(string)` ✓。
-- `Max(n int)`：上限达到后不再给建议 ✓。上限记在字段宿主元素的 `ui.Local` 上，由下一帧构造器读取；`Max` 本身不重建 TokenField，所以同帧链式调用不会让一次点击被两个字段重复消费 ✓。
+- `Max(n int)`：上限达到后不再给建议，并且**真正阻止继续加入** ✓。框架 TokenField 没有上限开关，Enter/逗号/粘贴/点建议都会直接追加到 `*tokens`；构造器在读取上限后、建芯片与建议之前把切片截到 `n`，于是所有加入路径都受限，移除芯片不受影响。上限记在字段宿主元素的 `ui.Local` 上，由下一帧构造器读取；`Max` 本身不重建 TokenField，所以同帧链式调用不会让一次点击被两个字段重复消费 ✓。
 
 **已知限制**
 - **值即标签**：芯片显示的就是 app 切片里的字符串 ✗ → 多选无法像 Select 那样「值与标签不同」 ✗（框架的 TokenField 只存字符串 ✗）。若要 label≠value，得自己维护两份（芯片用标签、app 存值）✗ → 后置 ✗。
-- 折叠标签（`collapse-tags`）没有公开 API ✗ → 后置 ✗。`Max` 只隐藏建议，不强制阻止 Enter/逗号加入或退格移除（框架的 TokenField 没有上限开关 ✗）。
+- 折叠标签（`collapse-tags`）没有公开 API ✗ → 后置 ✗。`Max` 现在强制阻止 Enter/逗号/粘贴/点建议加入（在构造器里截断切片），但移除芯片与退格删除始终可用——上限只管「加」，不管「减」。
 - 上限在下一帧才生效：构造时先按当前上限建字段，`Max` 把新值写入 `ui.Local`，下一帧读取。实时应用中帧帧连续，无感；按需重建的测试里要点一次触发重建才看到新上限。
 
 **后置**
@@ -55,7 +56,7 @@
 | `Width(w float32)` | 宽度 |
 | `Placeholder(s string)` · `Label(s string)` | 占位文字 / 无障碍名 |
 | `OnChanged(fn func(values []string))` | 选择变化时回调 |
-| `Max(n int)` | 选择上限；达到后不再给建议（`n<=0` 表示不限），下一帧生效，不在当前帧重建字段 |
+| `Max(n int)` | 选择上限；达到后不再给建议，且 Enter/逗号/粘贴/点建议都无法超过（`n<=0` 表示不限），移除不受限；下一帧生效，不在当前帧重建字段 |
 | `Values() []string` · `Changed() bool` | 当前选中的值 / 本帧是否变化 |
 
 用法：
@@ -73,6 +74,7 @@ h.MultiSelect(&app.langs, []formspkg.SelectOption{
 
 - [x] 调研与可行性结论（本文）
 - [x] 实现（`multiselect.go`，包 mygo 的 `ui.TokenField`）
-- [x] 测试（加入与移除、变化回调、同帧 `Max` 不重复消费点击）
+- [x] 测试（加入与移除、变化回调、同帧 `Max` 不重复消费点击、`Max(2)` 强制阻止第三项）
 - [x] showcase「Select」页中的多选示例
-- [ ] 值与标签分离、折叠与强制上限（后置）
+- [x] 强制上限（已实现，见 `Max`）
+- [ ] 值与标签分离、折叠标签（后置）
