@@ -8,7 +8,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| Lobe `layout.DraggablePanel` | 接缝缩放、折叠按钮、拖到过小折叠、左右放置 | 全部对应 ✓ |
+| shadcn/ui 侧边面板 | 接缝缩放、折叠按钮、拖到过小折叠、左右放置 | 全部对应 ✓ |
 | mygo | `Element.Dragged` / `DragEnded` | 拖拽用公开 API ✓ |
 
 ## 2. 能否实现（mygo v0.10.0 公开 API）
@@ -23,7 +23,7 @@
 ## 3. 实现到何种程度
 
 - `size *float32` 与 `expanded *bool` 都由 app 持有；nil 时用面板根的 `ui.Local`。
-- 接缝悬停/按下变主题强调色，拖动时改宽并按 `MinSize/MaxSize` 夹取。
+- 面板体用 shadcn 表面 token：`t.Surface` 与 1px `t.Border`，每帧从 `c.Theme()` 读取；接缝悬停/按下变 `t.Accent`，拖动时改宽并按 `MinSize/MaxSize` 夹取。
 - `CollapseThreshold` 让拖到过小的面板折叠；折叠后留一条窄握柄，其上的图标按钮可展开并恢复原尺寸。
 - `Placement` 支持右侧（默认）与左侧；两侧的内容与接缝顺序镜像。
 

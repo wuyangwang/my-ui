@@ -8,6 +8,13 @@ display.NewDivider(c, display.DividerOptions{Dashed: true})
 display.NewDivider(c, display.DividerOptions{Label: "OR"})
 ```
 
+## shadcn 风格
+
+Divider 是 shadcn Separator：线是 `t.Border` 的 1 DIP 发丝弱墨（不是深色描边），
+`Label` 文字用 `t.TextMuted` 并垫 `t.Surface` 弱底，发丝线不穿过文字；字号
+`TextSize(t, TextXs)`，间距 `t.Space`。颜色每帧从 `c.Theme()` 取得，明暗与自定义主题
+即时跟随。没有 Lobe 固定色板与自造尺寸。
+
 ## 行为
 
 - 横向线占满父宽，高度 1 DIP；`Label` 时两侧各一段grow的线与中间文字。

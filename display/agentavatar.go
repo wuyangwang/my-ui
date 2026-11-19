@@ -14,32 +14,52 @@ type AgentShape int
 const (
 	// AgentShapeSeeded takes the shape its seed picks.
 	AgentShapeSeeded AgentShape = iota
+	// AgentFace is a softly rounded square.
 	AgentFace
+	// AgentBowl is a rounded cup.
 	AgentBowl
+	// AgentCloud is three overlapping lobes.
 	AgentCloud
+	// AgentTile is a square with a slight corner radius.
 	AgentTile
+	// AgentHex is a six-sided polygon.
 	AgentHex
+	// AgentShield is a shield outline.
 	AgentShield
+	// AgentPudding is a wide rounded body.
 	AgentPudding
+	// AgentCookie is a round, lightly squared body.
 	AgentCookie
+	// AgentStar is a five-pointed star.
 	AgentStar
+	// AgentCapsule is a tall round-ended body.
 	AgentCapsule
+	// AgentGhost is a round-ended body with a flat foot.
 	AgentGhost
+	// AgentCat is a cat's head with ears.
 	AgentCat
 )
 
-// AgentColor names the body color of an agent avatar.
+// AgentColor names the body color of an agent avatar. Each value maps to a
+// shadcn theme slot rather than a fixed hue.
 type AgentColor int
 
 const (
 	// AgentColorSeeded takes the color its seed picks.
 	AgentColorSeeded AgentColor = iota
+	// AgentPurple uses the theme's Accent.
 	AgentPurple
+	// AgentOrange uses the theme's Warning.
 	AgentOrange
+	// AgentBlue uses the theme's Info.
 	AgentBlue
+	// AgentVolcano uses the theme's Danger.
 	AgentVolcano
+	// AgentMagenta blends the theme's Accent and Danger.
 	AgentMagenta
+	// AgentInk uses the theme's Text.
 	AgentInk
+	// AgentGray uses the theme's TextMuted.
 	AgentGray
 )
 
@@ -47,11 +67,17 @@ const (
 type AgentState int
 
 const (
+	// AgentIdle is the resting state.
 	AgentIdle AgentState = iota
+	// AgentWorking looks down at its work.
 	AgentWorking
+	// AgentWaiting glances aside.
 	AgentWaiting
+	// AgentBlocked widens the eyes and wears a danger badge.
 	AgentBlocked
+	// AgentThinking looks up.
 	AgentThinking
+	// AgentDone closes its eyes.
 	AgentDone
 )
 
@@ -77,8 +103,10 @@ type AgentAvatarOptions struct {
 
 // AgentAvatar draws an agent as a flat silhouette with a pair of big eyes,
 // its shape, color and lean seeded by its name, and its state shown by its
-// eyes and badge. The drawing is static: no timers or goroutines animate
-// it, so it follows the desktop's motion preferences by standing still.
+// eyes and badge. The body color, eye ink and badge all come from the shadcn
+// slots of c.Theme() on this frame — there is no fixed palette. The drawing
+// is static: no timers or goroutines animate it, so it follows the desktop's
+// motion preferences by standing still.
 func NewAgentAvatar(c *ui.Context, o AgentAvatarOptions) ui.Element {
 	t := c.Theme()
 	size := o.Size
@@ -142,8 +170,10 @@ func agentHash(s string) uint32 {
 	return h
 }
 
-// agentColor derives the body hues from the frame's theme rather than a
-// fixed palette, so a custom theme or dark mode changes the agent too.
+// agentColor maps an AgentColor to a shadcn slot of the frame's theme
+// (Accent, Warning, Info, Danger, Text or TextMuted). AgentMagenta blends
+// two of those slots. There is no fixed palette, so a custom theme or dark
+// mode changes the agent too.
 func agentColor(t *ui.Theme, c AgentColor) ui.Color {
 	switch c {
 	case AgentOrange:

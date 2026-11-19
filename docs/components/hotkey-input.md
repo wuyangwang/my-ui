@@ -4,6 +4,15 @@
 
 > 状态：**已实现**。参考 Lobe UI 的 HotkeyInput：聚焦后录制快捷键，拒绝没有修饰键或已被占用的组合。
 
+## shadcn 风格
+
+字段框是 shadcn Input 的观感：`t.Background` 底、1px `t.Border` 发丝边、
+`Radius(t, RadiusMd)`；聚焦时描边转 `t.Accent`，错误时转 `t.Danger`，Ghost 变体透明、
+Secondary 变体用 `t.Surface`。占位文字 `t.TextMuted`，提示信息 `t.Danger`。键帽沿用
+`display.NewKbd` 的胶囊：`t.Surface` 底 + 1px `t.Border` + `Radius(t, RadiusSm)`，
+字号 `TextSize(t, TextXs)`。字段最小高度 `t.Space(Spacing2Xl)`（默认主题下 32 DIP），
+随主题间距缩放；没有 Lobe 固定色板与自造尺寸。
+
 ## 1. 参考实现
 
 | 来源 | 可借鉴之处 |

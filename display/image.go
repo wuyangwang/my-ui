@@ -36,7 +36,10 @@ type ImageOptions struct {
 
 // Image shows a decoded ui.ImageSource in a rounded frame. A click opens
 // a preview over the window; the zoom and pan tools of a full viewer are
-// not part of this component (see docs/components/image.md).
+// not part of this component (see docs/components/image.md). The frame, the
+// placeholder and the preview panel use only shadcn slots from c.Theme():
+// a neutral surface with a hairline border, Radius tokens and a scrim
+// derived from the theme (never a fixed black).
 func NewImage(c *ui.Context, src ui.ImageSource, o ImageOptions) ui.Element {
 	t := c.Theme()
 	w, h := o.Width, o.Height
@@ -109,8 +112,9 @@ func NewImage(c *ui.Context, src ui.ImageSource, o ImageOptions) ui.Element {
 	if previewable {
 		ui.DialogBase(c, open, func(backdrop ui.Element, panel ui.Element) {
 			pt := c.Theme()
-			backdrop.Background(ui.RGBA(0, 0, 0, 0.8))
-			panel.Background(pt.Background).Radius(Radius(pt, RadiusXl)).
+			backdrop.Background(previewScrim(pt))
+			panel.Background(pt.Background).Border(1, pt.Border).
+				Radius(Radius(pt, RadiusXl)).
 				Padding(pt.Space(3)).MaxWidth(pt.Space(160))
 			ui.Image(c, src).Fit(ui.Contain).MaxWidthPercent(100).MaxHeight(pt.Space(140))
 		})
@@ -124,6 +128,18 @@ func NewImage(c *ui.Context, src ui.ImageSource, o ImageOptions) ui.Element {
 	return root
 }
 
+// previewScrim is the neutral dark veil behind the preview. It is a
+// per-frame function of the theme, not a package-level color: Text is the
+// dark ink in a light appearance and Background is the dark page in a dark
+// one, so either way the veil dims the window without a fixed black.
+func previewScrim(t *ui.Theme) ui.Color {
+	base := t.Text
+	if t.Dark {
+		base = t.Background
+	}
+	return base.Alpha(0.8)
+}
+
 func imagePlaceholder(c *ui.Context, w, h float32, failed bool, t *ui.Theme) ui.Element {
 	box := ui.Row(c).Justify(ui.Center).AlignItems(ui.Center).
 		Background(t.SurfaceHover).TextColor(t.TextMuted)
@@ -132,16 +148,12 @@ func imagePlaceholder(c *ui.Context, w, h float32, failed bool, t *ui.Theme) ui.
 	} else {
 		box.Size(128, 128)
 	}
-	side := min(w, h)
-	if side <= 0 {
-		side = max(w, h, 128)
-	}
 	glyph := icons.Image()
 	if failed {
 		glyph = icons.TriangleAlert()
 	}
 	box.Children(func() {
-		ui.Icon(c, glyph).Size(max(IconSizeLg, side*0.28), max(IconSizeLg, side*0.28))
+		ui.Icon(c, glyph).Size(IconSizeLg, IconSizeLg)
 	})
 	return box
 }

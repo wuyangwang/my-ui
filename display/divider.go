@@ -55,8 +55,11 @@ func (d *Divider) build() {
 	row := ui.Row(d.c).Gap(t.Space(3)).AlignSelf(ui.Stretch).AlignItems(ui.Center)
 	row.Children(func() {
 		dividerLine(d.c, t.Border, d.o.Dashed).Height(1).Grow(1)
+		// The label sits on a quiet Surface chip, so the hairline never
+		// runs through the text; both colors come from this frame's theme.
 		ui.Text(d.c, d.o.Label).FontSize(TextSize(t, TextXs)).
-			TextColor(t.TextMuted).SingleLine()
+			TextColor(t.TextMuted).Background(t.Surface).
+			Padding(0, t.Space(1)).SingleLine()
 		dividerLine(d.c, t.Border, d.o.Dashed).Height(1).Grow(1)
 	})
 	d.Element = row

@@ -59,19 +59,21 @@ func NewHighlighter(c *ui.Context, src string, o HighlighterOptions) ui.Element 
 	t := c.Theme()
 	src = strings.TrimRight(strings.TrimLeft(src, "\r\n"), " \t\r\n")
 	spans := codeSpans(src, t)
-	root := ui.Column(c).AlignSelf(ui.Stretch).Radius(Radius(t, RadiusLg)).
+	// shadcn code block: a quiet theme surface, a hairline border and a
+	// RadiusMd corner. Every color and metric comes from this frame's theme.
+	root := ui.Column(c).AlignSelf(ui.Stretch).Radius(Radius(t, RadiusMd)).
 		Clip().Role(ui.RoleGroup)
 	if o.Language != "" {
 		root.Label("Code: " + o.Language)
 	}
 	switch o.Variant {
 	case CodeFilled:
-		root.Background(t.SurfaceHover)
+		root.Background(t.Surface)
 	case CodeOutlined:
 		root.Border(1, t.Border).Background(t.Surface)
 	}
 	if o.Shadow {
-		root.Shadow(0, 1, 2, -1, t.Border.Alpha(0.5))
+		root.Shadow(0, 1, 2, 0, t.Text.Alpha(0.06))
 	}
 	if o.FullFeatured {
 		open := o.Collapsed

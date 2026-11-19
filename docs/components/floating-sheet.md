@@ -8,7 +8,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| Lobe `feedback.FloatingSheet` | 底部浮层、拖头改高、吸附点、下拉关闭、Inline/Embedded | 全部对应 ✓ |
+| shadcn/ui Sheet/Card | 底部浮层、拖头改高、吸附点、下拉关闭、Inline/Embedded | 全部对应 ✓ |
 | mygo | `Element.Dragged` / `DragEnded`、`ui.Overlay` 思路 | 拖拽与抬起事件用公开 API ✓ |
 
 ## 2. 能否实现（mygo v0.10.0 公开 API）
@@ -26,7 +26,7 @@
 - 按住头部拖动改高度，`MinHeight`/`MaxHeight` 夹取；松开吸附到最近的 `SnapPoints`。
 - 拖到低于 `LowestSnap × CloseThreshold` 时写回 `open = false`。
 - `Inline` 让浮层在流中占位，`Embedded` 用描边代替阴影；默认底部绝对定位。
-- 高度记忆在 `ui.Local`；状态与颜色每帧从主题取。
+- 高度记忆在 `ui.Local`；状态与颜色每帧从主题取。卡片面用 shadcn zinc token：`t.Surface`、1px `t.Border`、`Radius(t, RadiusXl)` 与轻阴影；`Embedded` 用描边代替阴影。
 
 **已知限制**
 - 吸附比例以 `c.Size()` 的窗口高度作容器高度。浮层放在更小的容器里时，比例是近似值。

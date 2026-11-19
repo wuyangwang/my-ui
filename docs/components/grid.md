@@ -8,7 +8,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| Lobe `layout.Grid` | 等宽列、按宽度自动增减列、设置上限 | 自动增减 ✓（用 `AutoGrid`） |
+| shadcn/ui 栅格版式 | 等宽列、按宽度自动增减列、设置上限 | 自动增减 ✓（用 `AutoGrid`） |
 | mygo | `ui.Grid`、`ui.GridView`、`Track.Min` | 公开 API 足够 ✓ |
 
 ## 2. 能否实现（mygo v0.10.0 公开 API）
@@ -22,7 +22,8 @@
 ## 3. 实现到何种程度
 
 - `NewGrid(c)` 保留 mygo `ui.Grid(c)` 签名，套用主题间距 `Space(2)`；`NewGridPanel(c, variant)` 提供带表面的结构化版本及 `Variant` 预设。
-- `AutoGrid(c, state, n, minWidth, height, item)` 包裹虚拟化的 `GridView`，按宽度放入至少 `minWidth` 的等宽列，滚动条用 `LobeScrollbar`。
+- `AutoGrid(c, state, n, minWidth, height, item)` 包裹虚拟化的 `GridView`，按宽度放入至少 `minWidth` 的等宽列，滚动条用 `ShadcnScrollbar`。
+- `NewGridPanel` 的卡片面用 shadcn zinc token：`t.Surface`、`t.Border`（1px）、`Radius(t, RadiusLg)`；`Outline`/`Secondary` 只换面，不改排布。
 
 **已知限制**
 - `AutoGrid` 的行高固定（`height` 参数）；不等高瀑布流需自行用 `ui.Grid` 排布。

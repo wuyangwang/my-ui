@@ -20,8 +20,9 @@ type HeaderProps struct {
 	Mobile bool
 }
 
-// Header is a site's top bar, 64 DIPs tall by default, with a hairline
-// under it. It owns no state: the slots are built by the app, so their
+// Header is a site's top bar, Space(16) tall by default, with a hairline
+// under it. Its background and border are shadcn-style theme tokens, read
+// every frame. It owns no state: the slots are built by the app, so their
 // clicks and pointers work as anywhere else.
 type Header struct {
 	ui.Element
@@ -31,7 +32,7 @@ type Header struct {
 }
 
 // NewHeader builds the bar with the slots in HeaderProps. The height
-// defaults to the theme's Space(16) (64 DIPs); Height overrides it.
+// defaults to the theme's Space(16); Height overrides it.
 func NewHeader(c *ui.Context, p HeaderProps) *Header {
 	t := c.Theme()
 	h := &Header{c: c, height: t.Space(16)}

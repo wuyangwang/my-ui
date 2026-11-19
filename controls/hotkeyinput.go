@@ -55,7 +55,8 @@ func NewHotkeyInput(c *ui.Context, value *string) *HotkeyInput {
 	col := ui.Column(c).Gap(c.Theme().Space(2)).FillWidth()
 	h.Element = col
 	col.Children(func() {
-		h.frame = ui.Row(c).MinHeight(32).Padding(c.Theme().Space(1), c.Theme().Space(2.5)).
+		h.frame = ui.Row(c).MinHeight(c.Theme().Space(Spacing2Xl)).
+			Padding(c.Theme().Space(1), c.Theme().Space(2.5)).
 			Gap(c.Theme().Space(2)).AlignItems(ui.Center).
 			Transition(StateTransition())
 		h.cfg = ui.Local(h.frame, "hotkey-config", func() hotkeyConfig {

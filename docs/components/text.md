@@ -8,6 +8,13 @@ display.NewText(c, "详情", display.TextOptions{Heading: 2}).Strong()
 display.NewText(c, "说明文字", display.TextOptions{Type: display.TextSecondary, Rows: 1})
 ```
 
+## shadcn 风格
+
+Text 是 shadcn Typography 的主题化排版：字号只用 `TextXs`…`Text2Xl` 经
+`TextSize(t, …)` 取得，随主题字号与文字缩放；墨色只用 `t.Text`、`t.TextMuted` 与
+Success/Warning/Danger/Info 语义槽位，`Mark` 用 `t.Accent` 底配 `t.AccentText` 墨。
+没有 Lobe 的扫光动画与固定色板，间距与行高也随主题，组件形态与 API 不变。
+
 ## 行为
 
 - `Type` 选择语义墨色：默认、次要、成功、警告、危险、信息；`Variant` 是同一组角色的共享词表别名。

@@ -27,9 +27,10 @@ type Grid struct {
 	c *ui.Context
 }
 
-// NewGridPanel creates a Grid with the theme's gap. Variant paints a card
-// face: Outline gives it a bordered surface, Secondary a muted one, the
-// zero value leaves it bare.
+// NewGridPanel creates a Grid with the theme's gap. Variant paints a
+// shadcn-style card face: Outline gives it t.Surface with a 1px t.Border
+// and Radius(t, RadiusLg), Secondary a muted t.Surface, the zero value
+// leaves it bare.
 func NewGridPanel(c *ui.Context, variant Variant) *Grid {
 	g := &Grid{c: c}
 	t := c.Theme()
@@ -53,5 +54,5 @@ func NewGridPanel(c *ui.Context, variant Variant) *Grid {
 func AutoGrid(c *ui.Context, state *ui.GridState, n int, minWidth, height float32, item func(i int)) ui.Element {
 	t := c.Theme()
 	el := ui.GridView(c, state, n, minWidth, height, item).Gap(t.Space(2))
-	return el.ScrollbarStyle(LobeScrollbar(t))
+	return el.ScrollbarStyle(ShadcnScrollbar(t))
 }

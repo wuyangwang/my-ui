@@ -4,6 +4,15 @@
 
 > 状态：**已实现**（`controls/actionicon.go`）。shadcn 式中「只有图标的按钮」，参考 Lobe UI 的 ActionIcon 三种面与尺寸档。
 
+## shadcn 风格
+
+三种面对齐 shadcn Button 的 ghost / secondary / outline：Borderless 为 0 边框透明底，
+Filled 用 `t.Surface`，Outlined 用 `t.Background` + 1px `t.Border`。悬停一律
+`t.SurfaceHover`、按下 `t.SurfacePressed`，文字 `t.TextMuted` 悬停转 `t.Text`；
+`Active` 的选中态与 `Danger` 的危险态都从当帧主题派生。圆角用
+`Radius(t, RadiusMd)`（圆形形态为全圆），图标用 `IconSizeXs/Sm/Md/Lg` 档，
+间距用 `t.Space`。没有 Lobe 固定色板与自造像素尺寸。
+
 ## 1. 参考实现
 
 | 来源 | 可借鉴之处 |

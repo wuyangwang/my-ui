@@ -4,6 +4,14 @@
 
 > 状态：**已实现**。参考 Lobe UI 的 ColorSwatches：一排色块选一个颜色，选中的带勾，透明色显示棋盘格。
 
+## shadcn 风格
+
+色块的颜色是数据本身，其余全部取当帧 `c.Theme()` 的 shadcn zinc 槽位：未选中的环用
+`t.Border`、选中环用 `t.Text`、悬停外圈用 `t.Text`，透明块的棋盘格用 `t.Surface` 与
+`t.SurfaceHover`，勾的墨色由色块自身经 `OnAccent` 派生。圆角用 `Radius(t, RadiusMd)`
+（圆形为边长一半），默认边长是 `t.Space(SpacingXl)`（默认主题下 24 DIP），随主题间距
+缩放。不含 Lobe 固定色板与自造尺寸。
+
 ## 1. 参考实现
 
 | 来源 | 可借鉴之处 |
@@ -17,7 +25,7 @@
 - `ui.RadioGroup` + `ui.RadioBase[T comparable]` 绑定 `ui.Color`（可比较）✓。
 - 圆/方角由 `Radius(t, RadiusMd)` 与边长一半切换 ✓。
 - 透明色用底层 `t.Surface` 加两块 `t.SurfaceHover` 棋盘格表现 ✓。
-- 勾选墨色按颜色亮度取黑/白半透明，主题为空槽时回退到 `t.Text` ✓。
+- 勾选墨色由色块自身经 `OnAccent` 派生（透明块用 `t.Text`），不写死黑/白 ✓。
 - 自定义颜色按钮需要浮层与原生颜色面板，`controls` 不导入 `overlays`；应用可用 `controls.NewColorPicker` 自行组合 ✓。
 
 ## 3. 实现到何种程度

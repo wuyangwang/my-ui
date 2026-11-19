@@ -31,7 +31,10 @@ type GuideCardOptions struct {
 
 // NewGuideCard is a dismissible tip, as the introduction to a feature:
 // a cover, a title, a description and a close button that hides it for
-// good.
+// good. It is styled as a shadcn Card: a flat theme surface (or a bordered
+// background), Radius(t, RadiusXl) corners and an optional soft shadow.
+// No gradient is used; the fill, border, radius and shadow all come from
+// c.Theme() on this frame.
 func NewGuideCard(c *ui.Context, o GuideCardOptions) ui.Element {
 	t := c.Theme()
 	root := ui.Column(c).Radius(Radius(t, RadiusXl)).Clip()
@@ -42,15 +45,20 @@ func NewGuideCard(c *ui.Context, o GuideCardOptions) ui.Element {
 	if *closed {
 		return root.Hidden(true)
 	}
+	// A shadcn Card is a flat surface leaning on its border and a soft
+	// shadow, not a gradient. Keep the three variants distinct with slots
+	// from this frame's theme only.
 	switch o.Variant {
 	case Outline:
-		root.Border(1, t.Border).Background(t.Surface)
+		root.Background(t.Background).Border(1, t.Border)
 	case Ghost:
+		// No face, as shadcn's ghost surface.
 	default:
-		root.Gradient(t.SurfaceHover, t.Surface, 180)
+		root.Background(t.Surface)
 	}
 	if o.Shadow {
-		root.Shadow(0, 1, 3, -1, t.Border.Alpha(0.5))
+		root.Shadow(0, 1, 2, 0, t.Text.Alpha(0.06)).
+			Shadow(0, 8, 24, -8, t.Text.Alpha(0.10))
 	}
 	return root.Children(func() {
 		if o.Cover != nil {

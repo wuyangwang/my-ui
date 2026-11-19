@@ -36,6 +36,8 @@ type SnippetOptions struct {
 func NewSnippet(c *ui.Context, src string, o SnippetOptions) ui.Element {
 	t := c.Theme()
 	src = strings.TrimSpace(src)
+	// shadcn code block: a quiet theme surface, a hairline border and a
+	// RadiusMd corner, like NewHighlighter's.
 	root := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2)).
 		Height(t.Space(10)).Padding(0, t.Space(3), 0, t.Space(3)).
 		Radius(Radius(t, RadiusMd)).Clip().Role(ui.RoleGroup)
@@ -46,12 +48,12 @@ func NewSnippet(c *ui.Context, src string, o SnippetOptions) ui.Element {
 	root.Label(label)
 	switch o.Variant {
 	case CodeFilled:
-		root.Background(t.SurfaceHover)
+		root.Background(t.Surface)
 	case CodeOutlined:
 		root.Border(1, t.Border).Background(t.Surface)
 	}
 	if o.Shadow {
-		root.Shadow(0, 1, 2, -1, t.Border.Alpha(0.5))
+		root.Shadow(0, 1, 2, 0, t.Text.Alpha(0.06))
 	}
 	shown := src
 	if o.Prefix != "" {

@@ -8,6 +8,13 @@ display.NewQRCode(c, "https://lobehub.com", display.QRCodeOptions{
 })
 ```
 
+## shadcn 风格
+
+外框是 shadcn Card：主题背景（默认 `t.Background`）底 + 1px `t.Border` 发丝边 +
+`Radius(t, RadiusXl)` 圆角，内边距与状态遮罩间距用 `t.Space`；`t` 取当帧主题，
+明暗与自定义主题即时跟随。二维码模块本身保持黑白数据编码（`Color`/`Background`
+可覆盖），不受主题色影响，也没有 Lobe 固定色板与自造尺寸。
+
 ## 行为
 
 - 编码为 QR Model 2、字节模式、纠错级别 L、版本 1–5（单块）。模块按最优的 8 种掩码之一绘制。

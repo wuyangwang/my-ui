@@ -56,7 +56,7 @@ func NewColorSwatches(c *ui.Context, value *ui.Color, swatches ...ColorSwatch) *
 			}
 			b.Children(func() {
 				if sw.Color.A == 0 {
-					checkerboard(c, t, swatchSide(cs.size))
+					checkerboard(c, t, swatchSide(t, cs.size))
 				}
 				if sw.Color == *value {
 					ui.Icon(c, icons.Check()).Size(IconSizeXs, IconSizeXs).
@@ -99,7 +99,7 @@ func (cs *ColorSwatches) Wrap(on bool) *ColorSwatches {
 // apply paints the swatches on this frame's theme.
 func (cs *ColorSwatches) apply() {
 	t := cs.c.Theme()
-	side := swatchSide(cs.size)
+	side := swatchSide(t, cs.size)
 	radius := side / 2
 	if cs.square {
 		radius = Radius(t, RadiusMd)
@@ -116,10 +116,11 @@ func (cs *ColorSwatches) apply() {
 	}
 }
 
-// swatchSide is a swatch's side in DIPs.
-func swatchSide(size float32) float32 {
+// swatchSide is a swatch's side in DIPs. The default is three spacing
+// steps of the theme, so it follows a denser or looser theme's scale.
+func swatchSide(t *ui.Theme, size float32) float32 {
 	if size <= 0 {
-		return 24
+		return t.Space(SpacingXl)
 	}
 	return size
 }

@@ -15,9 +15,10 @@ type SideNavProps struct {
 	BottomActions func()
 }
 
-// SideNav is an app's vertical rail of icon buttons, 58 DIPs wide by
-// default, with the actions pinned apart. It takes the height of its row,
-// at least 640 DIPs, as the Lobe component does.
+// SideNav is an app's vertical rail of icon buttons, with actions pinned
+// apart. Its width and minimum height come from the theme's spacing token
+// (Space(15) and Space(160)); it takes the height of its row. The surface,
+// hairline and gap are shadcn-style theme tokens, read on every frame.
 type SideNav struct {
 	ui.Element
 	c     *ui.Context
@@ -25,7 +26,7 @@ type SideNav struct {
 }
 
 // NewSideNav builds the rail. The width defaults to the theme's
-// Space(15) (58 DIPs); Width overrides it.
+// Space(15); Width overrides it.
 func NewSideNav(c *ui.Context, p SideNavProps) *SideNav {
 	t := c.Theme()
 	s := &SideNav{c: c, width: t.Space(15)}

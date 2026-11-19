@@ -9,6 +9,14 @@ b.Children(func() { ui.Text(c, "内容") })
 if b.Clicked() { /* ... */ }
 ```
 
+## shadcn 风格
+
+Block 是 shadcn Card 的弱底形态：表面 `t.Background`/`t.Surface`，`Outline` 加 1px
+`t.Border`，`Ghost` 为 0 边框；`Default` 静止是 `t.Surface`、悬停转 `t.SurfaceHover`
+（不再以悬停色做静止底），所有颜色取当帧 `c.Theme()` 的 zinc 槽位。圆角
+`Radius(t, RadiusLg)`，`Shadow` 用与 `display.NewCard` 同源的 `t.Text.Alpha` 两层软阴影，
+状态变化经 `StateTransition()` 淡入；间距用 `t.Space`，不含 Lobe 固定色板与自造尺寸。
+
 ## 行为
 
 - `Clickable` 时用 `ui.ButtonBase`，否则用 `ui.Box`；点击回调 `OnChanged`，也可直接读返回元素的 `Clicked()`。

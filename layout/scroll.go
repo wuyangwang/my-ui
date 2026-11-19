@@ -5,27 +5,33 @@ import (
 	. "github.com/wuyangwang/my-ui"
 )
 
-// LobeScrollbar is the thin scrollbar used by the scroll components in this
-// package. Widths and corners are fixed DIPs; every color is left zero, so
+// ShadcnScrollbar is the thin scrollbar used by the scroll components in
+// this package. Its metrics are fixed DIPs; every color is left zero, so
 // mygo fills it from the theme of the frame and it follows appearance,
 // accent and high contrast. It is a function, not a package variable, so
 // nothing about a theme is cached.
-func LobeScrollbar(t *ui.Theme) ui.ScrollbarStyle {
+func ShadcnScrollbar(t *ui.Theme) ui.ScrollbarStyle {
 	_ = t // the theme's own colors are used when the fields are left zero
 	return ui.ScrollbarStyle{ThumbWidth: 6, TrackWidth: 12, Radius: 3}
 }
+
+// LobeScrollbar is the old name of ShadcnScrollbar.
+//
+// Deprecated: use ShadcnScrollbar. The scrollbar is shadcn-styled and
+// theme-derived; the old name is kept only for source compatibility.
+func LobeScrollbar(t *ui.Theme) ui.ScrollbarStyle { return ShadcnScrollbar(t) }
 
 // NewScroll builds a vertical scroll container with my-ui's thin bar. It
 // keeps mygo's ui.Scroll signature, so a call written for the old
 // re-export compiles. Children are the content; the bar is painted by
 // mygo and follows the theme.
 func NewScroll(c *ui.Context) ui.Element {
-	return ui.Scroll(c).ScrollbarStyle(LobeScrollbar(c.Theme()))
+	return ui.Scroll(c).ScrollbarStyle(ShadcnScrollbar(c.Theme()))
 }
 
 // NewScrollHorizontal is NewScroll with mygo's horizontal axis.
 func NewScrollHorizontal(c *ui.Context) ui.Element {
-	return ui.ScrollHorizontal(c).ScrollbarStyle(LobeScrollbar(c.Theme()))
+	return ui.ScrollHorizontal(c).ScrollbarStyle(ShadcnScrollbar(c.Theme()))
 }
 
 // Scroll is a scroll container kept as a struct, for the fluent form.
@@ -79,7 +85,7 @@ func (s *Scroll) Children(build func()) *Scroll {
 	default:
 		el = ui.Scroll(s.c)
 	}
-	el = el.ScrollbarStyle(LobeScrollbar(t))
+	el = el.ScrollbarStyle(ShadcnScrollbar(t))
 	if s.state != nil {
 		el = el.TrackScroll(s.state)
 	}
@@ -95,9 +101,10 @@ func (s *Scroll) Children(build func()) *Scroll {
 }
 
 // ScrollArea is a scroll region whose edges fade where there is more to
-// scroll to, as Lobe UI's ScrollArea does. It is built on NewScroll, so
+// scroll to, as shadcn's ScrollArea does. It is built on NewScroll, so
 // the thumb colors come from the theme and no timer drives the fade: the
-// state is read on the frame the container is built.
+// state is read on the frame the container is built. The fade strips use
+// t.Background on that frame, so they follow the theme like the bar does.
 type ScrollArea struct {
 	ui.Element
 	c                *ui.Context
@@ -123,7 +130,7 @@ func NewScrollArea(c *ui.Context, state *ui.ScrollState, build func()) *ScrollAr
 		default:
 			el = ui.Scroll(c)
 		}
-		el = el.ScrollbarStyle(LobeScrollbar(t)).Grow(1)
+		el = el.ScrollbarStyle(ShadcnScrollbar(t)).Grow(1)
 		if s.state != nil {
 			el = el.TrackScroll(s.state)
 		}

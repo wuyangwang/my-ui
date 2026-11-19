@@ -8,8 +8,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| Lobe `layout.Header` | 64 DIP 顶栏、Logo/Nav/Actions 三段、Mobile 排列 | 全部对应 ✓ |
-| shadcn/ui 顶栏 | 底部细线、留白 | ✓ |
+| shadcn/ui 顶栏 | Logo/Nav/Actions 三段、Mobile 排列、底部细线与留白 | 全部对应 ✓ |
 
 ## 2. 能否实现（mygo v0.10.0 公开 API）
 
@@ -21,7 +20,7 @@
 
 ## 3. 实现到何种程度
 
-- 默认高 `Space(16)`（64 DIPs）；`Mobile` 时 Nav 在最前作菜单位，Logo 居中占余宽。
+- 默认高 `Space(16)`（主题 spacing token）；`Mobile` 时 Nav 在最前作菜单位，Logo 居中占余宽。
 - 三个槽位都是 builder，点击与状态由 app 管理；`Height` 与 `Sticky` 可链式调用。
 - 背景、描边与间距均取 `c.Theme()`，状态变化走 `StateTransition`。
 

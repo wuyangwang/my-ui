@@ -47,8 +47,11 @@ type AvatarOptions struct {
 //	display.NewAvatar(c, "🤯", display.AvatarOptions{Shape: ShapeCircle})
 //
 // Avatar embeds ui.Element, so the mygo styling methods remain available.
-// Every color comes from c.Theme() on the frame the avatar is built, so
-// appearance, accent and high-contrast changes take effect at once.
+// Its colors, text sizes and corner rounding all come from the shadcn tokens
+// of c.Theme() on the frame the avatar is built: the fill is a neutral
+// surface, the ink is the theme's text, and a square avatar uses
+// Radius(t, RadiusMd) while a circle uses half its side. Appearance, accent
+// and high-contrast changes take effect at once, with no fixed color table.
 type Avatar struct {
 	ui.Element
 	c     *ui.Context
@@ -105,14 +108,15 @@ func NewAvatar(c *ui.Context, name string, o AvatarOptions) *Avatar {
 
 // applyShape sizes the avatar and its glyphs in place, so a fluent call
 // after the constructor does not build a second element in the frame.
+// Corners use the shared radius token (a circle is fully round), and glyphs
+// use the shared text-size scale, so neither is an ad-hoc DIP value.
 func (a *Avatar) applyShape() {
-	switch {
-	case a.o.Shape == ShapeCircle:
+	t := a.c.Theme()
+	switch a.o.Shape {
+	case ShapeCircle:
 		a.Radius(a.size / 2)
-	case a.size < 24:
-		a.Radius(a.size * 0.33)
 	default:
-		a.Radius(max(a.size/6, 2))
+		a.Radius(Radius(t, RadiusMd))
 	}
 	a.Element.Size(a.size, a.size)
 	if !a.glyph.Valid() {
@@ -121,13 +125,46 @@ func (a *Avatar) applyShape() {
 	switch {
 	case a.o.Image != nil:
 	case a.emoji:
-		scale := float32(0.8)
+		glyph := avatarEmojiSize(a.size, t)
 		if a.o.Background != (ui.Color{}) {
-			scale *= 0.85
+			glyph = avatarTextSize(a.size, t)
 		}
-		a.glyph.FontSize(a.size * scale)
+		a.glyph.FontSize(glyph)
 	case a.o.Fallback == AvatarText:
-		a.glyph.FontSize(a.size * 0.5)
+		a.glyph.FontSize(avatarTextSize(a.size, t))
+	}
+}
+
+// avatarTextSize maps an avatar's side to a step of the shared text scale.
+// It keeps initials legible from the smallest to the largest avatar without
+// inventing a font size of its own.
+func avatarTextSize(size float32, t *ui.Theme) float32 {
+	switch {
+	case size <= 24:
+		return TextSize(t, TextXs)
+	case size <= 32:
+		return TextSize(t, TextSm)
+	case size <= 48:
+		return TextSize(t, TextLg)
+	case size <= 64:
+		return TextSize(t, TextXl)
+	default:
+		return TextSize(t, Text2Xl)
+	}
+}
+
+// avatarEmojiSize maps an avatar's side to a step of the shared text scale,
+// one above initials: a pictograph reads best a little larger than a letter.
+func avatarEmojiSize(size float32, t *ui.Theme) float32 {
+	switch {
+	case size <= 24:
+		return TextSize(t, TextSm)
+	case size <= 32:
+		return TextSize(t, TextMd)
+	case size <= 48:
+		return TextSize(t, TextXl)
+	default:
+		return TextSize(t, Text2Xl)
 	}
 }
 
@@ -166,21 +203,29 @@ func avatarEmoji(s string) bool {
 	return r >= 0x1F000 || unicode.Is(unicode.So, r)
 }
 
-// avatarInk returns the ink that reads on bg.
+// avatarInk returns the ink that reads on bg. The two candidates are the
+// theme's Text and Background: in either appearance one of them is dark and
+// the other light, so picking by the fill's luma keeps the letters readable
+// without a fixed contrast color.
 func avatarInk(bg ui.Color, t *ui.Theme) ui.Color {
-	if avatarLuma(bg) > 0.4 {
-		return t.Text
+	dark, light := t.Text, t.Background
+	if t.Dark {
+		dark, light = t.Background, t.Text
 	}
-	return OnAccent(bg)
+	if avatarLuma(bg) > 0.5 {
+		return dark
+	}
+	return light
 }
 
 func avatarLuma(c ui.Color) float32 {
 	return (0.2126*float32(c.R) + 0.7152*float32(c.G) + 0.0722*float32(c.B)) / 255
 }
 
-// avatarMarble paints deterministic soft blobs. The hues come from the
-// theme's own palette, so the same name follows light, dark and custom
-// colors without a fixed color table in the package.
+// avatarMarble paints deterministic soft blobs. Every hue comes from a
+// shadcn theme slot — Accent, Info, Success, Warning, TextMuted and Border —
+// so the same name follows light, dark and custom colors without a fixed
+// color table in the package.
 func avatarMarble(c *ui.Context, seed string, size float32, t *ui.Theme) [2]ui.Element {
 	h := fnv.New32a()
 	_, _ = h.Write([]byte(seed))
@@ -191,7 +236,7 @@ func avatarMarble(c *ui.Context, seed string, size float32, t *ui.Theme) [2]ui.E
 		SemanticColor(t, SemanticSuccess),
 		SemanticColor(t, SemanticWarning),
 		t.TextMuted,
-		t.SurfacePressed,
+		t.Border,
 	}
 	pick := func(i uint32) ui.Color {
 		return palette[(n>>(i*3)+i)%uint32(len(palette))]

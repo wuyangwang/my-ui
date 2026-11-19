@@ -41,6 +41,11 @@ type FloatingSheetProps struct {
 // used as the container height for the snap fractions: mygo's public API
 // has no per-container size event, so the fraction is an approximation
 // when the sheet sits in a smaller box.
+//
+// The face follows shadcn's card tokens: t.Background/t.Surface, a 1px
+// t.Border, Radius(t, RadiusXl) and a light theme-derived shadow; Embedded
+// trades the shadow for a border. The header is the drag handle and uses
+// the same tokens on every frame.
 type FloatingSheet struct {
 	ui.Element
 	open *bool

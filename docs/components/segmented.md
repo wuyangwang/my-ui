@@ -4,6 +4,14 @@
 
 > 状态：**已实现**。参考 Lobe UI 的 Segmented：几选一的轨道，指示器滑向选中的那一段；签名兼容 mygo 的 `ui.Segmented`。
 
+## shadcn 风格
+
+轨道是 shadcn Tabs 的弱底发丝边：Filled 用 `t.Surface` + 1px `t.Border`，Outlined
+保留窗口底色 + 1px `t.Border`；选中的那一段用 `t.Accent.Alpha(0.10)` 的弱强调底，
+其余文字 `t.TextMuted`、选中与悬停转 `t.Text`。圆角用 `Radius(t, RadiusMd/Sm)`，
+内边距与间距用 `t.Space`，字号 `TextSize(t, TextXs…TextLg)`，滑行时长走
+`MotionNormal`。没有 Lobe 固定色板与自造像素尺寸。
+
 ## 1. 参考实现
 
 | 来源 | 可借鉴之处 |

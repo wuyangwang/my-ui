@@ -9,10 +9,19 @@ display.NewHighlighter(c, src, display.HighlighterOptions{
 })
 ```
 
+## shadcn 风格
+
+代码块是 shadcn 的 quiet surface：`t.Surface` 弱底、1px `t.Border`（`CodeOutlined`）、
+`Radius(t, RadiusMd)`；`Shadow` 用与 `display.NewCard` 同源的 `t.Text.Alpha(0.06)` 软阴影，
+不再是描边色的半透明。代码墨色走主题语义槽位（`t.Text`、`t.TextMuted` 与
+Success/Warning/Info），弱墨而不固定，没有 Lobe 的代码配色表。复制按钮用
+`controls.NewIconAction` 的纯图标 affordance。字号 `TextSize(t, TextXs/TextSm)`、
+行距与间距 `t.Space`，不含固定色板与自造像素尺寸。
+
 ## 行为
 
 - 源码先去掉首尾空行，再经一个小型分词器着色：字符串、注释（含 `#`/`--`/`/* */`）、数字、关键字与标点，其余取正文墨色。
-- 颜色都从当帧 `c.Theme()` 派生（强调色、语义色、次要墨色），明暗与自定义主题即时跟随。
+- 颜色都从当帧 `c.Theme()` 派生（正文、次要墨色与主题语义色槽位），明暗与自定义主题即时跟随。
 - `Wrap` 用纵向列换行，否则横向滚动；制表宽 4。
 - 头部显示语言或文件名，折叠指针由 app 持有（`Collapsed`），为 nil 时组件自持状态。
 - 复制按钮写系统剪贴板，并调用 `OnCopy(src)`；`Actions` 在其前面追加按钮。

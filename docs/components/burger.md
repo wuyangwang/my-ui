@@ -8,7 +8,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| Lobe `nav.Burger` | 顶栏菜单按钮、下拉抽屉、全屏菜单、选中行、页脚 | 对应 ✓ |
+| shadcn/ui 导航菜单 | 顶栏菜单按钮、下拉抽屉、全屏菜单、选中行、页脚 | 对应 ✓ |
 | mygo `ui/mobile` | TopBar / Drawer / Sheet / ActionSheet 等 | 可用，但**没有 burger/menu button** |
 
 ## 2. 能否实现（mygo v0.10.0 公开 API）
@@ -24,6 +24,7 @@
 
 - 触发器先建、面板后建：点击触发器与打开面板落在同一帧；`open` 是 app 的指针，组件只读。
 - 下拉模式用 `PopoverBase`，点击外部/Escape 自动关闭；全屏模式用 `DialogBase`，自带大号行与关闭图标。
+- 面板按 shadcn Card/Popover token 绘制：`t.Background` / `t.Border`（1px）、`Radius(t, RadiusLg)` 与轻阴影；悬停行用 `t.SurfaceHover`，选中行用 `t.Accent.Alpha(0.10)` 配 `t.Accent`。
 - `Selected *string` 指针与 `OnSelect` 回调任选；点击行写回选中键并关闭。
 
 **已知限制**

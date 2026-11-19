@@ -8,6 +8,14 @@ display.NewSnippet(c, "go get github.com/wuyangwang/my-ui", display.SnippetOptio
 })
 ```
 
+## shadcn 风格
+
+与 Highlighter 同一套 shadcn 代码块观感：`t.Surface` 弱底、1px `t.Border`
+（`CodeOutlined`）、`Radius(t, RadiusMd)`，软阴影用 `t.Text.Alpha(0.06)`；分词颜色取
+当帧主题的语义槽位与次要墨色，是弱墨代码色而非 Lobe 固定配色。复制按钮用
+`controls.NewIconAction`。字号 `TextSize(t, TextXs/TextSm)`，间距 `t.Space`，
+高度 `t.Space(10)` 的主题步长，不含固定色板与自造像素尺寸。
+
 ## 行为
 
 - `Prefix` 显示在代码前（如 `$`），但复制时只包含 `src`。

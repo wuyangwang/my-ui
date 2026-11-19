@@ -8,7 +8,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| Lobe `layout.SideNav` | 58 DIP 图标轨道、顶部头像、上下操作分组 | 全部对应 ✓ |
+| shadcn/ui 侧栏版式 | 图标轨道、顶部头像、上下操作分组 | 全部对应 ✓ |
 | mygo | `ui.Column` + 样式方法 | 用基础元素搭 ✓ |
 
 ## 2. 能否实现（mygo v0.10.0 公开 API）
@@ -21,7 +21,7 @@
 
 ## 3. 实现到何种程度
 
-- 宽度默认 `Space(15)`（58 DIPs），最小高 `Space(160)`（640 DIPs）。
+- 宽度默认 `Space(15)`，最小高 `Space(160)`，均取自主题 spacing token；表面与细线用 `t.Surface` / `t.Border`（shadcn zinc），每帧从 `c.Theme()` 读取。
 - `Avatar`、`TopActions`、`BottomActions` 三个槽位；中段 `Grow(1)` 把底部操作推到末端。
 - `Width` 可链式覆盖。
 

@@ -17,11 +17,12 @@ const (
 	GroupGridAuto
 )
 
-// GroupCorner shapes the group's outline.
+// GroupCorner shapes the group's outline. A square group uses the shared
+// radius token; a circle is fully round.
 type GroupCorner int
 
 const (
-	// GroupCornerSquare rounds the corners like a squircle.
+	// GroupCornerSquare rounds the corners with Radius(t, RadiusMd).
 	GroupCornerSquare GroupCorner = iota
 	// GroupCornerCircle makes the group round, with smaller members.
 	GroupCornerCircle
@@ -55,7 +56,9 @@ type GroupAvatarOptions struct {
 
 // GroupAvatar shows a group, as a group chat in a list, by the avatars of
 // its members in a grid on a theme-tinted fill; a single member shows
-// large.
+// large. The fill is the shadcn Surface slot and the outline's rounding is
+// Radius(t, RadiusMd) (or a full circle), both read from c.Theme() on this
+// frame. Member avatars reuse NewAvatar and so follow the same tokens.
 func NewGroupAvatar(c *ui.Context, o GroupAvatarOptions) ui.Element {
 	t := c.Theme()
 	size := o.Size
@@ -76,12 +79,12 @@ func NewGroupAvatar(c *ui.Context, o GroupAvatarOptions) ui.Element {
 	total := member*float32(cols) + gap
 	pitch := (total-float32(cols-1)*gap)/float32(cols) + gap
 	items := o.Avatars[:min(len(o.Avatars), cols*cols)]
-	radius := size * 0.15
+	radius := Radius(t, RadiusMd)
 	if circle {
 		radius = size / 2
 	}
 	root := ui.Box(c).Size(size, size).Shrink(0).Clip().
-		Background(t.SurfaceHover).Radius(radius)
+		Background(t.Surface).Radius(radius)
 	root.Children(func() {
 		if len(items) == 1 {
 			one := size * 0.8

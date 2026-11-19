@@ -13,7 +13,7 @@ type LayoutProps struct {
 	// Toc builds the table of contents held at the right.
 	Toc func()
 	// TocWidth is the width of the Toc column; zero uses the theme's
-	// Space(50) (200 DIPs).
+	// Space(50).
 	TocWidth float32
 	// Footer builds the row at the foot of the content column.
 	Footer func()
@@ -48,7 +48,7 @@ func NewLayout(c *ui.Context, p LayoutProps, build func()) *Layout {
 					Background(t.Surface).
 					BorderWidth(0, 1, 0, 0).BorderColor(t.Border)
 				side.Children(func() {
-					sc := ui.Scroll(c).ScrollbarStyle(LobeScrollbar(t)).Grow(1)
+					sc := ui.Scroll(c).ScrollbarStyle(ShadcnScrollbar(t)).Grow(1)
 					sc.Children(func() {
 						if p.Sidebar != nil {
 							p.Sidebar()
@@ -61,7 +61,7 @@ func NewLayout(c *ui.Context, p LayoutProps, build func()) *Layout {
 				if p.Mobile && p.Toc != nil {
 					ui.Box(c).FillWidth().Padding(t.Space(2), t.Space(4)).Children(p.Toc)
 				}
-				sc := ui.Scroll(c).ScrollbarStyle(LobeScrollbar(t)).Grow(1)
+				sc := ui.Scroll(c).ScrollbarStyle(ShadcnScrollbar(t)).Grow(1)
 				sc.Children(func() {
 					if build != nil {
 						build()
@@ -84,7 +84,7 @@ func NewLayout(c *ui.Context, p LayoutProps, build func()) *Layout {
 				toc := ui.Box(c).Width(w).Clip().
 					BorderWidth(0, 0, 0, 1).BorderColor(t.Border)
 				toc.Children(func() {
-					sc := ui.Scroll(c).ScrollbarStyle(LobeScrollbar(t)).Grow(1)
+					sc := ui.Scroll(c).ScrollbarStyle(ShadcnScrollbar(t)).Grow(1)
 					sc.Children(p.Toc)
 				})
 			}

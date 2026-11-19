@@ -8,7 +8,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| Lobe `layout.DraggableSideNav` | 边缘改宽、收成轨道、`SideNavState`（Expanded/Collapse/RailWidth） | 全部对应 ✓ |
+| shadcn/ui 侧边导航 | 边缘改宽、收成轨道、`SideNavState`（Expanded/Collapse/RailWidth） | 全部对应 ✓ |
 | mygo | `Element.Dragged` / `DragEnded` | 拖拽用公开 API ✓ |
 
 ## 2. 能否实现（mygo v0.10.0 公开 API）
@@ -28,7 +28,8 @@
 
 **已知限制**
 - 收起动画只靠主题色过渡与宽度变化；`Collapse` 在展开/收起间取端点值，不随拖拽连续插值。
-- 只有左侧一种放置（与 Lobe 一致）。
+- 只有左侧一种放置。
+- 轨道面用 shadcn token：`t.Surface` + 1px `t.Border`，边缘标签用 `Radius(t, RadiusMd)`，悬停边缘变 `t.Accent`；颜色每帧从 `c.Theme()` 读取。
 
 ## 4. API 契约
 

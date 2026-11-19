@@ -4,6 +4,13 @@
 
 > 状态：**已实现**。参考 Lobe UI 的 ActionIconGroup：一组共用底面的图标动作，返回被点中的 Key。
 
+## shadcn 风格
+
+组容器与项沿用 ActionIcon 的 shadcn 形态：Filled 是 `t.Surface` 弱底、Outlined 是
+`t.Background` + 1px `t.Border`、Borderless 透明且悬停转 `t.SurfaceHover`。间距与内边距
+用 `t.Space`，圆角用 `Radius(t, RadiusMd)`。每项由 `NewIconAction` 承载悬停/按下墨色，
+颜色均取当帧 `c.Theme()` 的 zinc 槽位；不含 Lobe 固定色板或自造尺寸。
+
 ## 1. 参考实现
 
 | 来源 | 可借鉴之处 |

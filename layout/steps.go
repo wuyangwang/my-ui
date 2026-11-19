@@ -113,7 +113,7 @@ func (s *Steps) build() {
 			case StepProcess:
 				ink, face = t.AccentText, t.Accent
 			case StepFinish:
-				ink, face = t.AccentText, t.Accent.Alpha(0.16)
+				ink, face = t.AccentText, t.Accent.Alpha(0.10)
 			case StepError:
 				ink, face = t.AccentText, t.Danger
 			}
@@ -127,15 +127,15 @@ func (s *Steps) build() {
 			marker = marker.Background(face).TextColor(ink)
 			marker.Children(func() {
 				if item.Icon != nil {
-					ui.Icon(s.c, item.Icon).Size(12, 12).TextColor(ink)
+					ui.Icon(s.c, item.Icon).Size(IconSizeXs, IconSizeXs).TextColor(ink)
 					return
 				}
 				if !p.Dot {
 					label := strconv.Itoa(i + 1)
 					if status == StepFinish {
-						ui.Icon(s.c, icons.Check()).Size(12, 12).TextColor(ink)
+						ui.Icon(s.c, icons.Check()).Size(IconSizeXs, IconSizeXs).TextColor(ink)
 					} else {
-						ui.Text(s.c, label).FontSize(12).TextColor(ink)
+						ui.Text(s.c, label).FontSize(TextSize(t, TextXs)).TextColor(ink)
 					}
 				}
 			})

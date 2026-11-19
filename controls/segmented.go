@@ -41,10 +41,11 @@ func NewSegmented(c *ui.Context, selected *int, labels ...string) *Segmented {
 	track := parts.Track
 	track.AlignItems(ui.Stretch).Padding(t.Space(0.75)).Gap(t.Space(0.5)).
 		Radius(Radius(t, RadiusMd)).Transition(StateTransition())
-	indicator := t.Surface
+	// The chosen segment is the only emphasis on the track: a weak wash
+	// of the accent, as shadcn's selected tab, never a fixed Lobe hue.
+	indicator := t.Accent.Alpha(0.10)
 	if s.variant == SegmentedOutlined {
 		track.Border(1, t.Border)
-		indicator = t.SurfaceHover
 	} else {
 		track.Background(t.Surface).Border(1, t.Border)
 	}

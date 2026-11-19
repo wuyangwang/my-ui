@@ -34,10 +34,12 @@ type DraggablePanelProps struct {
 // size (*float32) and the state (*bool); the panel only writes them, so
 // they survive from frame to frame and can be set from elsewhere.
 //
-// The seam lights up under the pointer and turns accent-colored while it
-// is dragged. A collapsed panel leaves a slim grip so it can be reopened;
-// the size it had is kept and restored on expand. The toggle is its own
-// control, never swallowed by the seam's drag.
+// The body is a shadcn-style surface: t.Surface and a 1px t.Border, read
+// from c.Theme() each frame. The seam lights up under the pointer and
+// turns accent-colored while it is dragged. A collapsed panel leaves a
+// slim grip so it can be reopened; the size it had is kept and restored on
+// expand. The toggle is its own control, never swallowed by the seam's
+// drag.
 type DraggablePanel struct {
 	ui.Element
 	c        *ui.Context

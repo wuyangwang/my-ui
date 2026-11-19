@@ -8,8 +8,7 @@
 
 | 来源 | 具体条目 | 我们怎么用 |
 |---|---|---|
-| Lobe `layout.Layout` | 头栏 + 侧栏 + 正文 + 目录 + 页脚 | 全部对应 ✓ |
-| shadcn/ui docs 版式 | 细线分区、独立滚动 | ✓ |
+| shadcn/ui 文档版式 | 头栏 + 侧栏 + 正文 + 目录 + 页脚、细线分区、独立滚动 | 全部对应 ✓ |
 
 ## 2. 能否实现（mygo v0.10.0 公开 API）
 
@@ -23,7 +22,7 @@
 
 - `Header` 置顶；侧栏在带自己滚动条的列中；正文、`Toc` 与 `Footer` 一起在头栏下滚动。
 - `Mobile` 去掉侧栏并把 `Toc` 移到正文上方。
-- `TocWidth` 默认 `Space(50)`（200 DIPs）；所有表面与细线来自主题。
+- `TocWidth` 默认 `Space(50)`；所有表面与细线来自 shadcn 风格主题 token（`t.Background` / `t.Surface` / `t.Border`）。
 
 **已知限制**
 - 目录不跟踪滚动位置（没有"当前章节"高亮）：mygo 未提供公开的段落可见性事件，应用可在自己的 `Toc` 槽位里实现。
@@ -34,7 +33,7 @@
 | 符号 | 作用 |
 |---|---|
 | `LayoutProps.Header / Sidebar / Toc / Footer` | 版式槽位 |
-| `LayoutProps.TocWidth` | 目录列宽，默认 200 DIPs |
+| `LayoutProps.TocWidth` | 目录列宽，默认 `Space(50)` |
 | `LayoutProps.Mobile` | 隐藏侧栏、把目录上移 |
 | `NewLayout(c, props, build)` | 构造；`build` 画正文 |
 

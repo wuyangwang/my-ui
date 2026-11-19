@@ -4,6 +4,14 @@
 
 > 状态：**已实现**。参考 Lobe UI 的 ToggleGroup：Outlined / Borderless / Segmented 三种分组方式；签名兼容 mygo 的 `ui.ToggleGroup`。
 
+## shadcn 风格
+
+容器是 shadcn ToggleGroup 的弱底发丝边：Outlined 用 1px `t.Border` 且裁切共享边，
+Borderless 无面，Segmented 用 `t.Surface` + 1px `t.Border` 的轨道。内边距与间距用
+`t.Space`，圆角 `Radius(t, RadiusMd)`，状态变化经 `StateTransition()` 淡入。组内开关的
+选中/悬停墨色由各自的控件（如 `NewToggle`）按同一套主题槽位绘制。没有 Lobe 固定色板
+与自造尺寸。
+
 ## 1. 参考实现
 
 | 来源 | 可借鉴之处 |

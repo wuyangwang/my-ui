@@ -27,8 +27,9 @@ type FloatingPanelProps struct {
 	Title string
 	// Placement picks the corner; zero is FloatBottomRight.
 	Placement FloatingPlacement
-	// Width is the initial width in DIPs; zero means 360. The panel is
-	// never wider than the window less 32 DIPs.
+	// Width is the initial width in DIPs; zero means the theme's
+	// Space(90). The panel is never wider than the window less a small
+	// margin.
 	Width float32
 	// Offset is the distance from the corner in DIPs; zero uses the
 	// theme's Space(4).
@@ -49,6 +50,10 @@ type FloatingPanelProps struct {
 // app's *bool is true. It is not modal: the page behind it stays usable.
 // Escape and the close button write false to the flag; the app's trigger
 // writes true, and the panel only reads the flag.
+//
+// The face is a shadcn-style card: t.Surface, a 1px t.Border,
+// Radius(t, RadiusXl) and a light theme-derived shadow. Header and footer
+// rules are hairlines of t.Border.
 //
 // The edges facing away from the corner resize the panel between the
 // bounds in FloatingPanelProps. Their drag state lives on mygo elements;

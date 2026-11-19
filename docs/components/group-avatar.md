@@ -1,6 +1,6 @@
 # GroupAvatar
 
-用成员头像的网格表示群聊，落在主题色的底面上；单个成员时放大显示。
+用成员头像的网格表示群聊，落在主题色的底面上；单个成员时放大显示。组件的网格/角块形态保持不变，本版只把颜色与圆角对齐 shadcn 基础 token。
 
 ```go
 display.NewGroupAvatar(c, display.GroupAvatarOptions{
@@ -15,7 +15,8 @@ display.NewGroupAvatar(c, display.GroupAvatarOptions{
 ## 行为
 
 - 两列最多 4 人、三列最多 9 人；`GroupGridAuto` 在超过 4 人时用三列。
-- 圆角方形或圆形由 `Corner` 决定，成员头像由 `NewAvatar` 绘制，复用其纹理、首字母与 emoji 逻辑。
+- 圆角方形或圆形由 `Corner` 决定：方形用 `Radius(t, RadiusMd)`，圆形用半边长。
+- 底面只用当前帧 `c.Theme()` 的 shadcn 槽位 `Surface`；成员头像由 `NewAvatar` 绘制，复用其纹理、首字母与 emoji 逻辑，因此颜色/字号/圆角同样随主题变化。
 - 成员坐标按网格居中排布，单个成员占八成边长。
 
 ## API
@@ -26,11 +27,11 @@ display.NewGroupAvatar(c, display.GroupAvatarOptions{
 | `GroupAvatarOptions.Avatars` | `[]GroupAvatarItem` | 成员，按顺序；超出网格的省略 |
 | `GroupAvatarOptions.Size` | `float32` | 边长（DIP），0 用 32 |
 | `GroupAvatarOptions.Grid` | `GroupGrid` | `Two`/`Three`/`Auto` |
-| `GroupAvatarOptions.Corner` | `GroupCorner` | `Square` 或 `Circle` |
+| `GroupAvatarOptions.Corner` | `GroupCorner` | `Square`（`RadiusMd`）或 `Circle` |
 | `GroupAvatarOptions.Shape` | `myui.Shape` | 每个成员头像的形状 |
 | `GroupAvatarItem.Avatar` | `string` | 成员的姓名或 emoji |
 | `GroupAvatarItem.Image` | `ui.ImageSource` | 成员图片 |
-| `GroupAvatarItem.Background` | `ui.Color` | 成员底色 |
+| `GroupAvatarItem.Background` | `ui.Color` | 调用方覆盖的成员底色 |
 | `GroupAvatarItem.Fallback` | `AvatarFallback` | 成员回退方式 |
 
 ## 限制

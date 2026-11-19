@@ -4,6 +4,14 @@
 
 > 状态：**已实现**。参考 Lobe UI 的 CopyButton：点击复制文本，随后短暂显示对勾与「已复制」。
 
+## shadcn 风格
+
+按钮复用 ActionIcon 的三种 shadcn 面（ghost / secondary / outline），外观全部取当帧
+`c.Theme()` 的 zinc 槽位：`t.Background`/`t.Surface` 弱底、1px `t.Border`、
+`t.SurfaceHover` 悬停、墨色 `t.TextMuted` → `t.Text`。圆角用 `Radius(t, RadiusMd)`，
+尺寸走共享 `Size`（28/32/36/40 DIP），字形走 `IconSize` 档，间距用 `t.Space`。
+复制反馈是框架动画的时长，不引入颜色或尺寸常量。
+
 ## 1. 参考实现
 
 | 来源 | 可借鉴之处 |

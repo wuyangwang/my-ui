@@ -87,15 +87,18 @@ func (b *Block) applyLook() {
 		root.Background(t.Surface)
 	default:
 		root.Border(0, ui.Transparent)
+		// shadcn's muted surface at rest, its hover shade under the
+		// pointer: never a hover color while idle.
 		if hover {
-			root.Background(t.Background)
-		} else {
 			root.Background(t.SurfaceHover)
+		} else {
+			root.Background(t.Surface)
 		}
 	}
 	if b.o.Shadow {
-		root.Shadow(0, 1, 2, -1, t.Border.Alpha(0.5)).
-			Shadow(0, 2, 6, -2, t.Border.Alpha(0.3))
+		// The same soft two-layer shadow as display.NewCard.
+		root.Shadow(0, 1, 2, 0, t.Text.Alpha(0.06)).
+			Shadow(0, 8, 24, -8, t.Text.Alpha(0.10))
 	}
 }
 
