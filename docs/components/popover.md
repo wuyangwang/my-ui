@@ -27,11 +27,12 @@
 **已实现**
 - `NewPopover(c, open, anchor, build)`：锚点由 app 构建（`func() ui.Element` ✓），**点击锚点即打开** ✓（同一帧 ✓）；面板外点击与 Escape 关闭 ✓（框架 ✓，`overlays_test.go` 覆盖 ✓）。
 - 面板样式由库给（surface 底 + 描边 + 圆角 + 内衬 + 阴影 ✓），内容由 app 填 ✓。
+- `Side(s)`（或构造时 `PopoverOptions{Side: ...}`）：复用 `tooltipAnchors` 的锚点映射，在面板上 `AttachTo(anchor, at, self)`；默认 `PopoverBottom`（沿用框架原来的锚点下方），空间不足时框架翻到对侧 ✓（`popover_test.go` 的 `TestPopoverSidePlacesThePanel` / `TestPopoverOptionsSidePlacesThePanel` 覆盖 ✓）。点击外部/Escape 关闭沿用框架，未改动 ✓。
 - `Open()`/`SetOpen(bool)` ✓。
 
 **已知限制**
 - 触发方式只有点击（框架如此 ✗；悬停/焦点触发需 app 自己接 ✗）。
-- 面板位置由框架定（锚点下方 ✓），不设 `placement` ✗。
+- 只有四向位置（`PopoverTop/Bottom/Left/Right`，复用 tooltip 锚点映射），无 shadcn 的 `sideOffset` 与 align 细调 ✗（框架不提供 ✗）。
 - 面板没有自带的头尾/标题（框架的弹层内容由 app 填 ✓，标题要 app 自己写 ✗）。
 
 **实现要点（踩过的坑）**
@@ -47,11 +48,31 @@
 
 ```go
 // NewPopover shows a panel over its anchor while open is true.
-func NewPopover(c *ui.Context, open *bool, anchor func() ui.Element, build func(panel ui.Element)) *Popover
+func NewPopover(c *ui.Context, open *bool, anchor func() ui.Element, build func(panel ui.Element), options ...PopoverOptions) *Popover
 
-func (p *Popover) Open() bool
-func (p *Popover) SetOpen(open bool) *Popover
+type PopoverOptions struct {
+	Side PopoverSide // 不传 options 时默认 PopoverBottom
+}
+
+type PopoverSide = TooltipSide
+const (
+	PopoverTop PopoverSide = iota
+	PopoverBottom
+	PopoverLeft
+	PopoverRight
+)
 ```
+
+| 属性（方法） | 作用 |
+|---|---|
+| `Side(s PopoverSide) *Popover` | 面板出现在锚点的哪一侧：`PopoverTop`/`PopoverBottom`（默认）/`PopoverLeft`/`PopoverRight`；用 tooltipAnchors 的锚点映射 `AttachTo`，空间不足时框架翻到对侧 |
+| `Open() bool` | 面板当前是否显示 |
+| `SetOpen(open bool) *Popover` | 开合面板（改 app 的 flag），返回自身可链 |
+| `Dismissed() bool` | 本帧是否因面板外点击或 Escape 被关闭 |
+| `OnDismiss(fn func()) *Popover` | 本帧被关闭时调用 `fn` |
+| `Title(string) *Popover` / `Description(string) *Popover` | 面板头部的标题 / 灰色副标题 |
+| `Footer(build func()) *Popover` | 右对齐的操作行 |
+| `ShowClose(on bool) *Popover` | 显示 / 隐藏角上的关闭按钮 |
 
 用法：
 
@@ -60,12 +81,13 @@ overlaypkg.NewPopover(c, &app.open, func() ui.Element {
 	return ctrlpkg.NewButton(c, "更多").Element
 }, func(panel ui.Element) {
 	formspkg.NewField(c, "备注", func() ui.Element { ... })
-})
+}).Side(overlaypkg.PopoverBottom)
 ```
 
 ## 6. 状态
 
 - [x] 调研与可行性结论（本文）
 - [x] 实现（`popover.go`）
-- [x] 测试（点击锚点后面板出现 ✓、内容在面板里 ✓、点击外面关闭 ✓）
-- [ ] 悬停/焦点触发、`placement`（后置 ✗）
+- [x] 测试（点击锚点后面板出现 ✓、内容在面板里 ✓、点击外面关闭 ✓、Side 决定上/下位置 ✓，构造 options 与 fluent 两种方式 ✓）
+- [x] API 表（PopoverOptions/Side/Open/SetOpen/Dismissed/OnDismiss/Title/Description/Footer/ShowClose）已补 ✓
+- [ ] 悬停/焦点触发、`sideOffset`/align 细调（后置 ✗）

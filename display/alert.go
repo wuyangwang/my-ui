@@ -7,123 +7,207 @@ import (
 	"github.com/wuyangwang/my-ui/icons"
 )
 
-// Alert is a message that stands in the page: a card with a title, a
-// description and an icon.
+// AlertType is the kind of message an Alert carries. It picks the tone
+// (the color of the icon and the tint of a Soft surface) and the default
+// icon. It is independent of AlertVariant: any type can wear any surface.
+type AlertType uint8
+
+const (
+	// AlertInfo is a neutral, informational message (the zero value).
+	AlertInfo AlertType = iota
+	// AlertSuccess reports that something went well.
+	AlertSuccess
+	// AlertWarning calls attention to something that needs care.
+	AlertWarning
+	// AlertError reports a failure.
+	AlertError
+	// AlertSecondary is a quiet, low-emphasis message.
+	AlertSecondary
+)
+
+// AlertVariant is the surface an Alert is painted on. It is orthogonal to
+// AlertType: the type chooses the hue, the variant chooses how much of it
+// shows.
+type AlertVariant uint8
+
+const (
+	// AlertSoft tints the surface with the type's color and draws a faint
+	// ring of the same hue (the zero value).
+	AlertSoft AlertVariant = iota
+	// AlertOutlined draws a border in the theme's color over a plain face.
+	AlertOutlined
+	// AlertPlain shows no surface at all, only the content.
+	AlertPlain
+)
+
+// Alert is a message that stands in the page: an icon, a title, an
+// optional description and an optional action. Its two axes are
+// independent — Type picks the color and the glyph, Variant picks the
+// surface:
 //
-//	display.NewAlert(c, "注意").Description("这条信息需要留意").Warning()
+//	display.NewAlert(c, "注意").Type(AlertWarning).Variant(AlertSoft)
+//	display.NewAlert(c, "出错了").Error().NoIcon(true)
 //
-// The alert is styled by the library, as shadcn's: a bordered card with
-// the icon at its left, the title and the description beside it. The
-// variant says what kind of message it is: Default, Destructive,
-// Success, Warning or Info. It is a live region, so a screen reader
-// announces it as it comes.
+// It is a live region (RoleAlert by default), so a screen reader
+// announces it as it comes. The app's closed flag hides the alert when it
+// is set to true. Colors are read from c.Theme() on every frame.
 type Alert struct {
 	ui.Element
-	c       *ui.Context
-	title   string
-	icon    *ui.SVG
-	variant Variant
+	c           *ui.Context
+	title       string
+	description string
+	typ         AlertType
+	variant     AlertVariant
+	noIcon      bool
+	selectable  bool
+	closed      *bool
+	role        ui.Role
 
-	texts     ui.Element // the title and the description
-	iconSlot  ui.Element // the slot of the icon at the left
-	descSlot  ui.Element // the slot of the description
-	action    ui.Element // the slot of the action at the right
-	closed    *bool      // the app's flag, set true when closed
-	inherited bool
+	root      ui.Element
+	texts     ui.Element
+	titleText ui.Element
+	descSlot  ui.Element
+	descText  ui.Element
+	action    ui.Element
+	icons     [5]ui.Element // one slot per AlertType
+	iconEls   [5]ui.Element // the glyph inside each slot
+	custom    ui.Element    // the slot filled by Icon
+	customOn  bool          // whether Icon supplied a glyph
 }
 
-// NewAlert creates an alert with a title.
+// NewAlert creates an alert with a title, using AlertInfo on an AlertSoft
+// surface. The chain runs in the frame the view builds, so call it before
+// any app-specific styling.
 func NewAlert(c *ui.Context, title string) *Alert {
-	a := &Alert{c: c, title: title}
-	th := c.Theme()
-	alert := ui.Box(c).Row().AlignItems(ui.Start).Gap(th.Space(3)).
-		Background(th.Surface).Border(1, th.Border).Radius(Radius(th, RadiusMd)).
-		Padding(th.Space(3), th.Space(4)).
-		FontSize(TextSize(th, TextSm)).
-		Role(ui.RoleAlert).
+	a := &Alert{c: c, title: title, typ: AlertInfo, variant: AlertSoft, role: ui.RoleAlert}
+	t := c.Theme()
+
+	root := ui.Box(c).Row().AlignItems(ui.Start).Gap(t.Space(3)).AlignSelf(ui.Stretch).
+		Padding(t.Space(3), t.Space(4)).FontSize(TextSize(t, TextSm)).
 		Transition(StateTransition())
-	alert.Children(func() {
-		a.iconSlot = ui.Row(c).AlignItems(ui.Start)
-		a.texts = ui.Column(c).Grow(1).Gap(0).Children(func() {
-			ui.Text(c, title).Bold()
+	root.Children(func() {
+		// All five glyphs are built once; the active one is shown and the
+		// rest are Hidden. That lets Type change the icon without adding
+		// children again on a later call in the same frame.
+		for k := range a.icons {
+			slot := ui.Row(c).AlignItems(ui.Start).Shrink(0)
+			k := k
+			slot.Children(func() {
+				a.iconEls[k] = ui.Icon(c, alertGlyph(AlertType(k))).FontSize(alertGlyphSize(false))
+			})
+			a.icons[k] = slot
+		}
+		a.custom = ui.Row(c).AlignItems(ui.Start).Shrink(0).Hidden(true)
+
+		a.texts = ui.Column(c).Grow(1).MinWidth(0)
+		a.texts.Children(func() {
+			a.titleText = ui.Text(c, title).Bold()
 			a.descSlot = ui.Box(c)
 		})
-		a.action = ui.Row(c).AlignItems(ui.Center)
+		a.action = ui.Row(c).AlignItems(ui.Center).Shrink(0)
 	})
-	a.Element = alert
+	a.root = root
+	a.Element = root
+	a.apply()
 	return a
 }
 
-// Description adds the text under the title of the alert.
+// Type chooses the message's kind: the hue of a Soft surface, the ink of
+// the icon and the glyph shown at the left. It is independent of Variant.
+func (a *Alert) Type(t AlertType) *Alert {
+	a.typ = t
+	a.apply()
+	return a
+}
+
+// Variant chooses the surface: Soft (tinted), Outlined (bordered) or Plain
+// (bare). It is independent of Type.
+func (a *Alert) Variant(v AlertVariant) *Alert {
+	a.variant = v
+	a.apply()
+	return a
+}
+
+// Description adds the text under the title and returns the alert. An
+// empty string clears it.
 func (a *Alert) Description(s string) *Alert {
-	if s == "" {
-		return a
-	}
-	th := a.c.Theme()
+	a.description = s
 	a.descSlot.Children(func() {
-		ui.Text(a.c, s).
-			TextColor(a.descriptionColor()).
-			Margin(th.Space(1), 0, 0, 0)
-	})
-	return a
-}
-
-// Icon puts an icon at the left of the alert and returns it, for
-// chaining. The icon takes the color of the alert's ink, as shadcn's
-// `[&>svg]:text-current` does, so a destructive alert's icon is red.
-func (a *Alert) Icon(svg *ui.SVG) *Alert {
-	a.icon = svg
-	a.iconSlot.Children(func() {
-		ic := ctrlpkg.NewIcon(a.c, svg).Size(SizeSm)
-		if ink, ok := a.variantInk(); ok {
-			ic.TextColor(ink)
+		if s != "" {
+			a.descText = ui.Text(a.c, s).TextColor(a.descriptionInk())
 		}
 	})
+	if a.selectable && a.descText.Valid() {
+		a.descText.Selectable()
+	}
+	a.apply()
 	return a
 }
 
-// Variant applies the look of v and returns the alert, for chaining: the
-// ink of the alert says what kind of message it is. The title, the
-// description and the icon all take it.
-func (a *Alert) Variant(v Variant) *Alert {
-	a.variant = v
-	if ink, ok := a.variantInk(); ok {
-		a.texts.TextColor(ink)
-		a.iconSlot.TextColor(ink)
+// Icon replaces the type's glyph with svg and returns the alert. The
+// custom glyph takes the type's ink. Call with nil to go back to the
+// type's own icon.
+func (a *Alert) Icon(svg *ui.SVG) *Alert {
+	if svg == nil {
+		a.customOn = false
+		a.custom.Hidden(true)
+		a.apply()
+		return a
+	}
+	a.custom.Children(func() {
+		ui.Icon(a.c, svg).FontSize(alertGlyphSize(a.description != "")).TextColor(alertTone(a.c, a.typ))
+	})
+	a.customOn = true
+	a.custom.Hidden(false)
+	a.apply()
+	return a
+}
+
+// NoIcon hides (or shows) the glyph at the left and returns the alert.
+func (a *Alert) NoIcon(on bool) *Alert {
+	a.noIcon = on
+	a.apply()
+	return a
+}
+
+// Selectable lets people select and copy the title and description, for a
+// message whose text they may pass on, such as an error's details.
+func (a *Alert) Selectable(on bool) *Alert {
+	a.selectable = on
+	if a.titleText.Valid() {
+		a.titleText.Selectable()
+	}
+	if a.descText.Valid() {
+		a.descText.Selectable()
 	}
 	return a
 }
 
-// variantInk is the ink the variant paints, if it paints one.
-func (a *Alert) variantInk() (ui.Color, bool) {
-	th := a.c.Theme()
-	switch a.variant {
-	case Destructive:
-		return th.Danger, true
-	case Success, Info, Warning:
-		role, _ := SemanticOf(a.variant)
-		return SemanticColor(th, role), true
+// Closed shows a close button that writes true to flag, and returns the
+// alert. The app hides the alert when flag is true; while it is true the
+// alert renders nothing.
+func (a *Alert) Closed(flag *bool) *Alert {
+	a.closed = flag
+	if a.action.Valid() {
+		a.action.Children(func() {
+			ctrlpkg.NewIconAction(a.c, ctrlpkg.IconActionOptions{
+				SVG:      icons.X(),
+				Label:    Message(a.c, "close"),
+				IconSize: IconSizeSm,
+				OnClick: func() {
+					if a.closed != nil {
+						*a.closed = true
+					}
+				},
+			})
+		})
 	}
-	return ui.Color{}, false
+	a.apply()
+	return a
 }
 
-// Default is Variant(myui.Default), the built-in look.
-func (a *Alert) Default() *Alert { return a.Variant(Default) }
-
-// Native is Variant(myui.Native), the old name of Default.
-func (a *Alert) Native() *Alert { return a.Variant(Native) }
-
-// Destructive is Variant(myui.Destructive): a message of an error.
-func (a *Alert) Destructive() *Alert { return a.Variant(Destructive) }
-
-// Success is Variant(myui.Success).
-func (a *Alert) Success() *Alert { return a.Variant(Success) }
-
-// Info is Variant(myui.Info).
-func (a *Alert) Info() *Alert { return a.Variant(Info) }
-
-// Warning is Variant(myui.Warning).
-func (a *Alert) Warning() *Alert { return a.Variant(Warning) }
+// Closable is the old name of Closed, kept for code that uses it.
+func (a *Alert) Closable(flag *bool) *Alert { return a.Closed(flag) }
 
 // Action builds a control at the right of the alert — shadcn's
 // AlertAction — a link or a small button the reader can act on.
@@ -134,66 +218,150 @@ func (a *Alert) Action(build func()) *Alert {
 	return a
 }
 
-// ShowIcon puts the icon of the variant at the left when none was given
-// with Icon, and returns the alert, for chaining. The icon follows the
-// variant's ink.
-func (a *Alert) ShowIcon(on bool) *Alert {
-	if !on || a.icon != nil {
-		return a
-	}
-	svg := icons.Info()
-	switch a.variant {
-	case Destructive:
-		svg = icons.CircleX()
-	case Success:
-		svg = icons.CircleCheck()
-	case Warning:
-		svg = icons.TriangleAlert()
-	}
-	return a.Icon(svg)
-}
-
-// Closable puts a close button at the right of the alert, and returns it,
-// for chaining. Clicking it sets *closed to true; the app hides the alert
-// when it does.
-func (a *Alert) Closable(closed *bool) *Alert {
-	a.closed = closed
-	if !a.action.Valid() {
-		return a
-	}
-	a.action.Children(func() {
-		ctrlpkg.NewIconAction(a.c, ctrlpkg.IconActionOptions{
-			SVG:      icons.X(),
-			Label:    Message(a.c, "close"),
-			IconSize: IconSizeSm,
-			OnClick: func() {
-				if a.closed != nil {
-					*a.closed = true
-				}
-			},
-		})
-	})
-	return a
-}
-
-// Role sets the accessibility role of the alert — RoleAlert (the
-// default) or RoleStatus for a non-urgent message — and returns it.
+// Role sets the accessibility role — RoleAlert (the default, an urgent
+// live region) or RoleStatus for a non-urgent message — and returns it.
 func (a *Alert) Role(r ui.Role) *Alert {
+	a.role = r
 	a.Element = a.Element.Role(r)
 	return a
 }
 
-// descriptionColor is the color of the description: the muted ink, or
-// the ink of the variant at nine tenths, as shadcn's destructive alert
-// does.
-func (a *Alert) descriptionColor() ui.Color {
-	th := a.c.Theme()
-	switch a.variant {
-	case Destructive:
-		return th.Danger.Alpha(0.9)
-	case Success, Info, Warning:
-		role, _ := SemanticOf(a.variant)
-		return SemanticColor(th, role).Alpha(0.9)
+// The type presets set Type, not the surface: they are shorthands for the
+// hue and glyph. Combine them with a Variant for a different surface.
+
+// Info sets Type to AlertInfo and returns the alert.
+func (a *Alert) Info() *Alert { return a.Type(AlertInfo) }
+
+// Success sets Type to AlertSuccess and returns the alert.
+func (a *Alert) Success() *Alert { return a.Type(AlertSuccess) }
+
+// Warning sets Type to AlertWarning and returns the alert.
+func (a *Alert) Warning() *Alert { return a.Type(AlertWarning) }
+
+// Error sets Type to AlertError and returns the alert.
+func (a *Alert) Error() *Alert { return a.Type(AlertError) }
+
+// Destructive is the old name of Error, kept for code that uses it.
+func (a *Alert) Destructive() *Alert { return a.Type(AlertError) }
+
+// Secondary sets Type to AlertSecondary and returns the alert.
+func (a *Alert) Secondary() *Alert { return a.Type(AlertSecondary) }
+
+// Soft sets Variant to AlertSoft and returns the alert.
+func (a *Alert) Soft() *Alert { return a.Variant(AlertSoft) }
+
+// Outlined sets Variant to AlertOutlined and returns the alert.
+func (a *Alert) Outlined() *Alert { return a.Variant(AlertOutlined) }
+
+// Plain sets Variant to AlertPlain and returns the alert.
+func (a *Alert) Plain() *Alert { return a.Variant(AlertPlain) }
+
+// Default is the built-in look: AlertInfo on AlertSoft.
+func (a *Alert) Default() *Alert { return a.Type(AlertInfo).Variant(AlertSoft) }
+
+// Native is the old name of Default, kept for code that uses it.
+func (a *Alert) Native() *Alert { return a.Default() }
+
+// apply paints the current type and surface on the elements built this
+// frame. It never rebuilds the row, so the close control keeps its click.
+func (a *Alert) apply() {
+	if !a.root.Valid() {
+		return
 	}
-	return th.TextMuted
+	t := a.c.Theme()
+	accent := alertTone(a.c, a.typ)
+
+	// The surface. Soft tints the theme's face with the type's hue and
+	// draws a faint ring of it; Outlined uses the theme's border; Plain
+	// paints nothing. Every color comes from this frame's theme.
+	face := t.Surface
+	switch a.variant {
+	case AlertSoft:
+		face = t.Surface.MixOklab(accent, 0.06)
+		a.root = a.root.Background(face).Border(0, ui.Transparent).
+			InsetShadow(0, 0, 0, 1, accent.Alpha(0.16))
+	case AlertOutlined:
+		a.root = a.root.Background(ui.Transparent).Border(1, t.Border).
+			InsetShadow(0, 0, 0, 0, ui.Transparent)
+	case AlertPlain:
+		a.root = a.root.Background(ui.Transparent).Border(0, ui.Transparent).
+			InsetShadow(0, 0, 0, 0, ui.Transparent)
+	}
+	if a.variant == AlertPlain {
+		a.root = a.root.Padding(t.Space(2), 0)
+	} else if a.description != "" {
+		a.root = a.root.Padding(t.Space(3), t.Space(4))
+	} else {
+		a.root = a.root.Padding(t.Space(2.5), t.Space(3))
+	}
+
+	// Ink: the title is the normal text, the description is muted, and
+	// the icon carries the type's hue.
+	if a.titleText.Valid() {
+		a.titleText = a.titleText.TextColor(t.Text)
+	}
+	if a.descText.Valid() {
+		a.descText = a.descText.TextColor(a.descriptionInk())
+	}
+	for k, slot := range a.icons {
+		visible := !a.noIcon && !a.customOn && AlertType(k) == a.typ
+		slot.Hidden(!visible)
+		if a.iconEls[k].Valid() {
+			a.iconEls[k] = a.iconEls[k].TextColor(accent)
+		}
+	}
+	a.Element = a.root.Role(a.role)
+	if a.closed != nil && *a.closed {
+		a.Element = a.Element.Hidden(true)
+	}
+}
+
+// descriptionInk is the muted ink of the description: the theme's muted
+// text, tinted a little toward the type on surfaces that carry a hue.
+func (a *Alert) descriptionInk() ui.Color {
+	t := a.c.Theme()
+	if a.variant == AlertPlain {
+		return t.TextMuted
+	}
+	return t.TextMuted.MixOklab(alertTone(a.c, a.typ), 0.12)
+}
+
+// alertTone is the hue of a type, read from this frame's theme. Information
+// falls back to the library's Info token, since MyGo's Theme has no Info
+// slot; Secondary uses the muted text.
+func alertTone(c *ui.Context, typ AlertType) ui.Color {
+	t := c.Theme()
+	switch typ {
+	case AlertSuccess:
+		return SemanticColor(t, SemanticSuccess)
+	case AlertWarning:
+		return SemanticColor(t, SemanticWarning)
+	case AlertError:
+		return t.Danger
+	case AlertSecondary:
+		return t.TextMuted
+	}
+	return SemanticColor(t, SemanticInfo)
+}
+
+// alertGlyph is the default icon of a type.
+func alertGlyph(typ AlertType) *ui.SVG {
+	switch typ {
+	case AlertSuccess:
+		return icons.CircleCheck()
+	case AlertWarning:
+		return icons.TriangleAlert()
+	case AlertError:
+		return icons.CircleX()
+	case AlertSecondary:
+		return icons.CircleHelp()
+	}
+	return icons.Info()
+}
+
+func alertGlyphSize(detailed bool) float32 {
+	if detailed {
+		return IconSizeMd
+	}
+	return IconSizeSm
 }

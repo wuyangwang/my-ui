@@ -30,13 +30,15 @@
 - 变体与尺寸：与 Input 同一套 `Variant`/`Size`/`Shape` ✓（外观画在字段上 ✓）。
 - 事件：`OnChanged(fn func(values []string))` ✓；查询式 `Values()`/`Changed()`。
 - 无障碍名 `Label(string)` ✓、占位文字 `Placeholder(string)` ✓。
+- `Max(n int)`：上限达到后不再给建议 ✓。上限记在字段宿主元素的 `ui.Local` 上，由下一帧构造器读取；`Max` 本身不重建 TokenField，所以同帧链式调用不会让一次点击被两个字段重复消费 ✓。
 
 **已知限制**
 - **值即标签**：芯片显示的就是 app 切片里的字符串 ✗ → 多选无法像 Select 那样「值与标签不同」 ✗（框架的 TokenField 只存字符串 ✗）。若要 label≠value，得自己维护两份（芯片用标签、app 存值）✗ → 后置 ✗。
-- 折叠标签（`collapse-tags`）与选择上限（`multiple-limit`）没有公开 API ✗ → 后置 ✗。
+- 折叠标签（`collapse-tags`）没有公开 API ✗ → 后置 ✗。`Max` 只隐藏建议，不强制阻止 Enter/逗号加入或退格移除（框架的 TokenField 没有上限开关 ✗）。
+- 上限在下一帧才生效：构造时先按当前上限建字段，`Max` 把新值写入 `ui.Local`，下一帧读取。实时应用中帧帧连续，无感；按需重建的测试里要点一次触发重建才看到新上限。
 
 **后置**
-- 值与标签分离（自己维护映射 ✓）、折叠与上限、芯片的自定义渲染。
+- 值与标签分离（自己维护映射 ✓）、折叠标签、芯片的自定义渲染。
 
 ## 4. 项目结构是否合理
 
@@ -53,6 +55,7 @@
 | `Width(w float32)` | 宽度 |
 | `Placeholder(s string)` · `Label(s string)` | 占位文字 / 无障碍名 |
 | `OnChanged(fn func(values []string))` | 选择变化时回调 |
+| `Max(n int)` | 选择上限；达到后不再给建议（`n<=0` 表示不限），下一帧生效，不在当前帧重建字段 |
 | `Values() []string` · `Changed() bool` | 当前选中的值 / 本帧是否变化 |
 
 用法：
@@ -70,6 +73,6 @@ h.MultiSelect(&app.langs, []formspkg.SelectOption{
 
 - [x] 调研与可行性结论（本文）
 - [x] 实现（`multiselect.go`，包 mygo 的 `ui.TokenField`）
-- [x] 测试（加入与移除、变化回调）
+- [x] 测试（加入与移除、变化回调、同帧 `Max` 不重复消费点击）
 - [x] showcase「Select」页中的多选示例
-- [ ] 值与标签分离、折叠与上限（后置）
+- [ ] 值与标签分离、折叠与强制上限（后置）

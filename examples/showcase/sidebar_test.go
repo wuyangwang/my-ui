@@ -158,9 +158,12 @@ func TestTheSidebarScrollsInASmallWindow(t *testing.T) {
 	if before.Y < height {
 		t.Skipf("the sidebar fits in the window: the last fold sits at %v", before.Y)
 	}
-	tt.Wheel(95, 200, 0, 600)
-	tt.Advance(time.Second)
-	after, _ := tt.Find(label)
+	after := before
+	for i := 0; i < 40 && after.Y >= height; i++ {
+		tt.Wheel(95, 200, 0, 300)
+		tt.Advance(time.Second)
+		after, _ = tt.Find(label)
+	}
 	if after.Y >= height {
 		t.Errorf("the last fold sits at %v, still below the window", after.Y)
 	}

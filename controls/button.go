@@ -18,16 +18,6 @@ func NewButtonGroup(c *ui.Context, build func()) ui.Element {
 	return row
 }
 
-// NewToggleGroup and Segmented are MyGo's own widgets, re-exported
-// unchanged: my-ui adds no look or behavior to them.
-var (
-	// NewToggleGroup gathers toggle buttons into a mutually exclusive
-	// group (ui.ToggleGroup).
-	NewToggleGroup = ui.ToggleGroup
-	// Segmented picks one of labels into *selected (ui.Segmented).
-	Segmented = ui.Segmented
-)
-
 // Button is a ui button with a variant's preset look:
 //
 //	controls.NewButton(c, "Save").Primary()

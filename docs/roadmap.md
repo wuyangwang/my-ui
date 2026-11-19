@@ -1,6 +1,6 @@
 # my-ui 路线图
 
-> v0.4.0 起组件按功能分组到 `controls/`、`forms/`、`overlays/`、`display/` 子包，根包只留主题/tokens 底座；`myui.NewXxx` 调用需按分组改 import。v0.6.0 统一 fluent 词表（`Variant/Size/Width/Label/Disabled/OnChanged`），移除重复别名（`Toast.Type`、`Result.Extra`），`bind.Bind` 覆盖全部组件；属破坏性 API 变更。
+> v0.4.0 起组件按功能分组到 `controls/`、`forms/`、`overlays/`、`display/` 子包，根包只留主题/tokens 底座；`myui.NewXxx` 调用需按分组改 import。v0.7.0 按 Lobe MyGo 对照补齐约 30 个组件并优化 Alert/Badge/Tag/Progress/Skeleton/Spin/Tabs/InputOTP/Select/Tooltip/Popover；Progress 量纲改为 0..100，InputOTP 提供 `NewOTP`。v0.6.0 统一 fluent 词表（`Variant/Size/Width/Label/Disabled/OnChanged`），移除重复别名（`Toast.Type`、`Result.Extra`），`bind.Bind` 覆盖全部组件；属破坏性 API 变更。
 
 
 > 基线 mygo **v0.10.0**（证据见 [research.md](research.md)）。本文是按序实施计划：**每一项交付 = 规格书 + 实现 + `ui.Tester` 测试 + `examples/showcase` 示例页/区块**（适用时）。首个 tag 为 `v0.2.0`，开发中不考虑更早版本的历史兼容。

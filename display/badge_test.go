@@ -71,3 +71,43 @@ func TestBadgeDarkTheme(t *testing.T) {
 		t.Fatal("badge missing in dark theme")
 	}
 }
+
+func TestBadgeCountShowZeroAndSmall(t *testing.T) {
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		ui.Row(c).Gap(c.Theme().Space(2)).Children(func() {
+			NewBadge(c, "").Count(0, 99).Label("zero hidden")
+			NewBadge(c, "").Count(0, 99).ShowZero(true).Label("zero shown")
+			NewBadge(c, "").Count(120, 99).Small(true).Label("capped")
+		})
+	}
+	tt := ui.NewTester(view, 320, 120)
+	tt.Advance(time.Second)
+	if _, ok := tt.Find("zero hidden"); ok {
+		t.Error("a zero count shows without ShowZero")
+	}
+	if _, ok := tt.Find("zero shown"); !ok {
+		t.Error("a zero count is hidden even with ShowZero")
+	}
+	if _, ok := tt.Find("99+"); !ok {
+		t.Error("the count is not capped at max with a plus")
+	}
+}
+
+func TestBadgeStatusAndText(t *testing.T) {
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		ui.Column(c).Gap(c.Theme().Space(2)).Children(func() {
+			NewBadge(c, "").Status(BadgeOnline).Text("在线")
+			NewBadge(c, "").Status(BadgeProcessing).Text("同步中")
+			NewBadge(c, "").Status(BadgeOffline).Text("离线")
+		})
+	}
+	tt := ui.NewTester(view, 320, 160)
+	tt.Advance(time.Second)
+	for _, name := range []string{"在线", "同步中", "离线"} {
+		if _, ok := tt.Find(name); !ok {
+			t.Errorf("status text %q missing", name)
+		}
+	}
+}

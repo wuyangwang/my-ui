@@ -45,6 +45,9 @@
 - **清除**：有值时出现清除图标（与 Input 的清除按钮同款：纯 ×、悬停变深、不抢焦点），点击清空绑定值并回调 `OnCleared`。
 - **Native 的观感**：Select 的触发器没有「内置外观」（mygo 的 `SelectBase` 给的是裸按钮），所以 Native = **输入框那套外观**（`Surface` 底 + `Border` 描边），不是「什么都不画」——否则触发器会是个没有内衬的空壳（这正是之前的样式错乱）。`Outline` 与它相差在底色（`Background` vs `Surface`）。
 - 弹层面板：底色、边框、圆角、内衬、阴影；选项行有内衬；高亮行用强调色弱化底；**选中项带勾**（`icons.Check()`）；禁用项变灰。
+- **选项图标**：`SelectOption.Icon *ui.SVG` 非空时，在触发器（选中后）与弹层每行、文字之前画出来，尺寸 `IconSizeXs`；与 Lobe 的选项图标一致。
+- **箭头随开合翻转**：触发器右侧的 `ChevronDown` 在弹层打开时用 `AnimateTo` + `MotionNormal` 旋转 180°，关闭时转回；Reduce Motion 由桌面接管。
+- **弹层不窄于触发器**：用 `ui.Local` 记住触发器的宽度，`MinWidth` 取所见最宽值，弹层不会比触发器窄。
 - 禁用选项（`Disabled: true`）与整个触发器禁用（`Disabled(bool)`）。
 - 事件：`OnChanged(func(value string))`、`OnCleared(func())`；查询式 `Value()`、`Open()`、`Changed()`。
 - 无障碍：`Label(string)`；触发器是 `RolePopUpButton`，选项是 `RoleOption`。
@@ -57,13 +60,13 @@
 - **清除按钮的无障碍**：它嵌在触发器内，而触发器的角色是 `RolePopUpButton`（leaf role）→ mygo 的无障碍树不展开 leaf-role 的子节点（`ui/access.go:772`），清除按钮可点可见但读屏摸不到 ✗。
 
 **后置**
-- 选项的自定义内容（图标、说明文字）、空状态文案、滚动到底的提示与事件（element-plus 的 `end-reached` ✓）、弹层头部/尾部插槽。
+- 选项的说明文字、滚动到底的提示与事件（element-plus 的 `end-reached` ✓）、弹层头部/尾部插槽。图标已实现（见上）。
 
 ## 4. 项目结构是否合理
 
 - 位置：根包 L3，与 `Input` 同层；取色与尺寸刻度复用 `fieldLookOf`/`fieldPadding`/`fieldFontSize`（与 `field[T]` 基座同源），**不与输入框共用基座**：Select 的触发器里没有文本输入，事件与状态也完全不同。
 - 依赖：`myui` → `mygo/ui` + `myui/icons`（箭头与勾各一个）✓。
-- 选项的来源：`NewSelect(c, &value, options []string)` 先收字符串选项（够用且好测）；自定义选项内容等后置，届时加 `Items(...)` 之类的构建器。
+- 选项的来源：`NewSelect(c, &value, options []SelectOption)`；选项的图标由 `SelectOption.Icon` 直接给出，无需另加构建器。
 
 ## 5. API 契约
 
@@ -74,27 +77,53 @@ type SelectOption struct {
 	Label    string
 	Value    string
 	Group    string
+	Icon     *ui.SVG   // 非空时画在文字之前（触发器与弹层，IconSizeXs）
 	Disabled bool
 }
 
 // NewSelect creates a drop-down choosing one of options into *selected.
 func NewSelect(c *ui.Context, selected *string, options []SelectOption) *Select
+func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, clearable bool) *Select
 
-func (s *Select) Variant(v Variant) *Select   // 与 Input 同义
-func (s *Select) Size(s Size) *Select         // 与 Input 同义
+func (s *Select) Variant(v Variant) *Select    // 与 Input 同义
+func (s *Select) Size(s Size) *Select          // 与 Input 同义
+func (s *Select) Xs() *Select
 func (s *Select) Sm() *Select
 func (s *Select) Md() *Select
 func (s *Select) Lg() *Select
-func (s *Select) Width(w float32) *Select     // 显式宽度（默认随内容，最小约 200 DIP）
+func (s *Select) Shape(shape Shape) *Select
+func (s *Select) Width(w float32) *Select      // 显式宽度（默认随内容，最小约 200 DIP）
 func (s *Select) Placeholder(s string) *Select // 未选中时显示
 func (s *Select) Label(s string) *Select       // 无障碍名
 func (s *Select) Disabled(on bool) *Select
+func (s *Select) Invalid(on bool) *Select
+func (s *Select) EmptyText(text string) *Select
 func (s *Select) OnChanged(fn func(value string)) *Select
 func (s *Select) OnCleared(fn func()) *Select   // 清除图标被点时
 func (s *Select) Value() string
 func (s *Select) Open() bool
+func (s *Select) SetOpen(on bool) *Select
+func (s *Select) Highlight(value string) *Select
 func (s *Select) Changed() bool
+func (s *Select) Control() ui.Element
 ```
+
+| API | 作用 |
+|---|---|
+| `NewSelect(c, selected, options)` | 构造下拉，默认可清除；值绑定 `*selected`，触发器显示选项标签 |
+| `NewSelectClear(..., clearable)` | `clearable=false` 时不建清除按钮（构造期决定，之后改无效） |
+| `SelectOption.Label` / `Value` | 显示文案 / 绑定的值；`Label` 留空则显示 `Value` |
+| `SelectOption.Group` | 分组名；同一组的选项上方显示一次组名 |
+| `SelectOption.Icon` | 非空时画在文字之前（`IconSizeXs`），触发器（选中后）与弹层每行都画 |
+| `SelectOption.Disabled` | 禁用该项：变灰且不可选 |
+| `Variant(v)` / `Primary()` … `Warning()` | 触发器外观，与 Input 同义 |
+| `Size(s)` / `Xs()` `Sm()` `Md()` `Lg()` | 触发器的内衬、字号与高度档 |
+| `Shape(shape)` | 触发器圆角：直角 / 胶囊 / 圆 |
+| `Width(w)` | 显式触发器宽度；不设时随内容但有最小宽度 |
+| `Placeholder(s)` / `EmptyText(text)` | 未选中时的占位文字 / 空列表文案 |
+| `Label(s)` / `Disabled(on)` / `Invalid(on)` | 无障碍名 / 禁用 / 错误态描边 |
+| `OnChanged(fn)` / `OnCleared(fn)` | 值变化 / 清除按钮被点时的回调 |
+| `Value()` / `Open()` / `SetOpen(on)` / `Changed()` / `Highlight(v)` / `Control()` | 查询值与状态、开合弹层、移动高亮、取描述用的控件元素 |
 
 用法：
 
@@ -112,6 +141,6 @@ h.Select(&app.lang, []formspkg.SelectOption{
 
 - [x] 调研与可行性结论（本文）
 - [x] 实现（`select.go`）
-- [x] 测试（`select_test.go`：标签与值不同、未选中不显示标签、开合与选择、占位文字、禁用不弹、尺寸）
+- [x] 测试（`select_test.go`：标签与值不同、未选中不显示标签、开合与选择、占位文字、禁用不弹、尺寸、选项图标、开合箭头翻转）
 - [x] showcase「Select」页
 - [ ] 自定义选项内容、可搜索、多选、清空（后置）

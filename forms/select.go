@@ -9,8 +9,9 @@ import (
 
 // SelectOption is one option of a Select: the label the trigger and the
 // popup show, and the value the app holds. An option without a label
-// shows its value. The group of an option names the group it sits in:
-// the popup shows the name above the options of the group.
+// shows its value. Icon, when set, shows before the label in both the
+// trigger (once chosen) and the popup. The group of an option names the
+// group it sits in: the popup shows the name above the options of the group.
 //
 //	{Label: "绠€浣撲腑鏂?, Value: "zh-Hans"}
 //	{Value: "zh-Hant"}
@@ -19,6 +20,7 @@ type SelectOption struct {
 	Label    string
 	Value    string
 	Group    string
+	Icon     *ui.SVG
 	Disabled bool
 }
 
@@ -87,7 +89,7 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 	// The trigger holds the choice, the placeholder, the button that
 	// empties the choice and the arrow that opens the popup.
 	s.parts.Trigger.Children(func() {
-		s.valueSlot = ui.Row(c).Grow(1).AlignItems(ui.Center)
+		s.valueSlot = ui.Row(c).Grow(1).AlignItems(ui.Center).Gap(c.Theme().Space(1))
 		s.placeholderSlot = ui.Row(c).AlignItems(ui.Center)
 		s.clearSlot = ui.Row(c).AlignItems(ui.Center)
 		// A clearable select with a choice shows the clear icon in place
@@ -98,7 +100,15 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 			if _, ok := s.chosen(); ok && s.clearable {
 				return
 			}
-			ui.Icon(c, icons.ChevronDown()).Size(IconSizeSm, IconSizeSm)
+			// The chevron turns to point up while the popup is open, as
+			// Lobe's does. AnimateTo keeps Reduce Motion with the desktop.
+			turn := float32(0)
+			if s.parts.Open() {
+				turn = 180
+			}
+			arrow := ui.Icon(c, icons.ChevronDown()).Size(IconSizeSm, IconSizeSm).
+				TextColor(c.Theme().TextMuted)
+			arrow = arrow.Rotate(arrow.AnimateTo("select-arrow", turn, ui.Animation{Duration: MotionNormal}))
 		})
 	})
 
@@ -106,6 +116,9 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 	// placeholder.
 	s.valueSlot.Children(func() {
 		if o, ok := s.chosen(); ok {
+			if o.Icon != nil {
+				ui.Icon(c, o.Icon).Size(IconSizeXs, IconSizeXs)
+			}
 			ui.Text(c, o.Text())
 		}
 	})
@@ -127,6 +140,18 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 		})
 	})
 
+	s.Element = s.parts.Trigger
+	// A field fills the room it is given; Width(w) takes it over when
+	// the app wants a fixed size. The floor keeps it from collapsing.
+	s.Element = s.Element.FillWidth().MinWidth(c.Theme().Space(30))
+
+	// The popup never gets narrower than its trigger. Bounds() reads the
+	// last committed frame, so remember the widest one seen on the host.
+	minWidth := ui.Local(s.parts.Trigger, "select-popup-min-width", func() float32 { return 0 })
+	if w := s.parts.Trigger.Bounds().W; w > *minWidth {
+		*minWidth = w
+	}
+
 	// The popup holds the options.
 	//
 	// The popup's content is the machinery's: the options it builds are
@@ -136,7 +161,8 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 	s.parts.Popup(func(panel ui.Element) {
 		t := c.Theme()
 		panel.Background(t.Background).Border(1, t.Border).Radius(Radius(t, RadiusMd)).
-			Padding(t.Space(1)).Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
+			Padding(t.Space(1)).MinWidth(*minWidth).
+			Shadow(0, 2, 8, 0, t.TextMuted.Alpha(0.15))
 
 		// A long list scrolls inside the popup instead of running off the
 		// window, so the last option stays reachable.
@@ -151,11 +177,15 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 					ui.Text(c, group).FontSize(TextSize(t, TextXs)).TextColor(t.TextMuted).
 						Padding(t.Space(1), t.Space(2))
 				}
-				item := s.parts.Item(o.Value).Padding(t.Space(1.5), t.Space(2)).Radius(Radius(t, RadiusSm))
+				item := s.parts.Item(o.Value).Padding(t.Space(1.5), t.Space(2)).Radius(Radius(t, RadiusSm)).
+					AlignItems(ui.Center).Gap(t.Space(1))
 				if item.Highlighted() {
 					item.Background(t.Accent.Alpha(0.10))
 				}
 				item.Children(func() {
+					if o.Icon != nil {
+						ui.Icon(c, o.Icon).Size(IconSizeXs, IconSizeXs)
+					}
 					ui.Text(c, o.Text()).Grow(1)
 					if o.Value == *selected {
 						ui.Icon(c, icons.Check()).Size(IconSizeSm, IconSizeSm).TextColor(t.Accent)
@@ -172,10 +202,6 @@ func NewSelectClear(c *ui.Context, selected *string, options []SelectOption, cle
 		})
 	})
 
-	s.Element = s.parts.Trigger
-	// A field fills the room it is given; Width(w) takes it over when
-	// the app wants a fixed size. The floor keeps it from collapsing.
-	s.Element = s.Element.FillWidth().MinWidth(c.Theme().Space(30))
 	return s
 }
 

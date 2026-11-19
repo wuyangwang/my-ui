@@ -27,7 +27,7 @@
 **已实现**：`Native`（零值，保留内置观感）/`Secondary`（别名）/`Primary`/`Outline`/`Ghost`/`Destructive`/`Link` × `SizeSm/Md/Lg`；hover/pressed 三态；禁用态沿用主题的暗淡；`.Clicked()` 沿用 ui。
 **图标与忙碌态**：`Icon(svg)`（文字之前）、`EndIcon(svg)`（文字之后）、只有图标的按钮（`NewButton(c, "")` + `Label`）、`Busy(on)`（转圈且不响应点击，`on` 为 false 时恢复）、`Loading()`（`Busy(true)` 的简写）。图标与文字之间的距离由图标自身的 margin 承担，故没有图标的按钮不留空隙。
 
-**成组与双态**：`NewButtonGroup(c, build)` 把按钮排成共享边的一组；`Block()` 占满整行；`Toggle(pressed)` 做双态按钮（点击翻转 `*pressed`，无障碍名带按下态）。互斥/分段按钮用 mygo 的 `NewToggleGroup` 与 `Segmented`（原样再导出）。加载态的骨架（spinner 之外的形态）暂不做。
+**成组与双态**：`NewButtonGroup(c, build)` 把按钮排成共享边的一组；`Block()` 占满整行；`Toggle(pressed)` 做双态按钮（点击翻转 `*pressed`，无障碍名带按下态）。互斥/分段按钮用 `controls.NewToggleGroup` 与 `controls.NewSegmented`（mygo 签名 + my-ui 外观）。加载态的骨架（spinner 之外的形态）暂不做。
 
 ## 4. 项目结构是否合理
 
@@ -48,7 +48,7 @@
 | `Loading()` | 忙碌态简写，等同 `Busy(true)` |
 | `Toggle(pressed *bool)` | 双态按钮（shadcn Toggle）：点击翻转 `*pressed`，无障碍名带按下态 |
 | `NewButtonGroup(c *ui.Context, build func()) ui.Element` | 按钮组：把若干按钮排成共享边的一行 |
-| `NewToggleGroup` · `Segmented` | mygo 原样再导出的互斥按钮组与分段控件 |
+| `NewToggleGroup` · `NewSegmented` | mygo 签名的按钮组与分段控件，现由 [toggle-group.md](toggle-group.md) / [segmented.md](segmented.md) 各自带 my-ui 外观 |
 | `Label(s string)` | 无障碍名（只有图标时必须给） |
 | `Width(w float32)` | 宽度（DIP） |
 | `Block()` | 占满整行 |

@@ -16,7 +16,7 @@ type Pagination struct {
 	c       *ui.Context
 	current *int
 	total   int
-	size    Size
+	sizeRef *Size // button size, staged for the next frame's build
 	changed func(int)
 	pending int // a page chosen before OnChanged was called this frame
 }
@@ -24,8 +24,14 @@ type Pagination struct {
 // NewPagination builds a pager for total pages, reading and writing
 // *current. A nil pointer makes the pager read-only.
 func NewPagination(c *ui.Context, current *int, total int) *Pagination {
+	// The host is rebuilt at the same spot every frame, so the Local it
+	// carries survives the per-frame rebuild of the page buttons. Size
+	// stages the choice there; writing a field on p would be lost as soon
+	// as the view runs again.
+	host := ui.Row(c).AlignItems(ui.Center).Gap(c.Theme().Space(1))
 	p := &Pagination{c: c, current: current, total: total}
-	p.build()
+	p.sizeRef = ui.Local(host, "pagination-size", func() Size { return SizeMd })
+	p.build(host)
 	return p
 }
 
@@ -41,23 +47,31 @@ func (p *Pagination) OnChanged(fn func(page int)) *Pagination {
 	return p
 }
 
-// Size picks the pager's button size. The next frame's build applies
-// it; rebuilding here would consume the frame's clicks.
+// Size picks the pager's button size. The choice is staged on the host
+// element and read by the next frame's build: it survives the per-frame
+// rebuild of the buttons, and staging it here builds no control that
+// could consume this frame's click.
 func (p *Pagination) Size(sz Size) *Pagination {
-	p.size = sz
+	if p.sizeRef != nil {
+		*p.sizeRef = sz
+	}
 	return p
 }
 
-func (p *Pagination) build() {
+func (p *Pagination) build(host ui.Element) {
 	t := p.c.Theme()
 	cur := 1
 	if p.current != nil && *p.current > 0 {
 		cur = *p.current
 	}
-	row := ui.Row(p.c).AlignItems(ui.Center).Gap(t.Space(1))
-	// Every control is built inside the row's children, so its click
+	buttonSize := SizeMd
+	if p.sizeRef != nil {
+		buttonSize = *p.sizeRef
+	}
+	w := sz(buttonSize)
+	// Every control is built inside the host's children, so its click
 	// lands in the same frame and its parent is the pager.
-	row.Children(func() {
+	host.Children(func() {
 		// Previous: an icon that is itself the control, disabled at the
 		// first page. Pressing it writes the app's pointer.
 		prev := ctrlpkg.NewIconAction(p.c, ctrlpkg.IconActionOptions{
@@ -76,7 +90,6 @@ func (p *Pagination) build() {
 			}
 			label := strconv.Itoa(page)
 			b := ctrlpkg.NewButton(p.c, label)
-			w := sz(p.size)
 			b.Element = b.Element.Width(w).Height(w).Justify(ui.Center)
 			if page == cur {
 				b = b.Primary()
@@ -97,7 +110,7 @@ func (p *Pagination) build() {
 			next = next.Disabled(true)
 		}
 	})
-	p.Element = row
+	p.Element = host
 }
 
 func (p *Pagination) goTo(page int) {

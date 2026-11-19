@@ -5,6 +5,24 @@ import (
 	. "github.com/wuyangwang/my-ui"
 )
 
+// PopoverSide is the side of the anchor a panel shows on. It shares the
+// tooltip side values and their anchor mapping, where the framework flips
+// the panel when there is no room on that side.
+type PopoverSide = TooltipSide
+
+const (
+	PopoverTop    = TooltipTop
+	PopoverBottom = TooltipBottom
+	PopoverLeft   = TooltipLeft
+	PopoverRight  = TooltipRight
+)
+
+// PopoverOptions configures a panel at construction time. The same
+// setting is available as the Side method on the returned Popover.
+type PopoverOptions struct {
+	Side PopoverSide
+}
+
 // Popover shows a panel over its anchor, while the app's flag is true.
 //
 //	overlays.NewPopover(c, &app.open, func() ui.Element {
@@ -21,20 +39,28 @@ import (
 // structured parts of a shadcn popover.
 type Popover struct {
 	ui.Element
-	open *bool
+	open   *bool
+	side   PopoverSide
+	anchor ui.Element
 	*Parts
 }
 
 // NewPopover shows a panel over its anchor while open is true. The flag
-// is the app's: it opens and closes the panel.
-func NewPopover(c *ui.Context, open *bool, anchor func() ui.Element, build func(panel ui.Element)) *Popover {
-	p := &Popover{open: open}
+// is the app's: it opens and closes the panel. The panel shows below the
+// anchor by default, as the framework's own popover does; Side changes it.
+func NewPopover(c *ui.Context, open *bool, anchor func() ui.Element, build func(panel ui.Element), options ...PopoverOptions) *Popover {
+	o := PopoverOptions{Side: PopoverBottom}
+	if len(options) > 0 {
+		o = options[0]
+	}
+	p := &Popover{open: open, side: o.Side}
 	var a ui.Element
 	has := false
 	if anchor != nil {
 		a = anchor()
 		has = true
 	}
+	p.anchor = a
 	// A click on the anchor toggles the panel, as a popover trigger does
 	// on the web: the first opens it, the next closes it. The framework
 	// treats the anchor as inside the panel, so it does not close it for
@@ -48,10 +74,28 @@ func NewPopover(c *ui.Context, open *bool, anchor func() ui.Element, build func(
 			Padding(th.Space(4)).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.15)).
 			MaxWidth(th.Space(60)).
 			Transition(StateTransition())
+		attachSide(panel, a, p.side)
 		OverlayEnter(c, panel, "popover-enter")
 		p.Parts = BuildSlots(c, build, panel, open)
 	})
 	p.Element = panel
+	return p
+}
+
+// attachSide puts a panel on the side of its anchor that tooltipAnchors
+// maps to. Both the constructor's build and the fluent Side use it.
+func attachSide(panel, anchor ui.Element, side PopoverSide) {
+	at, self := tooltipAnchors(side)
+	panel.AttachTo(anchor, at, self)
+}
+
+// Side sets the side of the anchor the panel shows on, for chaining. The
+// view builds the panel before this runs, so it re-attaches the live panel.
+func (p *Popover) Side(s PopoverSide) *Popover {
+	p.side = s
+	if p.Element.Valid() {
+		attachSide(p.Element, p.anchor, s)
+	}
 	return p
 }
 

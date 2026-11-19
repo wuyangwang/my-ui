@@ -75,3 +75,53 @@ func TestPaginationSkipsPagesWithAnEllipsis(t *testing.T) {
 		t.Fatal("the current page is missing")
 	}
 }
+
+// TestPaginationSizePersistsAcrossFrames checks that a chained Size is
+// staged for the next frame's build instead of being written to a pager
+// object that is thrown away when the view runs again. The wide buttons
+// must stay wide on later frames, and must still take a single click.
+func TestPaginationSizePersistsAcrossFrames(t *testing.T) {
+	page := 1
+	view := func(c *ui.Context) {
+		Apply(c, Options{Appearance: AppearanceLight})
+		NewPagination(c, &page, 9).Size(SizeLg)
+	}
+	tt := ui.NewTester(view, 480, 120)
+	tt.Advance(time.Second)
+	tt.Advance(time.Second)
+	// Press a page once: the click forces a rebuild, which is the frame
+	// that reads the size staged by Size on the first build.
+	clickPage := func(name string) {
+		t.Helper()
+		pi, ok := tt.Access(name)
+		if !ok {
+			t.Fatalf("%s is not on screen", name)
+		}
+		x, y := pi.Bounds.X+pi.Bounds.W/2, pi.Bounds.Y+pi.Bounds.H/2
+		tt.Press(x, y)
+		tt.Advance(time.Second)
+		tt.Release(x, y)
+		tt.Advance(time.Second)
+		tt.Advance(time.Second)
+	}
+	clickPage("2")
+	if page != 2 {
+		t.Fatalf("one click gave page %d, want 2", page)
+	}
+
+	info, ok := tt.Access("3")
+	if !ok {
+		t.Fatal("page 3 is not on screen")
+	}
+	// SizeLg gives each page button a 36 DIP box; the default is 28.
+	// The buttons were rebuilt after Size ran, so this checks that the
+	// choice survived into later frames.
+	if info.Bounds.W < 34 {
+		t.Fatalf("page button is %.0f wide after Size(SizeLg), want ~36", info.Bounds.W)
+	}
+
+	clickPage("3")
+	if page != 3 {
+		t.Errorf("one click gave page %d, want 3", page)
+	}
+}

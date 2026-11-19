@@ -15,6 +15,7 @@
 ## 3. 实现到何种程度
 - `NewPagination(c, current *int, total int) *Pagination`；`.OnChanged(fn)`、`.Size(sz)`；`nil` 指针视为只读。
 - 上一页/下一页按钮在边界禁用；无障碍名走 i18n（新增 `previous`/`next` 文案）。
+- `.Size(sz)` 把尺寸写入页码宿主的 `ui.Local`，由下一帧的构建读取：页码按钮每帧重建，写在组件对象字段上的尺寸会随对象一起丢掉；写在 `ui.Local` 上则跨帧保持。`Size` 本身不重建按钮，不消耗本帧点击。
 - 后置：每页条数选择、跳转输入框。
 
 ## 4. 项目结构
@@ -24,8 +25,9 @@
 ```go
 func NewPagination(c *ui.Context, current *int, total int) *Pagination
 func (p *Pagination) OnChanged(fn func(page int)) *Pagination
-func (p *Pagination) Size(sz Size) *Pagination
+func (p *Pagination) Size(sz Size) *Pagination  // 下一帧生效，不重建按钮
 ```
 
 ## 6. 状态
 - [x] 规格书 / 实现 / 测试 / showcase
+- [x] `Size` 跨帧保持、链式调用不消耗点击的回归测试

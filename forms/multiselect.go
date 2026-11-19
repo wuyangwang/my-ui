@@ -26,24 +26,35 @@ type MultiSelect struct {
 	variant    Variant
 	shape      Shape
 	invalid    bool
-	max        int
+	maxRef     *int // the limit, staged for the next frame's build
 	width      float32
 }
 
 // NewMultiSelect creates a multi-select field. The tokens are the
 // choices the app holds.
 func NewMultiSelect(c *ui.Context, tokens *[]string, options []SelectOption) *MultiSelect {
+	// The host is built at the same spot every frame, so the Local it
+	// carries survives the rebuild of the field inside it. Max stages the
+	// limit there for the next frame's build: rebuilding the field in Max
+	// would build a second, clickable token field in the same frame.
+	host := ui.Box(c)
 	m := &MultiSelect{c: c, tokens: tokens, options: options}
-	m.build()
+	m.maxRef = ui.Local(host, "multiselect-max", func() int { return 0 })
+	m.build(host)
 	return m
 }
 
-// build makes the token field. It is called again when Max changes, so
-// the suggestions leave out what the limit no longer allows.
-func (m *MultiSelect) build() {
+// build makes the token field, reading the limit staged by Max. It runs
+// once per frame, in the constructor, so a click is never consumed by two
+// fields built in the same frame.
+func (m *MultiSelect) build(host ui.Element) {
+	max := 0
+	if m.maxRef != nil {
+		max = *m.maxRef
+	}
 	labels := make([]string, 0, len(m.options))
 	for _, o := range m.options {
-		if m.max > 0 && len(*m.tokens) >= m.max {
+		if max > 0 && len(*m.tokens) >= max {
 			break
 		}
 		// A chosen label is not offered again as a suggestion.
@@ -58,13 +69,15 @@ func (m *MultiSelect) build() {
 			labels = append(labels, o.Text())
 		}
 	}
-	el := ui.TokenField(m.c, m.tokens, labels)
-	if m.width > 0 {
-		el = el.Width(m.width)
-	} else {
-		el = el.FillWidth()
-	}
-	m.Element = el
+	host.Children(func() {
+		el := ui.TokenField(m.c, m.tokens, labels)
+		if m.width > 0 {
+			el = el.Width(m.width)
+		} else {
+			el = el.FillWidth()
+		}
+		m.Element = el
+	})
 	m.apply()
 }
 
@@ -190,10 +203,14 @@ func (m *MultiSelect) Invalid(on bool) *MultiSelect {
 }
 
 // Max limits how many choices the field holds, and returns it, for
-// chaining. Once the limit is reached, no further suggestions show.
+// chaining. Once the limit is reached, no further suggestions show. The
+// limit takes effect on the next frame's build: staging it here, instead
+// of rebuilding the token field in this frame, keeps a single click from
+// being consumed by two fields.
 func (m *MultiSelect) Max(n int) *MultiSelect {
-	m.max = n
-	m.build()
+	if m.maxRef != nil {
+		*m.maxRef = n
+	}
 	return m
 }
 

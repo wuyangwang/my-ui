@@ -2,6 +2,7 @@ package forms
 
 import (
 	. "github.com/wuyangwang/my-ui"
+	testutil "github.com/wuyangwang/my-ui/internal/testutil"
 	"testing"
 	"time"
 
@@ -236,5 +237,114 @@ func TestSelectSizesGiveRoomierBounds(t *testing.T) {
 	tt.Advance(time.Second)
 	if h := height(tt, "small"); h >= height(tt, "medium") {
 		t.Errorf("the small select is not shorter than the middle's: %v against %v", h, height(tt, "medium"))
+	}
+}
+
+func TestSelectShowsOptionIconInTrigger(t *testing.T) {
+	labelX := func(withIcon bool) float32 {
+		value := "on"
+		o := SelectOption{Label: "Online", Value: "on"}
+		if withIcon {
+			o.Icon = testIcon
+		}
+		tt := ui.NewTester(func(c *ui.Context) {
+			Apply(c, Options{Appearance: AppearanceLight})
+			NewSelect(c, &value, []SelectOption{o}).Outline().Label("状态")
+		}, 320, 240)
+		tt.Advance(time.Second)
+		r, ok := tt.Find("Online")
+		if !ok {
+			t.Fatal("the chosen label is not on screen")
+		}
+		return r.X
+	}
+	if with, without := labelX(true), labelX(false); with <= without {
+		t.Errorf("the icon did not push the label right: with %v, without %v", with, without)
+	}
+}
+
+func TestSelectShowsOptionIconInPopup(t *testing.T) {
+	labelX := func(withIcon bool) float32 {
+		var value string
+		o := SelectOption{Label: "Online", Value: "on"}
+		if withIcon {
+			o.Icon = testIcon
+		}
+		tt := ui.NewTester(func(c *ui.Context) {
+			Apply(c, Options{Appearance: AppearanceLight})
+			NewSelect(c, &value, []SelectOption{o}).Outline().Label("状态")
+		}, 320, 240)
+		tt.Advance(time.Second)
+		if err := tt.Click("状态"); err != nil {
+			t.Fatal(err)
+		}
+		tt.Advance(time.Second)
+		r, ok := tt.Find("Online")
+		if !ok {
+			t.Fatal("the option is not on screen")
+		}
+		return r.X
+	}
+	if with, without := labelX(true), labelX(false); with <= without {
+		t.Errorf("the icon did not push the label right: with %v, without %v", with, without)
+	}
+}
+
+func absInt(n int) int {
+	if n < 0 {
+		return -n
+	}
+	return n
+}
+
+func TestSelectArrowTurnsWhenOpen(t *testing.T) {
+	var value string
+	var bg [3]uint8
+	view := func(c *ui.Context) {
+		th := Apply(c, Options{Appearance: AppearanceLight})
+		bg = [3]uint8{th.Background.R, th.Background.G, th.Background.B}
+		NewSelect(c, &value, []SelectOption{{Value: "小"}}).Outline().Label("状态")
+	}
+	tt := ui.NewTester(view, 320, 240)
+	tt.Advance(time.Second)
+	tr, ok := tt.Access("状态")
+	if !ok {
+		t.Fatal("the select is not on screen")
+	}
+	cx := tr.Bounds.X + tr.Bounds.W - 21
+	cy := tr.Bounds.Y + tr.Bounds.H/2
+	// Read the chevron as a grid of ink dots. Open turns it 180 degrees,
+	// so the open grid is the closed one flipped top to bottom: compare
+	// the two against a flipped copy rather than against a colour guess.
+	sample := func() [11][11]bool {
+		var g [11][11]bool
+		for dy := -5; dy <= 5; dy++ {
+			for dx := -5; dx <= 5; dx++ {
+				r, gg, b := testutil.Pixel(tt, cx+float32(dx), cy+float32(dy))
+				d := absInt(int(r)-int(bg[0])) + absInt(int(gg)-int(bg[1])) + absInt(int(b)-int(bg[2]))
+				g[dy+5][dx+5] = d > 40
+			}
+		}
+		return g
+	}
+	before := sample()
+	if err := tt.Click("状态"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(time.Second)
+	after := sample()
+	same, flipped := 0, 0
+	for dy := range before {
+		for dx := range before[dy] {
+			if before[dy][dx] == after[dy][dx] {
+				same++
+			}
+			if before[dy][dx] == after[10-dy][dx] {
+				flipped++
+			}
+		}
+	}
+	if flipped <= same {
+		t.Errorf("the arrow did not turn: same %d, flipped %d", same, flipped)
 	}
 }

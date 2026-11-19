@@ -109,7 +109,7 @@ mygo build -skip-installer examples/showcase
 
 ## 版本约定
 
-当前版本 **my-ui v0.6.0**（`myui.Version`，git tag `v0.5.0`）。锁定 mygo **v0.10.0**（`go.mod`）；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)。my-ui 与 mygo 各自独立编号，发布用 git tag 标记。
+当前版本 **my-ui v0.7.0**（`myui.Version`，git tag `v0.7.0`）。锁定 mygo **v0.10.0**（`go.mod`）；升级 mygo 走专门提交，同步更新本文件与 [AGENTS.md](AGENTS.md)。my-ui 与 mygo 各自独立编号，发布用 git tag 标记。
 
 ## 许可
 
