@@ -10,7 +10,7 @@ public API only — nothing here is a fork or a wrapper of mygo internals.
   `github.com/egoist/mygo/internal/...` (and its `internal/platform` etc.):
   internal packages are invisible to this module (one public leak exists
   upstream, `Element.Access(func(*platform.AccessNode))` — do not route
-  around it, see docs/research.md "Upstream issues"). The one exception
+  around it). The one exception
   is the `window/` subpackage, the frameless-window shell: it imports
   mygo's root package (`NewWindow`/`WindowOptions`/`TitleBarHidden`)
   because the window actions (`Minimize`/`ToggleMaximize`/`Close`) live
@@ -107,12 +107,10 @@ CI-safe on all three desktop OSes plus js/wasm.
 
 ## Conventions
 
-- **Research before code.** A new component starts with its spec page,
-  `docs/components/<name>.md`: the web implementations it can follow,
-  what MyGo's public API can and cannot do, how far to go, where the
-  component belongs in the packages, and the API it offers. The spec is
-  settled before the first line of code, and it is what the component
-  is held to.
+- **Spec before code.** A new component starts with its page,
+  `docs/components/<name>.md`: the API table, the states, and the limits.
+  Research and feasibility are settled before the first line of code, but
+  the page records the contract, not the process.
 - **Every component is documented twice.** Go doc comments on every
   exported symbol, and the spec page's API table: one row per prop
   (method, option or field) with what it does. A prop without a row is
@@ -140,9 +138,9 @@ CI-safe on all three desktop OSes plus js/wasm.
   clearable Select the clear icon replaces the chevron.
 - Package docs in code comments are written in English (Go ecosystem
   style); the files under `docs/` and `README.md` are written in Chinese.
-- New components first: the ordered plan in docs/roadmap.md decides what
-  exists. A component that only renames a `ui` widget with no added
-  styling or behavior does not belong here.
+- New components first: components are added one by one as they are ready.
+  A component that only renames a `ui` widget with no added styling or
+  behavior does not belong here.
 - my-ui releases are tagged `vX.Y.Z` independently of mygo. The mygo
   version a release is built against is pinned in `go.mod` and recorded
   in `README.md`.

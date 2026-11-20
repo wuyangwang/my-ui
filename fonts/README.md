@@ -1,7 +1,5 @@
 # fonts（二级包）
 
-> **状态：规划中，尚无代码。**（不参与 `go build ./...` 的包集合；实现后补充 API 与示例）
-
 内嵌常见开源字体，`init` 时经 `ui.RegisterFont(data []byte, family string)` 注册字族，注册后 app 直接按字族名使用（`ui.Font{Family: ...}`、`Theme.Font`）。
 
 ## 资产与许可

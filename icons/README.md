@@ -21,9 +21,9 @@ ui.Icon(c, icons.Save()).FontSize(20)
 
 | 包 | 内容 | 体积 |
 |---|---|---|
-| `icons` | Lucide 2,318 个图标，函数式 API | 只带用到的图标 ✓ |
-| `icons/brand` | Simple Icons 3,462 个品牌标，函数式 API | 同上 ✓ |
-| `icons/all` | 整套图标的**名字清单**与按名字取图标的函数 | 带上整套图标 ✗（只有图标选择器才用） |
+| `icons` | Lucide 2,318 个图标，函数式 API | 只带用到的图标 |
+| `icons/brand` | Simple Icons 3,462 个品牌标，函数式 API | 同上 |
+| `icons/all` | 整套图标的**名字清单**与按名字取图标的函数 | 带上整套图标（只有图标选择器才用） |
 
 ```go
 import "github.com/wuyangwang/my-ui/icons/all"

@@ -1,6 +1,6 @@
 # ai（二级包）
 
-> **状态：已实现**（`ChatList`、`ModelPicker`、`Reasoning`）。规格书见 `docs/components/`，示例见 `examples/showcase/` 的「AI」分组。
+包含 `ChatList`、`ModelPicker`、`Reasoning`；文档见 `docs/components/`，示例见 `examples/showcase/` 的「AI」分组。
 
 AI 应用常见组件。mygo 独有的底层能力：`ui/markdown` 专为 LLM 逐 token 流式回复构建（增量解析、半成品语法按终态显示、文本淡入），`ui.List` 为锚点式虚拟化列表（行高动态、行可增删、`FollowEnd` 贴底跟随）。本库把两者的组合包装成可直接用的应用组件。
 

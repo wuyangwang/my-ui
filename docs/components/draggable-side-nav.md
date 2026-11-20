@@ -2,36 +2,7 @@
 
 > 位置：`layout/` 子包（`layout/draggable_side_nav.go`）。
 
-> 状态：**已实现**。
-
-## 1. 参考实现
-
-| 来源 | 具体条目 | 我们怎么用 |
-|---|---|---|
-| shadcn/ui 侧边导航 | 边缘改宽、收成轨道、`SideNavState`（Expanded/Collapse/RailWidth） | 全部对应 ✓ |
-| mygo | `Element.Dragged` / `DragEnded` | 拖拽用公开 API ✓ |
-
-## 2. 能否实现（mygo v0.10.0 公开 API）
-
-| 能力 | 公开 API | 结论 |
-|---|---|---|
-| 拖边改宽 | `Element.Dragged` | ✅ |
-| 收起/展开 | app 的 `*bool` | ✅ |
-| 把折叠进度交给内容 | `SideNavState` 回调 | ✅ |
-| 点击边缘标签不误触拖拽 | 标签与边缘是各自的元素 | ✅ |
-
-## 3. 实现到何种程度
-
-- `width *float32` 与 `expanded *bool` 由 app 持有；nil 时用 `ui.Local`。
-- 边缘标签在悬停或收起时显现，点击切换；拖到距最小宽三分之一以内收起，并记录可恢复的宽度。
-- `Header`、`Footer` 与正文都收到 `SideNavState`：`Expanded` 决定画什么，`Collapse` 从 0 到 1，`RailWidth` 给列表做居中图标的轨道宽。
-
-**已知限制**
-- 收起动画只靠主题色过渡与宽度变化；`Collapse` 在展开/收起间取端点值，不随拖拽连续插值。
-- 只有左侧一种放置。
-- 轨道面用 shadcn token：`t.Surface` + 1px `t.Border`，边缘标签用 `Radius(t, RadiusMd)`，悬停边缘变 `t.Accent`；颜色每帧从 `c.Theme()` 读取。
-
-## 4. API 契约
+## API 契约
 
 | 符号 | 作用 |
 |---|---|
@@ -43,7 +14,10 @@
 | `NewDraggableSideNav(c, width, expanded, props, body)` | 构造；`body` 收 `SideNavState` |
 | `(*DraggableSideNav).Expanded() / Width()` | 读取当前状态 |
 
-## 5. 状态
+## 状态与限制
 
-- [x] 调研与实现
-- [x] `ui.Tester` 测试（正文绘制、状态回传）
+**限制**
+
+- 收起动画只靠主题色过渡与宽度变化；`Collapse` 在展开/收起间取端点值，不随拖拽连续插值。
+- 只有左侧一种放置。
+- 轨道面用 shadcn token：`t.Surface` + 1px `t.Border`，边缘标签用 `Radius(t, RadiusMd)`，悬停边缘变 `t.Accent`；颜色每帧从 `c.Theme()` 读取。
